@@ -959,6 +959,69 @@ const VALUE_RULES = [
     benefits:['Intune Insights dashboard with zero agent deployment','Device compliance and patching status at a glance','Warranty expiration tracking across all endpoints','CIS Benchmark-aligned policy baselines ready to deploy'],
     outcomes:['Eliminate manual Intune log aggregation','Proactive patching and compliance enforcement','Unified view alongside AVD and W365 management','Reduced time-to-resolution for endpoint issues'],
     next:['Demo Nerdio Intune Insights with your current device fleet','Review CIS baseline policies against current Intune config','Plan unified management strategy across all endpoint types','Assess policy drift across the current Intune environment']
+  },
+  {
+    id:'user-experience-poor', trigger: i => /slow|poor.*experience|complaint|latency|performance|login.*time|hang|crash|freeze|unreliable/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['users','devices','connectivity','security'],
+    title:'User Experience Transformation', impact:'high', pillar:'Automation',
+    why:'User experience issues have been flagged. Poor desktop performance drives shadow IT adoption, productivity loss, and helpdesk burden. Nerdio\'s auto-scaling ensures resources match demand in real-time, auto-heal repairs broken sessions before users notice, and real-time monitoring provides proactive visibility into session quality.',
+    benefits:['Auto-scale compute to eliminate resource contention and slow logins','Auto-heal repairs broken session hosts without user intervention','Real-time session performance monitoring and alerting','Right-size VMs to match actual workload requirements'],
+    outcomes:['User satisfaction scores typically increase from 35 to 90+','Login times reduced from minutes to seconds','75% decrease in desktop-related support tickets','Proactive issue detection before users report problems'],
+    next:['Baseline current user experience metrics (login times, session quality)','Demo Nerdio auto-heal and auto-scaling in a live environment','Plan a pilot measuring before/after user satisfaction','Use the Discovery Engine to quantify productivity loss from poor UX']
+  },
+  {
+    id:'m365-microsoft-investment', trigger: i => /microsoft 365|m365|exchange|teams|sharepoint|office|entra|azure.ad/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['apps','security','management'],
+    title:'Maximise Microsoft Investment with Nerdio', impact:'medium', pillar:'Cost Optimisation',
+    why:'Microsoft 365 and related services are in your environment. Many organisations only use a fraction of their licensing value. Nerdio unlocks the full potential of your M365, Azure, and Entra ID investment — adding enterprise-grade desktop management, automation, and cost governance on top of what Microsoft provides natively.',
+    benefits:['Deploy AVD/W365 using licenses you likely already own','Deep integration with Entra ID, Defender, and Intune','Unlock hidden value in existing Microsoft EA/CSP agreements','No third-party infrastructure — runs in your own Azure tenant'],
+    outcomes:['Better ROI on existing Microsoft licensing investment','Reduced need for third-party management add-ons','Unified experience across the entire Microsoft EUC stack','Accelerated time-to-value for new Microsoft services'],
+    next:['Review current Microsoft licensing for AVD/W365 entitlements','Assess which Microsoft services could be better leveraged','Demo how Nerdio extends native M365 and Azure capabilities','Engage Microsoft co-sell team for joint planning']
+  },
+  {
+    id:'disaster-recovery', trigger: i => /disaster|dr\b|business.continu|failover|resilien|backup|outage|downtime|uptime/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['security','management','connectivity'],
+    title:'Desktop DR & Business Continuity', impact:'medium', pillar:'Automation',
+    why:'Disaster recovery or availability targets are in your requirements. Traditional desktop DR requires expensive standby infrastructure. Nerdio enables on-demand DR for virtual desktops — spin up AVD host pools in secondary Azure regions within minutes, with auto-scaling ensuring you only pay for capacity during an actual DR event.',
+    benefits:['On-demand DR host pools in secondary Azure regions','Pay only for DR capacity when activated — not on standby','Automated failover and failback procedures','Consistent user experience during DR activation'],
+    outcomes:['DR desktop costs reduced by 80%+ vs traditional standby','RTO reduced from hours/days to minutes','Elimination of physical DR site dependency for desktops','Regular DR testing without infrastructure costs'],
+    next:['Map current DR requirements for desktop workloads','Model DR costs with on-demand AVD vs standby infrastructure','Plan a DR test using Nerdio\'s secondary region deployment','Review Azure region pairs for optimal DR architecture']
+  },
+  {
+    id:'saas-cloud-apps', trigger: i => /saas|salesforce|servicenow|cloud.*app|web.*app/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['apps','connectivity'],
+    title:'Optimise SaaS & Cloud App Delivery', impact:'low', pillar:'Cost Optimisation',
+    why:'SaaS applications are part of your environment. When users access SaaS apps through AVD, traffic routes directly to Azure — bypassing corporate WAN bottlenecks. Nerdio\'s proximity-based host pool placement ensures users connect to the nearest Azure region, minimising latency for cloud-first application delivery.',
+    benefits:['Direct Azure-to-SaaS connectivity bypasses WAN bottlenecks','Proximity-based host pool placement minimises latency','Consistent SaaS app performance regardless of user location','Reduce WAN bandwidth costs for cloud-first workloads'],
+    outcomes:['SaaS application response times improved by 30-50%','Reduced WAN bandwidth consumption and cost','Consistent application performance across all locations','Elimination of VPN-related SaaS performance issues'],
+    next:['Map SaaS application usage patterns by user group','Assess Azure region placement for optimal SaaS proximity','Plan AVD host pool placement aligned to SaaS provider regions','Demo SaaS performance through Azure-hosted AVD sessions']
+  },
+  {
+    id:'data-centre-on-prem', trigger: i => /data.cent|on.prem|rds|windows.server|server.room|rack/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['locations','apps','management'],
+    title:'Data Centre Modernisation & Cloud Migration', impact:'medium', pillar:'Automation',
+    why:'On-premises data centre infrastructure is in your environment. Nerdio provides a clear migration path from on-prem RDS and legacy server workloads to cloud-native AVD and Intune management — reducing hardware dependency, eliminating refresh cycles, and modernising operational practices.',
+    benefits:['Migrate RDS workloads to AVD with guided deployment wizards','Replace on-prem SCCM with cloud-native Intune management','Eliminate hardware refresh cycles and capital expenditure','Cloud-native architecture in your own Azure subscription'],
+    outcomes:['Reduction in on-prem server footprint and maintenance','Lower infrastructure costs with OpEx cloud model','Improved DR posture through Azure-native architecture','Ceeva: tasks that took weeks now completed in hours'],
+    next:['Inventory on-prem workloads suitable for cloud migration','Assess RDS-to-AVD migration candidates and timeline','Plan hardware decommission schedule alongside cloud adoption','Use the Journey Models to map the modernisation path']
+  },
+  {
+    id:'executive-vip-users', trigger: i => /executive|vip|c.suite|board|senior|premium/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['users'],
+    title:'Premium Executive Desktop Experience', impact:'low', pillar:'Automation',
+    why:'Executive or VIP users require a premium experience. Nerdio can provision dedicated personal host pools for VIP users — with guaranteed resources, priority auto-scaling, and enhanced monitoring. This ensures executives never experience resource contention or performance issues, with white-glove session management.',
+    benefits:['Dedicated personal host pools for VIP users','Guaranteed resources with priority auto-scaling','Enhanced monitoring and proactive alerting for executive sessions','Rapid provisioning of premium desktops for new executives'],
+    outcomes:['Zero resource contention for executive users','Premium performance with dedicated GPU/high-spec VMs','Reduced executive IT complaints and escalations','Consistent premium experience across all locations and devices'],
+    next:['Define VIP user groups and their performance requirements','Plan dedicated host pools with appropriate VM sizing','Configure priority auto-scaling for executive workloads','Demo premium desktop experience for executive stakeholders']
+  },
+  {
+    id:'app-packaging-complexity', trigger: i => /app.*packag|msix|deployment|software.*distribut|app.*delivery/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['management','apps'],
+    title:'Automated App Packaging & Delivery', impact:'medium', pillar:'Automation',
+    why:'Application packaging and deployment is part of your operations. Nerdio simplifies this with golden image lifecycle management and MSIX app attach — automating the build, test, and deploy cycle across AVD environments. This eliminates manual packaging overhead and ensures consistent application delivery at scale.',
+    benefits:['Automated golden image build, test, and deploy cycle','MSIX app attach for clean application layering','Schedule-based or on-demand image updates across all hosts','Scripted Actions automate repetitive deployment tasks'],
+    outcomes:['Application update cycle reduced from weeks to hours','Consistent app delivery across all host pools','Elimination of manual image management overhead','Reduced application compatibility issues with testing automation'],
+    next:['Map current application packaging workflow and pain points','Demo Nerdio\'s golden image lifecycle and MSIX app attach','Plan a pilot automating app updates for one host pool','Assess MSIX readiness for key applications']
   }
 ];
 
@@ -999,14 +1062,32 @@ function showValue(){
   const allNotes = allItems.filter(i=>i.note.trim()).map(i=>`${i.icon} ${i.name}: "${i.note}"`);
 
   // Build recommendation cards
-  const buildRecCard = m => `
+  const buildRecCard = m => {
+    // Build "Your Environment" section showing exactly what triggered this
+    const zoneLabels = {users:'Users',devices:'Devices',locations:'Location',apps:'Apps/Data',connectivity:'Network',security:'Security',management:'Management',nerdio:'Nerdio'};
+    const envItems = m.triggeredBy.map(t => {
+      let detail = `<strong>${t.icon} ${t.name}</strong>`;
+      if(t.detail) detail += ` <span style="color:var(--gray-500)">— ${t.detail}</span>`;
+      if(t.qty) detail += ` <span style="color:var(--teal);font-weight:600">(${t.qty} users/devices)</span>`;
+      if(t.note) detail += `<div style="font-style:italic;color:var(--teal);margin-top:2px">"${t.note}"</div>`;
+      return `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--gray-100)">
+        <span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:rgba(30,157,184,0.08);color:var(--teal);white-space:nowrap;margin-top:2px">${zoneLabels[t.zone]||t.zone}</span>
+        <div style="font-size:11px;line-height:1.4">${detail}</div>
+      </div>`;
+    }).join('');
+
+    return `
     <div class="val-rec ${m.impact}">
       <div class="val-rec-head">
         <div>
           <div class="val-rec-title">${m.title}</div>
-          <div style="font-size:10px;color:var(--gray-500);margin-top:2px">Pillar: ${m.pillar} · Triggered by ${m.triggeredBy.length} item${m.triggeredBy.length>1?'s':''}</div>
+          <div style="font-size:10px;color:var(--gray-500);margin-top:2px">Pillar: ${m.pillar} · Matched ${m.triggeredBy.length} item${m.triggeredBy.length>1?'s':''} in your environment</div>
         </div>
         <span class="val-rec-impact ${m.impact}">${m.impact} impact</span>
+      </div>
+      <div style="background:rgba(30,157,184,0.03);border:1px solid rgba(30,157,184,0.12);border-radius:8px;padding:10px 14px;margin-bottom:12px">
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:6px">🔗 Linked to your environment</div>
+        ${envItems}
       </div>
       <div class="val-rec-why">${m.why}</div>
       <div class="val-rec-grid">
@@ -1014,8 +1095,8 @@ function showValue(){
         <div class="val-rec-box"><h5 class="outcomes">📊 Expected Outcomes</h5><ul>${m.outcomes.map(o=>`<li>${o}</li>`).join('')}</ul></div>
         <div class="val-rec-box"><h5 class="next">▶ What To Do Next</h5><ul>${m.next.map(n=>`<li>${n}</li>`).join('')}</ul></div>
       </div>
-      <div class="val-rec-triggers">${m.triggeredBy.map(t=>`<span class="val-rec-trigger">${t.icon} ${t.name}</span>`).join('')}</div>
     </div>`;
+  };
 
   const highRecs = matches.filter(m=>m.impact==='high');
   const medRecs = matches.filter(m=>m.impact==='medium');

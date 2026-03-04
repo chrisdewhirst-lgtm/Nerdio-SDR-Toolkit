@@ -943,6 +943,69 @@ const VALUE_RULES = [
     benefits:['Intune Insights dashboard with zero agent deployment','Device compliance and patching status at a glance','Warranty expiration tracking across all endpoints','CIS Benchmark-aligned policy baselines'],
     outcomes:['Eliminate manual Intune log aggregation','Proactive patching and compliance enforcement','Unified view alongside AVD and W365 management','Reduced time-to-resolution for endpoint issues'],
     next:['Demo Nerdio Intune Insights with current device fleet','Review CIS baseline policies against current Intune config','Plan unified management strategy across all endpoint types','Assess policy drift across the current Intune environment']
+  },
+  {
+    id:'multi-vendor-sprawl', trigger: i => /multi.*vendor|tool.*sprawl|too many.*tool|fragmented|siloed|multiple.*console|disconnected/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['estate','challenges'],
+    title:'Vendor Consolidation & Single Pane of Glass', impact:'high', pillar:'Visibility',
+    why:'Your environment shows signs of multi-vendor tool sprawl. Every additional console adds management overhead, training cost, and integration risk. Nerdio consolidates AVD, Windows 365, Intune, and Azure infrastructure management into one platform — reducing vendor dependency while increasing operational visibility.',
+    benefits:['Replace 5+ management consoles with a single interface','Unified RBAC, audit logging, and approval workflows','Consistent automation across all Microsoft EUC technologies','Reduce vendor management overhead and licensing complexity'],
+    outcomes:['60-70% reduction in management console switching','Faster onboarding for new IT staff (one tool to learn)','Elimination of integration gaps between siloed tools','Simplified vendor negotiation with consolidated platform'],
+    next:['Map current tool landscape and identify overlap/gaps','Build a consolidation business case with the ROI Calculator','Demo Nerdio\'s unified management across AVD, W365, Intune','Plan a phased migration from legacy tools to Nerdio']
+  },
+  {
+    id:'m365-azure-investment', trigger: i => /microsoft|m365|office 365|azure|entra|sharepoint|teams/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['estate','projects'],
+    title:'Maximise Microsoft Investment with Nerdio', impact:'medium', pillar:'Cost Optimisation',
+    why:'You have existing Microsoft investments in your estate. Many organisations only utilise a fraction of their Microsoft licensing value. Nerdio unlocks the full potential of your Azure, M365, and Entra ID investment — adding enterprise-grade automation, cost governance, and visibility on top of what Microsoft provides natively.',
+    benefits:['Unlock hidden value in existing Microsoft licensing','Deploy AVD/W365 using licenses you already own','Deep integration with Entra ID, Defender, and Intune','No third-party infrastructure — runs in your own Azure tenant'],
+    outcomes:['Better ROI on existing Microsoft EA/CSP agreements','Reduced need for third-party add-on tools','Unified experience across the entire Microsoft EUC stack','Accelerated time-to-value for new Microsoft services'],
+    next:['Review current Microsoft licensing for AVD/W365 entitlements','Assess which Microsoft services could be better leveraged','Demo how Nerdio extends native Azure and M365 capabilities','Engage Microsoft co-sell team for joint planning']
+  },
+  {
+    id:'user-experience-complaints', trigger: i => /slow|poor.*experience|user.*complaint|latency|performance|login.*time|hang|crash|freeze/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['challenges','priorities'],
+    title:'User Experience Transformation', impact:'high', pillar:'Automation',
+    why:'User experience issues have been flagged as a concern. Poor desktop performance drives shadow IT, productivity loss, and helpdesk burden. Nerdio\'s auto-scaling ensures resources match demand, auto-heal repairs broken sessions before users notice, and real-time monitoring provides proactive visibility into experience quality.',
+    benefits:['Auto-scale compute to eliminate slow-login and resource contention','Auto-heal repairs broken session hosts without user intervention','Real-time session performance monitoring and alerting','Right-size VMs to match actual workload requirements'],
+    outcomes:['User satisfaction scores typically increase from 35 to 90+','Login times reduced from minutes to seconds','75% decrease in desktop-related support tickets','Proactive issue detection before users report problems'],
+    next:['Baseline current user experience metrics (login times, session quality)','Demo Nerdio auto-heal and auto-scaling in a live environment','Plan a pilot measuring before/after user satisfaction','Use the Discovery Engine to quantify productivity loss from poor UX']
+  },
+  {
+    id:'disaster-recovery-bc', trigger: i => /disaster|dr\b|business.continu|failover|resilien|backup|outage|downtime/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['challenges','projects','priorities'],
+    title:'Desktop DR & Business Continuity', impact:'medium', pillar:'Automation',
+    why:'Disaster recovery or business continuity is a priority. Traditional desktop DR requires expensive standby infrastructure. Nerdio enables cloud-native DR for virtual desktops — spin up AVD host pools in secondary Azure regions on-demand, with auto-scaling ensuring you only pay for capacity during an actual DR event.',
+    benefits:['On-demand DR host pools in secondary Azure regions','Pay only for DR capacity when activated — not on standby','Automated failover and failback procedures','Consistent user experience during DR activation'],
+    outcomes:['DR desktop costs reduced by 80%+ vs traditional standby','RTO reduced from hours/days to minutes','Elimination of physical DR site dependency for desktops','Regular DR testing without infrastructure costs'],
+    next:['Map current DR requirements for desktop workloads','Model DR costs with on-demand AVD vs standby infrastructure','Plan a DR test using Nerdio\'s secondary region deployment','Review Azure region pairs for optimal DR architecture']
+  },
+  {
+    id:'growth-ma-expansion', trigger: i => /growth|acquisition|merger|m&a|expansion|new.*office|new.*site|onboard.*rapid/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['projects','priorities'],
+    title:'Rapid Scaling for Growth & M&A', impact:'medium', pillar:'Automation',
+    why:'Growth or expansion plans are in your priorities. Traditional desktop provisioning can\'t keep pace with rapid scaling needs — new offices, acquisitions, or seasonal workforce. Nerdio deploys fully managed AVD environments in under an hour, enabling IT to support business growth without months of lead time.',
+    benefits:['Deploy new AVD environments in under 60 minutes','Onboard acquired company users onto a standard desktop instantly','Scale up and down without hardware procurement cycles','Consistent governance and security from day one'],
+    outcomes:['M&A desktop integration reduced from months to days','New office provisioning without local IT infrastructure','Seasonal workforce scaling without permanent hardware investment','Standardised desktop experience across all entities'],
+    next:['Map upcoming growth/expansion timeline and user counts','Plan standardised AVD golden image for rapid deployment','Model capacity requirements for growth scenarios','Demo Nerdio\'s rapid provisioning for new environments']
+  },
+  {
+    id:'skills-shortage', trigger: i => /skill.*short|talent|recruit|hard.*find|expertise|staffing|headcount/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['challenges'],
+    title:'Simplify Operations — No Azure Expertise Required', impact:'medium', pillar:'Automation',
+    why:'Skills shortage or resource constraints are a challenge. Nerdio\'s guided wizards and automation eliminate the need for deep Azure expertise — standard IT staff can deploy and manage enterprise AVD environments without specialist cloud skills.',
+    benefits:['Guided deployment wizards eliminate Azure expertise requirements','Scripted Actions automate complex operational tasks','Auto-heal and auto-scale reduce manual intervention','Single console reduces training overhead for new staff'],
+    outcomes:['Quub.it deploys 2-3x faster than competitors using Nerdio','Standard IT staff manage enterprise AVD without cloud specialists','Ceeva: tasks that took weeks now done in hours','Reduced dependency on expensive contractor/consultant resources'],
+    next:['Assess current team\'s Azure skill level and gaps','Demo Nerdio\'s guided wizards to show simplicity','Plan a pilot managed by standard IT staff (not cloud specialists)','Build an internal skills development plan alongside Nerdio adoption']
+  },
+  {
+    id:'hybrid-cloud', trigger: i => /hybrid.*cloud|multi.*cloud|aws|gcp|azure.*on.prem|co.location|colo/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['estate','challenges'],
+    title:'Hybrid Cloud Desktop Strategy', impact:'low', pillar:'Visibility',
+    why:'A hybrid or multi-cloud architecture is present. Nerdio centralises virtual desktop management within Azure while providing visibility across the entire environment. For organisations with workloads in multiple clouds, Nerdio\'s Azure-native approach simplifies the desktop layer while complementing broader multi-cloud strategies.',
+    benefits:['Centralised desktop management in Azure','Unified visibility regardless of where workloads run','Leverage Azure\'s global region footprint','Integrate with existing identity and security infrastructure'],
+    outcomes:['Simplified desktop management in multi-cloud environments','Consistent user experience regardless of backend architecture','Reduced complexity of managing desktops across platforms','Clear separation of desktop delivery from backend infrastructure'],
+    next:['Map current workload placement across clouds','Assess Azure region requirements for AVD host pools','Plan desktop layer consolidation in Azure with Nerdio','Demo unified management across hybrid infrastructure']
   }
 ];
 
@@ -974,14 +1037,31 @@ function showValue(){
   // Aggregate notes
   const allNotes = allItems.filter(i=>i.note.trim()).map(i=>`${i.name}: "${i.note}"`);
 
-  const buildRecCard = m => `
+  const buildRecCard = m => {
+    // Build "Your Environment" section showing exactly what triggered this
+    const envItems = m.triggeredBy.map(t => {
+      let detail = `<strong>${t.icon} ${t.name}</strong>`;
+      if(t.detail) detail += ` <span style="color:var(--gray-500)">— ${t.detail}</span>`;
+      if(t.note) detail += `<div style="font-style:italic;color:var(--teal);margin-top:2px">"${t.note}"</div>`;
+      const zLabel = {estate:'Estate',challenges:'Challenge',projects:'Project',priorities:'Priority',nerdio:'Nerdio'}[t.zone] || t.zone;
+      return `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--gray-100)">
+        <span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:rgba(30,157,184,0.08);color:var(--teal);white-space:nowrap;margin-top:2px">${zLabel}</span>
+        <div style="font-size:11px;line-height:1.4">${detail}</div>
+      </div>`;
+    }).join('');
+
+    return `
       <div class="val-rec ${m.impact}">
         <div class="val-rec-head">
           <div>
             <div class="val-rec-title">${m.title}</div>
-            <div style="font-size:10px;color:var(--gray-500);margin-top:2px">Pillar: ${m.pillar} · Triggered by ${m.triggeredBy.length} item${m.triggeredBy.length>1?'s':''}</div>
+            <div style="font-size:10px;color:var(--gray-500);margin-top:2px">Pillar: ${m.pillar} · Matched ${m.triggeredBy.length} item${m.triggeredBy.length>1?'s':''} in your environment</div>
           </div>
           <span class="val-rec-impact ${m.impact}">${m.impact} impact</span>
+        </div>
+        <div style="background:rgba(30,157,184,0.03);border:1px solid rgba(30,157,184,0.12);border-radius:8px;padding:10px 14px;margin-bottom:12px">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:6px">🔗 Linked to your environment</div>
+          ${envItems}
         </div>
         <div class="val-rec-why">${m.why}</div>
         <div class="val-rec-grid">
@@ -989,8 +1069,8 @@ function showValue(){
           <div class="val-rec-box"><h5 class="outcomes">📊 Expected Outcomes</h5><ul>${m.outcomes.map(o=>`<li>${o}</li>`).join('')}</ul></div>
           <div class="val-rec-box"><h5 class="next">▶ What To Do Next</h5><ul>${m.next.map(n=>`<li>${n}</li>`).join('')}</ul></div>
         </div>
-        <div class="val-rec-triggers">${m.triggeredBy.map(t=>`<span class="val-rec-trigger">${t.icon} ${t.name}</span>`).join('')}</div>
       </div>`;
+  };
 
   const highRecs = matches.filter(m=>m.impact==='high');
   const medRecs = matches.filter(m=>m.impact==='medium');
