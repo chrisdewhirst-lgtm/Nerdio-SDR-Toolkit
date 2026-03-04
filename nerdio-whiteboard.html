@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Discovery Whiteboard — Nerdio</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#042838;--navy-light:#0a3a50;--navy-mid:#0d2f42;
+  --teal:#1E9DB8;--white:#FFFFFF;--green:#CDFF4E;--purple:#A795C7;
+  --gray-50:#f5f8fa;--gray-100:#eaf0f4;--gray-200:#dce4ea;--gray-300:#b8c7d1;--gray-500:#6b8294;
+  --red:#ff6b6b;--orange:#ffa94d;--yellow:#ffd43b;
+}
+html,body{height:100%}
+body{font-family:'Poppins',sans-serif;background:var(--gray-50);color:var(--navy);height:100%;overflow:hidden;display:flex;flex-direction:column}
+
+/* HOME BTN */
+.home-btn{position:fixed;bottom:24px;left:24px;z-index:9999;width:48px;height:48px;border-radius:50%;background:#042838;color:#FFFFFF;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:all 0.2s;border:2px solid rgba(30,157,184,0.4)}
+.home-btn:hover{background:#1E9DB8;transform:scale(1.1);box-shadow:0 6px 16px rgba(30,157,184,0.4)}
+
+/* TOP BAR */
+.topbar{background:var(--navy);color:var(--white);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-title{font-size:14px;font-weight:700}
+.topbar-sub{font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:1px}
+.topbar-center{display:flex;align-items:center;gap:6px}
+.mode-toggle{display:flex;background:rgba(255,255,255,0.08);border-radius:8px;overflow:hidden}
+.mode-toggle button{padding:6px 16px;border:none;background:transparent;color:var(--gray-300);font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.mode-toggle button.active{background:var(--teal);color:var(--white)}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.tb-btn{padding:6px 14px;border-radius:7px;border:1px solid rgba(30,157,184,0.4);background:transparent;color:var(--teal);font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.tb-btn:hover{background:rgba(30,157,184,0.15)}
+.tb-btn.green{border-color:rgba(205,255,78,0.4);color:var(--green)}
+.tb-btn.green:hover{background:rgba(205,255,78,0.1)}
+.customer-name{padding:5px 12px;border-radius:6px;border:1px solid rgba(30,157,184,0.3);background:rgba(255,255,255,0.06);color:var(--white);font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;width:200px}
+.customer-name::placeholder{color:var(--gray-500)}
+
+/* MAIN LAYOUT */
+.main{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* LEFT PALETTE */
+.palette{width:240px;background:var(--white);border-right:1px solid var(--gray-200);overflow-y:scroll;overflow-x:hidden;flex-shrink:0;height:100%}
+.pal-section{padding:10px 12px 4px;border-bottom:1px solid var(--gray-100)}
+.pal-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray-500);margin-bottom:8px}
+.pal-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:grab;border:1px solid transparent;transition:all 0.15s;margin-bottom:4px;font-size:12px;font-weight:500;user-select:none}
+.pal-item:hover{background:var(--gray-50);border-color:var(--gray-200)}
+.pal-item:active{cursor:grabbing;opacity:0.7}
+.pal-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.pal-item .pal-sub{font-size:9px;color:var(--gray-500);font-weight:400}
+
+/* CANVAS */
+.canvas-wrap{flex:1;position:relative;overflow:hidden;background:#f0f4f8}
+.canvas{position:absolute;top:0;left:0;width:4000px;height:3000px;background:
+  linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size:40px 40px;cursor:default}
+
+/* ZONES */
+.zone{position:absolute;border-radius:16px;border:2px dashed;padding:12px;min-width:200px;min-height:150px}
+.zone-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.zone-count{font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;background:rgba(0,0,0,0.06)}
+
+.zone.estate{left:40px;top:40px;width:900px;height:420px;border-color:rgba(30,157,184,0.3);background:rgba(30,157,184,0.03)}
+.zone.estate .zone-label{color:var(--teal)}
+.zone.challenges{left:40px;top:500px;width:440px;height:350px;border-color:rgba(255,107,107,0.3);background:rgba(255,107,107,0.03)}
+.zone.challenges .zone-label{color:var(--red)}
+.zone.projects{left:510px;top:500px;width:440px;height:350px;border-color:rgba(167,149,199,0.3);background:rgba(167,149,199,0.03)}
+.zone.projects .zone-label{color:var(--purple)}
+.zone.priorities{left:980px;top:40px;width:400px;height:420px;border-color:rgba(255,169,77,0.3);background:rgba(255,169,77,0.03)}
+.zone.priorities .zone-label{color:var(--orange)}
+.zone.nerdio-value{left:980px;top:500px;width:400px;height:350px;border-color:rgba(205,255,78,0.4);background:rgba(4,40,56,0.04)}
+.zone.nerdio-value .zone-label{color:var(--navy)}
+
+/* DROPPED ITEMS */
+.dropped-item{position:absolute;background:var(--white);border-radius:10px;padding:10px 12px;border:1px solid var(--gray-200);box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:grab;min-width:120px;max-width:220px;transition:box-shadow 0.2s,border-color 0.2s;z-index:10;user-select:none}
+.dropped-item:hover{box-shadow:0 4px 16px rgba(0,0,0,0.1);border-color:var(--teal)}
+.dropped-item.dragging{opacity:0.8;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:100;cursor:grabbing}
+.dropped-item .di-header{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.dropped-item .di-icon{font-size:16px}
+.dropped-item .di-name{font-size:12px;font-weight:600;flex:1}
+.dropped-item .di-delete{width:18px;height:18px;border-radius:50%;border:none;background:transparent;color:var(--gray-300);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.dropped-item .di-delete:hover{background:rgba(255,107,107,0.1);color:var(--red)}
+.dropped-item .di-detail{font-size:10px;color:var(--gray-500);line-height:1.4}
+.dropped-item .di-note{margin-top:6px;width:100%;border:1px solid var(--gray-200);border-radius:5px;padding:4px 8px;font-family:'Poppins',sans-serif;font-size:10px;color:var(--navy);resize:none;outline:none;min-height:28px}
+.dropped-item .di-note:focus{border-color:var(--teal)}
+.dropped-item .di-badges{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+.di-badge{padding:1px 6px;border-radius:4px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.di-badge.teal{background:rgba(30,157,184,0.1);color:var(--teal)}
+.di-badge.green{background:rgba(205,255,78,0.15);color:#5a7a00}
+.di-badge.purple{background:rgba(167,149,199,0.1);color:var(--purple)}
+.di-badge.red{background:rgba(255,107,107,0.1);color:var(--red)}
+.di-badge.orange{background:rgba(255,169,77,0.1);color:#b36b00}
+
+/* PRIORITY ITEM SPECIAL */
+.dropped-item.priority-item{border-left:3px solid var(--orange)}
+.dropped-item.priority-item .pri-rank{display:flex;align-items:center;gap:4px;margin-top:6px}
+.pri-rank select{border:1px solid var(--gray-200);border-radius:4px;padding:2px 6px;font-family:'Poppins',sans-serif;font-size:10px;color:var(--navy);outline:none;cursor:pointer}
+
+/* NERDIO VALUE ITEM */
+.dropped-item.nerdio-item{border-left:3px solid var(--teal);background:linear-gradient(135deg,#fff,rgba(30,157,184,0.03))}
+
+/* RIGHT PANEL — NERDIO VALUE MAP */
+.value-panel{width:280px;background:var(--navy);color:var(--white);border-left:1px solid rgba(30,157,184,0.2);overflow-y:auto;flex-shrink:0;display:none;flex-direction:column}
+.value-panel.visible{display:flex}
+.vp-header{padding:14px 16px;border-bottom:1px solid rgba(30,157,184,0.15)}
+.vp-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.vp-sub{font-size:10px;color:var(--gray-500)}
+.vp-section{padding:12px 16px;border-bottom:1px solid rgba(30,157,184,0.08)}
+.vp-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal);margin-bottom:8px}
+.vp-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;cursor:grab;user-select:none}
+.vp-item:hover{opacity:0.8}
+.vp-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.vp-dot.auto{background:var(--teal)}
+.vp-dot.cost{background:var(--green)}
+.vp-dot.sec{background:var(--purple)}
+.vp-dot.vis{background:var(--orange)}
+.vp-text{font-size:11px;line-height:1.4}
+.vp-text strong{font-weight:600;display:block;font-size:11px}
+.vp-text span{color:var(--gray-500);font-size:10px}
+
+/* CUSTOMER-FACING MODE */
+body.customer-mode .palette{display:none}
+body.customer-mode .value-panel{display:none}
+body.customer-mode .di-delete{display:none}
+body.customer-mode .topbar{background:linear-gradient(135deg,var(--navy),var(--navy-light))}
+
+/* SUMMARY OVERLAY */
+.summary-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(4,40,56,0.85);z-index:500;overflow-y:auto;padding:40px}
+.summary-overlay.visible{display:block}
+.summary-card{max-width:900px;margin:0 auto;background:var(--white);border-radius:16px;padding:40px;color:var(--navy)}
+.summary-close{position:fixed;top:20px;right:20px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:var(--white);font-size:20px;cursor:pointer;z-index:501}
+.summary-close:hover{background:rgba(255,255,255,0.25)}
+.sum-title{font-size:24px;font-weight:800;margin-bottom:4px}
+.sum-sub{font-size:13px;color:var(--gray-500);margin-bottom:24px}
+.sum-section{margin-bottom:24px}
+.sum-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid}
+.sum-section-title.estate{color:var(--teal);border-color:var(--teal)}
+.sum-section-title.challenges{color:var(--red);border-color:var(--red)}
+.sum-section-title.projects{color:var(--purple);border-color:var(--purple)}
+.sum-section-title.priorities{color:var(--orange);border-color:var(--orange)}
+.sum-section-title.nerdio{color:var(--teal);border-color:var(--green)}
+.sum-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.sum-item{background:var(--gray-50);border-radius:8px;padding:10px 12px;border-left:3px solid var(--gray-200)}
+.sum-item .si-name{font-size:12px;font-weight:600;margin-bottom:2px}
+.sum-item .si-detail{font-size:10px;color:var(--gray-500)}
+.sum-item .si-note{font-size:11px;color:var(--navy);margin-top:4px;font-style:italic}
+.sum-item.teal{border-color:var(--teal)}
+.sum-item.red{border-color:var(--red)}
+.sum-item.purple{border-color:var(--purple)}
+.sum-item.orange{border-color:var(--orange)}
+.sum-item.green{border-color:var(--green)}
+.sum-nerdio-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sum-pillar{background:var(--gray-50);border-radius:10px;padding:14px;border-top:3px solid var(--teal)}
+.sum-pillar h4{font-size:12px;font-weight:700;margin-bottom:6px}
+.sum-pillar ul{padding-left:16px;font-size:11px;color:var(--gray-500);line-height:1.6}
+
+/* VALUE OVERLAY */
+.val-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(4,40,56,0.92);z-index:600;overflow-y:auto;padding:30px}
+.val-overlay.visible{display:block}
+.val-card{max-width:1000px;margin:0 auto;background:var(--white);border-radius:16px;overflow:hidden;color:var(--navy)}
+.val-hero{background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:32px 36px;color:var(--white)}
+.val-hero-top{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.val-hero h2{font-size:22px;font-weight:800}
+.val-hero p{font-size:13px;color:var(--gray-300);line-height:1.6;max-width:700px}
+.val-stats{display:flex;gap:24px;margin-top:16px}
+.val-stat{text-align:center}
+.val-stat-num{font-size:26px;font-weight:800;display:block}
+.val-stat-num.teal{color:var(--teal)}
+.val-stat-num.green{color:var(--green)}
+.val-stat-num.purple{color:var(--purple)}
+.val-stat-num.orange{color:var(--orange)}
+.val-stat-label{font-size:9px;color:var(--gray-500);text-transform:uppercase;letter-spacing:1px}
+.val-body{padding:28px 36px}
+.val-rec{background:var(--gray-50);border-radius:12px;padding:20px;margin-bottom:16px;border-left:4px solid var(--teal);position:relative}
+.val-rec.high{border-left-color:var(--red)}
+.val-rec.medium{border-left-color:var(--orange)}
+.val-rec.low{border-left-color:var(--teal)}
+.val-rec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.val-rec-title{font-size:15px;font-weight:700}
+.val-rec-impact{padding:3px 10px;border-radius:6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0}
+.val-rec-impact.high{background:rgba(255,107,107,0.1);color:var(--red)}
+.val-rec-impact.medium{background:rgba(255,169,77,0.1);color:var(--orange)}
+.val-rec-impact.low{background:rgba(30,157,184,0.1);color:var(--teal)}
+.val-rec-why{font-size:12px;color:var(--gray-500);line-height:1.6;margin-bottom:12px}
+.val-rec-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.val-rec-box{background:var(--white);border-radius:8px;padding:10px 12px;border:1px solid var(--gray-200)}
+.val-rec-box h5{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.val-rec-box h5.benefits{color:var(--green)}
+.val-rec-box h5.outcomes{color:var(--teal)}
+.val-rec-box h5.next{color:var(--purple)}
+.val-rec-box ul{padding-left:14px;font-size:11px;color:var(--navy);line-height:1.5}
+.val-rec-box li{margin-bottom:2px}
+.val-rec-triggers{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.val-rec-trigger{padding:2px 8px;border-radius:5px;font-size:9px;font-weight:600;background:rgba(30,157,184,0.08);color:var(--teal)}
+.val-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal);margin:24px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--teal)}
+.val-empty{text-align:center;padding:40px;color:var(--gray-500);font-size:14px}
+.val-close{position:fixed;top:16px;right:16px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:var(--white);font-size:20px;cursor:pointer;z-index:601}
+.val-close:hover{background:rgba(255,255,255,0.25)}
+.val-btn-cta{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;background:var(--teal);color:var(--white);border:none;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none}
+.val-btn-cta:hover{background:#22b1cf;box-shadow:0 4px 16px rgba(30,157,184,0.3)}
+@media(max-width:768px){.val-rec-grid{grid-template-columns:1fr}}
+
+/* DRAG GHOST */
+.drag-ghost{position:fixed;pointer-events:none;z-index:9000;opacity:0.85;padding:8px 14px;background:var(--white);border:1px solid var(--teal);border-radius:8px;font-size:12px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,0.15);display:none}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-btn" title="Command Centre">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+</a>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <svg width="100" height="32" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="26" r="15" fill="none" stroke="#1E9DB8" stroke-width="3.2"/>
+      <circle cx="58" cy="26" r="15" fill="none" stroke="#1E9DB8" stroke-width="3.2"/>
+      <path d="M37 22 Q40 15 43 22" fill="none" stroke="#1E9DB8" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M7 23 L3 17" fill="none" stroke="#1E9DB8" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M73 23 L77 17" fill="none" stroke="#1E9DB8" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M58 18 L58 23" fill="none" stroke="#1E9DB8" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M52 21 A7.5 7.5 0 1 0 64 21" fill="none" stroke="#1E9DB8" stroke-width="2.2" stroke-linecap="round"/>
+      <text x="86" y="32" fill="#FFFFFF" font-family="Poppins,sans-serif" font-size="16" font-weight="600" letter-spacing="0.5">nerdio</text>
+    </svg>
+    <div>
+      <div class="topbar-title">Estate Discovery Whiteboard</div>
+      <div class="topbar-sub">Drag components to map the customer environment</div>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <input class="customer-name" id="custName" type="text" placeholder="Customer name…" spellcheck="false">
+    <div class="mode-toggle">
+      <button class="active" onclick="setMode('internal')">Internal</button>
+      <button onclick="setMode('customer')">Customer</button>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <a class="tb-btn" href="nerdio-whiteboard-users.html" style="text-decoration:none;border-color:rgba(167,149,199,0.4);color:#A795C7">Users &amp; Ops Board →</a>
+    <button class="tb-btn" onclick="toggleValuePanel()">Nerdio Value ▸</button>
+    <button class="tb-btn green" onclick="showValue()" style="background:rgba(205,255,78,0.1)">✦ Show Me Value</button>
+    <button class="tb-btn" onclick="showSummary()">Summary</button>
+    <button class="tb-btn green" onclick="saveSession()">Save</button>
+    <button class="tb-btn" onclick="clearAll()">Clear</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT PALETTE -->
+  <div class="palette" id="palette">
+
+    <div class="pal-section">
+      <div class="pal-label">Current Infrastructure</div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="🏗️" data-name="Citrix VDA / DaaS" data-detail="Virtual Apps & Desktops" data-badges="legacy,vdi">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">🏗️</div>
+        <div><div>Citrix VDA / DaaS</div><div class="pal-sub">Virtual Apps & Desktops</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="🖥️" data-name="VMware Horizon" data-detail="Omnissa / Broadcom" data-badges="legacy,vdi">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">🖥️</div>
+        <div><div>VMware Horizon</div><div class="pal-sub">Omnissa / Broadcom</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="🪟" data-name="Azure Virtual Desktop" data-detail="Native AVD" data-badges="azure,microsoft">
+        <div class="pal-icon" style="background:rgba(30,157,184,0.1)">🪟</div>
+        <div><div>Azure Virtual Desktop</div><div class="pal-sub">Native AVD</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="☁️" data-name="Windows 365" data-detail="Cloud PC" data-badges="microsoft,cloud">
+        <div class="pal-icon" style="background:rgba(30,157,184,0.1)">☁️</div>
+        <div><div>Windows 365</div><div class="pal-sub">Cloud PC</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="🔧" data-name="Physical Desktops" data-detail="On-prem endpoints" data-badges="physical,endpoint">
+        <div class="pal-icon" style="background:rgba(107,130,148,0.1)">🔧</div>
+        <div><div>Physical Desktops</div><div class="pal-sub">On-prem endpoints</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="📱" data-name="Intune / MEM" data-detail="Endpoint management" data-badges="microsoft,endpoint">
+        <div class="pal-icon" style="background:rgba(30,157,184,0.1)">📱</div>
+        <div><div>Intune / MEM</div><div class="pal-sub">Endpoint management</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="🗄️" data-name="On-Prem Servers" data-detail="Windows Server / RDS" data-badges="legacy,rds">
+        <div class="pal-icon" style="background:rgba(107,130,148,0.1)">🗄️</div>
+        <div><div>On-Prem Servers</div><div class="pal-sub">Windows Server / RDS</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="🌐" data-name="Azure Subscription" data-detail="IaaS / PaaS workloads" data-badges="azure,cloud">
+        <div class="pal-icon" style="background:rgba(30,157,184,0.1)">🌐</div>
+        <div><div>Azure Subscription</div><div class="pal-sub">IaaS / PaaS workloads</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="🔐" data-name="Entra ID / AD" data-detail="Identity & access" data-badges="microsoft,identity">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">🔐</div>
+        <div><div>Entra ID / AD</div><div class="pal-sub">Identity & access</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="estate" data-icon="📦" data-name="SCCM / MECM" data-detail="Config Manager" data-badges="legacy,management">
+        <div class="pal-icon" style="background:rgba(107,130,148,0.1)">📦</div>
+        <div><div>SCCM / MECM</div><div class="pal-sub">Config Manager</div></div>
+      </div>
+    </div>
+
+    <div class="pal-section">
+      <div class="pal-label">Challenges</div>
+      <div class="pal-item" draggable="true" data-type="challenges" data-icon="💸" data-name="Rising Costs" data-detail="Azure / license / infra spend" data-badges="cost">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">💸</div>
+        <div><div>Rising Costs</div><div class="pal-sub">Azure / license spend</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="challenges" data-icon="😰" data-name="Complexity" data-detail="Too many consoles / tools" data-badges="ops">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">😰</div>
+        <div><div>Complexity</div><div class="pal-sub">Too many consoles</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="challenges" data-icon="⏰" data-name="Citrix EOL" data-detail="End-of-life Apr 2026" data-badges="migration,urgent">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">⏰</div>
+        <div><div>Citrix EOL</div><div class="pal-sub">End-of-life Apr 2026</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="challenges" data-icon="🔄" data-name="VMware Disruption" data-detail="Broadcom acquisition impact" data-badges="migration">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">🔄</div>
+        <div><div>VMware Disruption</div><div class="pal-sub">Broadcom impact</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="challenges" data-icon="🛡️" data-name="Security Gaps" data-detail="Compliance / CIS alignment" data-badges="security">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">🛡️</div>
+        <div><div>Security Gaps</div><div class="pal-sub">Compliance alignment</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="challenges" data-icon="📊" data-name="No Visibility" data-detail="Lack of unified monitoring" data-badges="visibility">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">📊</div>
+        <div><div>No Visibility</div><div class="pal-sub">Lack of monitoring</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="challenges" data-icon="👥" data-name="Skills Shortage" data-detail="Limited Azure / cloud expertise" data-badges="people">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">👥</div>
+        <div><div>Skills Shortage</div><div class="pal-sub">Limited cloud expertise</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="challenges" data-icon="📈" data-name="Scaling Issues" data-detail="Can't scale on-demand" data-badges="ops">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">📈</div>
+        <div><div>Scaling Issues</div><div class="pal-sub">Can't scale on-demand</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="challenges" data-icon="🪟" data-name="Win10 EOL" data-detail="October 2025 deadline" data-badges="migration,urgent">
+        <div class="pal-icon" style="background:rgba(255,107,107,0.1)">🪟</div>
+        <div><div>Win10 EOL</div><div class="pal-sub">Oct 2025 deadline</div></div>
+      </div>
+    </div>
+
+    <div class="pal-section">
+      <div class="pal-label">Projects & Initiatives</div>
+      <div class="pal-item" draggable="true" data-type="projects" data-icon="☁️" data-name="Cloud Migration" data-detail="Move to Azure" data-badges="transformation">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">☁️</div>
+        <div><div>Cloud Migration</div><div class="pal-sub">Move to Azure</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="projects" data-icon="🔄" data-name="VDI Modernisation" data-detail="Replace legacy VDI" data-badges="transformation">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">🔄</div>
+        <div><div>VDI Modernisation</div><div class="pal-sub">Replace legacy VDI</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="projects" data-icon="📱" data-name="Endpoint Strategy" data-detail="Unified management" data-badges="endpoints">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">📱</div>
+        <div><div>Endpoint Strategy</div><div class="pal-sub">Unified management</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="projects" data-icon="💰" data-name="Cost Optimisation" data-detail="Reduce Azure / license spend" data-badges="cost">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">💰</div>
+        <div><div>Cost Optimisation</div><div class="pal-sub">Reduce Azure spend</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="projects" data-icon="🛡️" data-name="Security Hardening" data-detail="CIS / Zero Trust" data-badges="security">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">🛡️</div>
+        <div><div>Security Hardening</div><div class="pal-sub">CIS / Zero Trust</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="projects" data-icon="🤖" data-name="Automation Program" data-detail="Reduce manual ops" data-badges="automation">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">🤖</div>
+        <div><div>Automation Program</div><div class="pal-sub">Reduce manual ops</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="projects" data-icon="🪟" data-name="Windows 11 Rollout" data-detail="OS migration" data-badges="endpoints">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">🪟</div>
+        <div><div>Windows 11 Rollout</div><div class="pal-sub">OS migration</div></div>
+      </div>
+      <div class="pal-item" draggable="true" data-type="projects" data-icon="🏢" data-name="M365 Consolidation" data-detail="Unify Microsoft stack" data-badges="microsoft">
+        <div class="pal-icon" style="background:rgba(167,149,199,0.1)">🏢</div>
+        <div><div>M365 Consolidation</div><div class="pal-sub">Unify Microsoft stack</div></div>
+      </div>
+    </div>
+
+    <div class="pal-section">
+      <div class="pal-label">Custom Item</div>
+      <div style="display:flex;gap:6px;padding-bottom:8px">
+        <input type="text" id="customName" placeholder="Add custom item…" style="flex:1;padding:6px 10px;border:1px solid var(--gray-200);border-radius:6px;font-family:'Poppins',sans-serif;font-size:11px;outline:none">
+        <select id="customType" style="padding:4px 6px;border:1px solid var(--gray-200);border-radius:6px;font-family:'Poppins',sans-serif;font-size:10px;outline:none">
+          <option value="estate">Estate</option>
+          <option value="challenges">Challenge</option>
+          <option value="projects">Project</option>
+        </select>
+        <button onclick="addCustom()" style="padding:4px 10px;border:1px solid var(--teal);border-radius:6px;background:rgba(30,157,184,0.1);color:var(--teal);font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;cursor:pointer">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="canvas" id="canvas">
+      <div class="zone estate" id="zoneEstate">
+        <div class="zone-label">🏢 Current Estate <span class="zone-count" id="estateCount">0</span></div>
+      </div>
+      <div class="zone challenges" id="zoneChallenges">
+        <div class="zone-label">⚠️ Challenges <span class="zone-count" id="challengesCount">0</span></div>
+      </div>
+      <div class="zone projects" id="zoneProjects">
+        <div class="zone-label">🚀 Projects & Initiatives <span class="zone-count" id="projectsCount">0</span></div>
+      </div>
+      <div class="zone priorities" id="zonePriorities">
+        <div class="zone-label">🎯 Priorities <span class="zone-count" id="prioritiesCount">0</span></div>
+      </div>
+      <div class="zone nerdio-value" id="zoneNerdio">
+        <div class="zone-label">
+          <svg width="16" height="16" viewBox="0 0 80 50" fill="none"><circle cx="22" cy="25" r="10" stroke="#1E9DB8" stroke-width="3" fill="none"/><circle cx="52" cy="25" r="10" stroke="#1E9DB8" stroke-width="3" fill="none"/><path d="M32 25 Q37 19 42 25" fill="none" stroke="#1E9DB8" stroke-width="2.5" stroke-linecap="round"/></svg>
+          Nerdio Value Map <span class="zone-count" id="nerdioCount">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: NERDIO VALUE -->
+  <div class="value-panel" id="valuePanel">
+    <div class="vp-header">
+      <div class="vp-title">Nerdio Value Mapping</div>
+      <div class="vp-sub">Drag capabilities to the value zone</div>
+    </div>
+
+    <div class="vp-section">
+      <div class="vp-label">Automation</div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="⚡" data-name="Auto-Scaling" data-detail="Patented compute scaling" data-badges="automation" data-pillar="automation">
+        <div class="vp-dot auto"></div>
+        <div class="vp-text"><strong>Auto-Scaling</strong><span>Patented compute scaling — 55% avg savings</span></div>
+      </div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="🔧" data-name="Auto-Heal" data-detail="Self-repairing session hosts" data-badges="automation" data-pillar="automation">
+        <div class="vp-dot auto"></div>
+        <div class="vp-text"><strong>Auto-Heal</strong><span>Self-repairing session hosts</span></div>
+      </div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="🚀" data-name="Rapid Deployment" data-detail="AVD in under an hour" data-badges="automation" data-pillar="automation">
+        <div class="vp-dot auto"></div>
+        <div class="vp-text"><strong>Rapid Deployment</strong><span>Full AVD env in under an hour</span></div>
+      </div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="🖼️" data-name="Image Management" data-detail="Golden image lifecycle" data-badges="automation" data-pillar="automation">
+        <div class="vp-dot auto"></div>
+        <div class="vp-text"><strong>Image Management</strong><span>Golden image lifecycle automation</span></div>
+      </div>
+    </div>
+
+    <div class="vp-section">
+      <div class="vp-label">Cost Optimisation</div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="💰" data-name="Compute Savings" data-detail="Up to 80% reduction" data-badges="cost" data-pillar="cost">
+        <div class="vp-dot cost"></div>
+        <div class="vp-text"><strong>Compute Savings</strong><span>Up to 80% Azure compute reduction</span></div>
+      </div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="📊" data-name="TCO Analysis" data-detail="AVD vs W365 comparison" data-badges="cost" data-pillar="cost">
+        <div class="vp-dot cost"></div>
+        <div class="vp-text"><strong>TCO Analysis</strong><span>AVD vs W365 cost comparison</span></div>
+      </div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="📐" data-name="Right-Sizing" data-detail="VM & Reserved Instance optimisation" data-badges="cost" data-pillar="cost">
+        <div class="vp-dot cost"></div>
+        <div class="vp-text"><strong>Right-Sizing</strong><span>VM & Reserved Instance optimisation</span></div>
+      </div>
+    </div>
+
+    <div class="vp-section">
+      <div class="vp-label">Security & Compliance</div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="🛡️" data-name="CIS Baselines" data-detail="Pre-built compliance policies" data-badges="security" data-pillar="security">
+        <div class="vp-dot sec"></div>
+        <div class="vp-text"><strong>CIS Baselines</strong><span>Pre-built compliance policies</span></div>
+      </div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="🔐" data-name="Conditional Access" data-detail="Entra ID integration" data-badges="security" data-pillar="security">
+        <div class="vp-dot sec"></div>
+        <div class="vp-text"><strong>Conditional Access</strong><span>Entra ID & Defender integration</span></div>
+      </div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="📋" data-name="Drift Detection" data-detail="Configuration compliance monitoring" data-badges="security" data-pillar="security">
+        <div class="vp-dot sec"></div>
+        <div class="vp-text"><strong>Drift Detection</strong><span>Config compliance monitoring</span></div>
+      </div>
+    </div>
+
+    <div class="vp-section">
+      <div class="vp-label">Visibility</div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="👁️" data-name="Unified Dashboard" data-detail="Cross-tenant single pane" data-badges="visibility" data-pillar="visibility">
+        <div class="vp-dot vis"></div>
+        <div class="vp-text"><strong>Unified Dashboard</strong><span>Cross-tenant single pane of glass</span></div>
+      </div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="📱" data-name="Intune Insights" data-detail="Device, patch, warranty status" data-badges="visibility" data-pillar="visibility">
+        <div class="vp-dot vis"></div>
+        <div class="vp-text"><strong>Intune Insights</strong><span>Device, patch & warranty status</span></div>
+      </div>
+      <div class="vp-item" draggable="true" data-type="nerdio" data-icon="📈" data-name="Real-Time Monitoring" data-detail="Agentless performance monitoring" data-badges="visibility" data-pillar="visibility">
+        <div class="vp-dot vis"></div>
+        <div class="vp-text"><strong>Real-Time Monitoring</strong><span>Agentless performance monitoring</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DRAG GHOST -->
+<div class="drag-ghost" id="dragGhost"></div>
+
+<!-- SUMMARY OVERLAY -->
+<div class="summary-overlay" id="summaryOverlay">
+  <button class="summary-close" onclick="hideSummary()">✕</button>
+  <div class="summary-card" id="summaryCard"></div>
+</div>
+
+<!-- VALUE OVERLAY -->
+<div class="val-overlay" id="valOverlay">
+  <button class="val-close" onclick="hideValue()">✕</button>
+  <div class="val-card" id="valCard"></div>
+</div>
+
+<script>
+// ── STATE ──
+let items = [];
+let idCounter = 0;
+let dragData = null;
+let dragTarget = null;
+let panX = 0, panY = 0;
+let isPanning = false, panStartX, panStartY;
+
+const ZONE_MAP = {
+  estate: { el: 'zoneEstate', counter: 'estateCount' },
+  challenges: { el: 'zoneChallenges', counter: 'challengesCount' },
+  projects: { el: 'zoneProjects', counter: 'projectsCount' },
+  priorities: { el: 'zonePriorities', counter: 'prioritiesCount' },
+  nerdio: { el: 'zoneNerdio', counter: 'nerdioCount' }
+};
+
+// ── DRAG FROM PALETTE / VALUE PANEL ──
+document.querySelectorAll('.pal-item[draggable], .vp-item[draggable]').forEach(el => {
+  el.addEventListener('dragstart', e => {
+    dragData = {
+      type: el.dataset.type,
+      icon: el.dataset.icon || '📌',
+      name: el.dataset.name,
+      detail: el.dataset.detail || '',
+      badges: el.dataset.badges || '',
+      pillar: el.dataset.pillar || ''
+    };
+    const ghost = document.getElementById('dragGhost');
+    ghost.textContent = dragData.icon + ' ' + dragData.name;
+    ghost.style.display = 'block';
+    e.dataTransfer.setDragImage(ghost, 0, 0);
+    e.dataTransfer.effectAllowed = 'copy';
+  });
+  el.addEventListener('dragend', () => {
+    document.getElementById('dragGhost').style.display = 'none';
+    dragData = null;
+  });
+});
+
+// ── CANVAS DROP ──
+const canvas = document.getElementById('canvas');
+canvas.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+canvas.addEventListener('drop', e => {
+  e.preventDefault();
+  if (!dragData) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  createItem(dragData, x, y);
+  dragData = null;
+});
+
+// ── CREATE DROPPED ITEM ──
+function createItem(data, x, y) {
+  const id = ++idCounter;
+  const zone = detectZone(x, y) || data.type;
+  const item = { id, ...data, x, y, zone, note: '' };
+  items.push(item);
+  renderItem(item);
+  updateCounts();
+}
+
+function renderItem(item) {
+  const el = document.createElement('div');
+  el.className = 'dropped-item' + (item.zone === 'priorities' ? ' priority-item' : '') + (item.zone === 'nerdio' ? ' nerdio-item' : '');
+  el.id = 'item-' + item.id;
+  el.style.left = item.x + 'px';
+  el.style.top = item.y + 'px';
+
+  let badgesHtml = '';
+  if (item.badges) {
+    badgesHtml = '<div class="di-badges">' + item.badges.split(',').map(b => {
+      const cls = b === 'legacy' ? 'red' : b === 'microsoft' || b === 'azure' ? 'teal' : b === 'cost' ? 'green' : b === 'security' ? 'purple' : b === 'urgent' ? 'orange' : 'teal';
+      return `<span class="di-badge ${cls}">${b}</span>`;
+    }).join('') + '</div>';
+  }
+
+  let priorityHtml = '';
+  if (item.zone === 'priorities') {
+    priorityHtml = `<div class="pri-rank"><span style="font-size:10px;color:var(--gray-500)">Priority:</span>
+      <select onchange="updatePriority(${item.id},this.value)">
+        <option value="high" ${item.priority==='high'?'selected':''}>🔴 High</option>
+        <option value="medium" ${item.priority==='medium'?'selected':''}>🟡 Medium</option>
+        <option value="low" ${item.priority==='low'?'selected':''}>🟢 Low</option>
+      </select></div>`;
+  }
+
+  el.innerHTML = `
+    <div class="di-header">
+      <span class="di-icon">${item.icon}</span>
+      <span class="di-name">${item.name}</span>
+      <button class="di-delete" onclick="deleteItem(${item.id})">✕</button>
+    </div>
+    <div class="di-detail">${item.detail}</div>
+    ${badgesHtml}
+    <textarea class="di-note" placeholder="Add notes…" oninput="updateNote(${item.id},this.value)">${item.note}</textarea>
+    ${priorityHtml}
+  `;
+
+  // Drag to reposition
+  let isDragging = false, startX, startY, origX, origY;
+  el.addEventListener('mousedown', e => {
+    if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
+    isDragging = true;
+    el.classList.add('dragging');
+    startX = e.clientX; startY = e.clientY;
+    origX = parseInt(el.style.left); origY = parseInt(el.style.top);
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    el.style.left = (origX + dx) + 'px';
+    el.style.top = (origY + dy) + 'px';
+  });
+  document.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    el.classList.remove('dragging');
+    const it = items.find(i => i.id === item.id);
+    if (it) {
+      it.x = parseInt(el.style.left);
+      it.y = parseInt(el.style.top);
+      const newZone = detectZone(it.x + 60, it.y + 30);
+      if (newZone && newZone !== it.zone) {
+        it.zone = newZone;
+        // Re-render if zone changed
+        el.className = 'dropped-item' + (newZone === 'priorities' ? ' priority-item' : '') + (newZone === 'nerdio' ? ' nerdio-item' : '');
+      }
+      updateCounts();
+    }
+  });
+
+  canvas.appendChild(el);
+}
+
+function detectZone(x, y) {
+  const zones = [
+    { id: 'estate', l: 40, t: 40, r: 940, b: 460 },
+    { id: 'challenges', l: 40, t: 500, r: 480, b: 850 },
+    { id: 'projects', l: 510, t: 500, r: 950, b: 850 },
+    { id: 'priorities', l: 980, t: 40, r: 1380, b: 460 },
+    { id: 'nerdio', l: 980, t: 500, r: 1380, b: 850 }
+  ];
+  for (const z of zones) {
+    if (x >= z.l && x <= z.r && y >= z.t && y <= z.b) return z.id;
+  }
+  return null;
+}
+
+function updateCounts() {
+  for (const [zone, cfg] of Object.entries(ZONE_MAP)) {
+    const count = items.filter(i => i.zone === zone).length;
+    document.getElementById(cfg.counter).textContent = count;
+  }
+}
+
+function deleteItem(id) {
+  items = items.filter(i => i.id !== id);
+  const el = document.getElementById('item-' + id);
+  if (el) el.remove();
+  updateCounts();
+}
+
+function updateNote(id, val) {
+  const it = items.find(i => i.id === id);
+  if (it) it.note = val;
+}
+
+function updatePriority(id, val) {
+  const it = items.find(i => i.id === id);
+  if (it) it.priority = val;
+}
+
+// ── MODE TOGGLE ──
+function setMode(mode) {
+  document.body.classList.toggle('customer-mode', mode === 'customer');
+  document.querySelectorAll('.mode-toggle button').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase() === mode);
+  });
+}
+
+// ── VALUE PANEL ──
+function toggleValuePanel() {
+  const vp = document.getElementById('valuePanel');
+  vp.classList.toggle('visible');
+}
+
+// ── CUSTOM ITEM ──
+function addCustom() {
+  const name = document.getElementById('customName').value.trim();
+  const type = document.getElementById('customType').value;
+  if (!name) return;
+  const icons = { estate: '🔵', challenges: '🔴', projects: '🟣' };
+  const zone = document.getElementById('zone' + type.charAt(0).toUpperCase() + type.slice(1));
+  const rect = zone.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  createItem({
+    type, icon: icons[type] || '📌', name, detail: 'Custom item', badges: 'custom'
+  }, rect.left - canvasRect.left + 40, rect.top - canvasRect.top + 50);
+  document.getElementById('customName').value = '';
+}
+
+// ── SAVE / LOAD ──
+function saveSession() {
+  const data = {
+    customer: document.getElementById('custName').value,
+    items: items,
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem('nerdio_whiteboard_v1', JSON.stringify(data));
+  const btn = event.target;
+  btn.textContent = '✓ Saved';
+  setTimeout(() => btn.textContent = 'Save', 1500);
+}
+
+function loadSession() {
+  const raw = localStorage.getItem('nerdio_whiteboard_v1');
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    document.getElementById('custName').value = data.customer || '';
+    data.items.forEach(item => {
+      idCounter = Math.max(idCounter, item.id);
+      items.push(item);
+      renderItem(item);
+    });
+    updateCounts();
+  } catch(e) {}
+}
+
+function clearAll() {
+  if (!confirm('Clear all items from the whiteboard?')) return;
+  items.forEach(i => {
+    const el = document.getElementById('item-' + i.id);
+    if (el) el.remove();
+  });
+  items = [];
+  idCounter = 0;
+  updateCounts();
+}
+
+// ── SUMMARY ──
+function showSummary() {
+  const custName = document.getElementById('custName').value || 'Customer';
+  const card = document.getElementById('summaryCard');
+
+  const byZone = (zone) => items.filter(i => i.zone === zone);
+  const renderItems = (list, cls) => {
+    if (!list.length) return '<div style="font-size:12px;color:var(--gray-500);font-style:italic">No items added</div>';
+    return '<div class="sum-items">' + list.map(i => `
+      <div class="sum-item ${cls}">
+        <div class="si-name">${i.icon} ${i.name}</div>
+        <div class="si-detail">${i.detail}</div>
+        ${i.note ? `<div class="si-note">"${i.note}"</div>` : ''}
+        ${i.priority ? `<div style="font-size:10px;margin-top:3px;font-weight:600;color:${i.priority==='high'?'var(--red)':i.priority==='medium'?'var(--orange)':'var(--teal)'}">${i.priority.toUpperCase()} PRIORITY</div>` : ''}
+      </div>
+    `).join('') + '</div>';
+  };
+
+  // Build Nerdio value narrative
+  const nerdioItems = byZone('nerdio');
+  const pillars = { automation: [], cost: [], security: [], visibility: [] };
+  nerdioItems.forEach(i => { if (i.pillar && pillars[i.pillar]) pillars[i.pillar].push(i); });
+
+  let nerdioHtml = '';
+  if (nerdioItems.length) {
+    nerdioHtml = `<div class="sum-section">
+      <div class="sum-section-title nerdio">Nerdio Value Alignment</div>
+      <div class="sum-nerdio-grid">
+        ${Object.entries(pillars).filter(([,v])=>v.length).map(([k,v]) => `
+          <div class="sum-pillar" style="border-color:${k==='automation'?'var(--teal)':k==='cost'?'var(--green)':k==='security'?'var(--purple)':'var(--orange)'}">
+            <h4>${k==='automation'?'⚡ Automation':k==='cost'?'💰 Cost Optimisation':k==='security'?'🛡️ Security & Compliance':'👁️ Visibility'}</h4>
+            <ul>${v.map(i=>`<li><strong>${i.name}</strong> — ${i.detail}${i.note ? ` <em>(${i.note})</em>`:''}</li>`).join('')}</ul>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  }
+
+  const challenges = byZone('challenges');
+  const priorities = byZone('priorities').sort((a,b) => {
+    const order = {high:0,medium:1,low:2,undefined:3};
+    return (order[a.priority]||3) - (order[b.priority]||3);
+  });
+
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+      <svg width="36" height="36" viewBox="0 0 80 50" fill="none"><circle cx="22" cy="25" r="12" stroke="#1E9DB8" stroke-width="3.5" fill="none"/><circle cx="58" cy="25" r="12" stroke="#1E9DB8" stroke-width="3.5" fill="none"/><path d="M34 25 Q40 18 46 25" fill="none" stroke="#1E9DB8" stroke-width="3" stroke-linecap="round"/></svg>
+      <div>
+        <div class="sum-title">${custName} — Estate Discovery</div>
+        <div class="sum-sub">Generated ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+      </div>
+    </div>
+
+    <div class="sum-section">
+      <div class="sum-section-title estate">Current Estate (${byZone('estate').length})</div>
+      ${renderItems(byZone('estate'), 'teal')}
+    </div>
+
+    <div class="sum-section">
+      <div class="sum-section-title challenges">Challenges (${challenges.length})</div>
+      ${renderItems(challenges, 'red')}
+    </div>
+
+    <div class="sum-section">
+      <div class="sum-section-title projects">Projects & Initiatives (${byZone('projects').length})</div>
+      ${renderItems(byZone('projects'), 'purple')}
+    </div>
+
+    <div class="sum-section">
+      <div class="sum-section-title priorities">Priorities (${priorities.length})</div>
+      ${renderItems(priorities, 'orange')}
+    </div>
+
+    ${nerdioHtml}
+
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--gray-200);font-size:11px;color:var(--gray-500);text-align:center">
+      Nerdio Sales Command Centre — Estate Discovery Whiteboard
+    </div>
+  `;
+
+  document.getElementById('summaryOverlay').classList.add('visible');
+}
+
+function hideSummary() {
+  document.getElementById('summaryOverlay').classList.remove('visible');
+}
+
+// ── SHOW ME VALUE ENGINE ──
+const VALUE_RULES = [
+  {
+    id:'citrix-migration', trigger: i => /citrix/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['estate','challenges','projects','priorities'],
+    title:'Citrix to AVD Migration', impact:'high', pillar:'Automation',
+    why:'Your environment includes Citrix infrastructure. With Citrix DaaS end-of-life approaching (April 2026), Nerdio provides a proven migration path to Azure Virtual Desktop — eliminating legacy licensing costs while maintaining enterprise-grade automation.',
+    benefits:['Eliminate Citrix license costs entirely','Reduce Azure compute spend by 55% avg with auto-scaling','Simplify from 5+ consoles to a single management pane','Deploy replacement AVD environments in under an hour'],
+    outcomes:['Grant Thornton saved $20K/month after migrating','LexisNexis achieved 50% YoY cost reduction','75% decrease in support ticket volume','User satisfaction scores from 35 to 90+'],
+    next:['Run a Nerdio trial alongside existing Citrix environment','Map application compatibility for AVD delivery','Build a phased migration timeline using the Reverse Timeline Builder','Engage Nerdio Go-Live Engineering for migration planning']
+  },
+  {
+    id:'vmware-displacement', trigger: i => /vmware|horizon|omnissa|broadcom/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['estate','challenges','projects','priorities'],
+    title:'VMware/Omnissa to Cloud-Native', impact:'high', pillar:'Automation',
+    why:'VMware Horizon is present in your estate. Post-Broadcom acquisition, many organisations face licensing uncertainty and cost increases. Nerdio offers a cloud-native alternative that eliminates hypervisor dependency entirely.',
+    benefits:['Remove hypervisor management overhead','Cloud-native on Azure — no middleware layer','Patented auto-scaling reduces compute costs by up to 80%','Future-proof with Microsoft-first architecture'],
+    outcomes:['Organisations typically see 40-60% TCO reduction vs Horizon','Deployment time reduced from weeks to hours','Elimination of on-prem hardware refresh cycles','Unified management of AVD, W365 and Intune endpoints'],
+    next:['Assess current VMware workload profiles for Azure sizing','Use the ROI Calculator to model savings vs current Horizon costs','Plan a pilot with non-critical workloads on AVD via Nerdio','Engage Microsoft co-sell team for Azure migration funding']
+  },
+  {
+    id:'cost-pressure', trigger: i => /cost|spend|budget|expensive|rising|saving|optimis/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['challenges','projects','priorities'],
+    title:'Azure Cost Optimisation', impact:'high', pillar:'Cost Optimisation',
+    why:'Cost pressure has been identified as a key concern. Nerdio\'s patented auto-scaling engine is the most impactful lever — automatically right-sizing Azure compute based on real-time demand so you never pay for idle capacity.',
+    benefits:['Auto-scale compute to match actual user demand','Right-size VMs and leverage Reserved Instances','TCO Analysis compares AVD vs Windows 365 costs','DaaS Modeler recommends optimal Cloud PC sizing'],
+    outcomes:['55% average Azure compute savings (up to 80%)','Sage achieved $1M+ annual savings','3Cloud reports all customers end up saving money','Typical payback period: under 30 days'],
+    next:['Run the ROI Calculator with current Azure spend figures','Request a Nerdio auto-scaling assessment for existing AVD','Model Reserved Instance vs Pay-As-You-Go scenarios','Set up a 30-day free trial to measure actual savings']
+  },
+  {
+    id:'complexity-consoles', trigger: i => /complex|consoles|manual|too many|fragmented|skills|shortage|expertise/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['challenges','management'],
+    title:'Operational Simplification', impact:'medium', pillar:'Automation',
+    why:'Operational complexity and tool sprawl have been flagged. Nerdio consolidates AVD, Windows 365, and Intune management into a single interface — replacing multiple consoles with guided wizards and automation.',
+    benefits:['Single pane of glass for all Microsoft EUC','Guided deployment wizards eliminate Azure expertise requirements','Auto-heal automatically fixes broken session hosts','Scripted Actions automate repetitive operational tasks'],
+    outcomes:['LexisNexis reduced support needs by 75%','Quub.it deploys 2-3x faster than competitors','Ceeva: tasks that took weeks now done in hours','Typical 60-70% reduction in management overhead'],
+    next:['Map current tool landscape and identify consolidation opportunities','Demo Nerdio\'s guided AVD deployment wizard','Identify top 5 repetitive tasks for automation','Plan a proof-of-concept with a single host pool']
+  },
+  {
+    id:'security-compliance', trigger: i => /security|compliance|cis|zero trust|gap|audit|gdpr|pci|iso/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['challenges','projects','priorities'],
+    title:'Security & Compliance Hardening', impact:'medium', pillar:'Security',
+    why:'Security and compliance requirements are present in your priorities. Nerdio provides CIS Benchmark-aligned baselines, configuration drift detection, and deep integration with Microsoft Defender and Entra ID — all deployed within your own Azure subscription.',
+    benefits:['Pre-built CIS Benchmark Intune policy baselines','Automated configuration drift detection and remediation','Full Entra ID and Conditional Access integration','Data never leaves the customer\'s Azure subscription'],
+    outcomes:['Continuous compliance monitoring without additional tools','Reduced audit preparation time by 50%+','Consistent security posture across all endpoints','Elimination of shadow IT and unmanaged access points'],
+    next:['Review current compliance requirements against Nerdio CIS baselines','Assess Conditional Access policy gaps with Entra ID integration','Plan a security posture assessment using the Assessment Tool','Engage Nerdio SE for a compliance-focused demo']
+  },
+  {
+    id:'avd-native', trigger: i => /azure virtual desktop|avd|native avd/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['estate','projects'],
+    title:'Enhance Native AVD with Nerdio', impact:'medium', pillar:'Automation',
+    why:'Azure Virtual Desktop is already in your estate. Nerdio adds 100+ capabilities that Microsoft doesn\'t provide natively — including auto-scaling, auto-heal, golden image management, and cost governance. It\'s the "missing middle" between raw Azure and enterprise-grade management.',
+    benefits:['Auto-scaling saves 55% on compute vs native AVD','Golden image lifecycle management with automated updates','Auto-heal for self-repairing broken session hosts','RBAC, approval workflows, and audit logging'],
+    outcomes:['Quub.it tripled revenue managing AVD with Nerdio','Deploy new AVD environments in under an hour','Eliminate manual KQL work for monitoring','Reduce AVD management from specialist skill to standard IT'],
+    next:['Compare current native AVD management effort vs Nerdio automation','Run a free 30-day trial on existing AVD environment','Identify top pain points in current AVD operations','Model auto-scaling savings with current usage patterns']
+  },
+  {
+    id:'w365-cloud', trigger: i => /windows 365|cloud pc|w365/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['estate','projects'],
+    title:'Windows 365 Management & Optimisation', impact:'medium', pillar:'Visibility',
+    why:'Windows 365 Cloud PCs are in scope. Nerdio provides advanced Windows 365 management with AI-driven recommendations, cost optimisation, and a unified view alongside AVD and Intune — capabilities not available in the native admin centre.',
+    benefits:['Unified management of W365 alongside AVD and Intune','DaaS Modeler recommends optimal Cloud PC sizing','TCO Analysis compares W365 vs AVD for each workload','AVD-to-W365 migration wizard for workload rebalancing'],
+    outcomes:['Right-size Cloud PCs to eliminate over-provisioning','Unified reporting across virtual and physical endpoints','Automated lifecycle management for Cloud PC assignments','Single pane visibility eliminates console switching'],
+    next:['Run TCO Analysis comparing W365 vs AVD for current workloads','Assess Cloud PC sizing with the DaaS Modeler','Plan a unified management strategy across AVD + W365','Demo Nerdio\'s Windows 365 management capabilities']
+  },
+  {
+    id:'visibility-monitoring', trigger: i => /visib|monitor|reporting|dashboard|no visib|lack.*monitor/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['challenges','projects'],
+    title:'Unified Visibility & Monitoring', impact:'medium', pillar:'Visibility',
+    why:'A lack of visibility has been identified. Nerdio provides agentless, real-time monitoring across AVD, Windows 365, and Intune — all from a single dashboard. No additional monitoring tools, no agents to deploy, no KQL queries to write.',
+    benefits:['Agentless monitoring — nothing to install','Cross-tenant and hybrid environment visibility','Real-time performance, health, and compliance dashboards','Intune Insights: device status, patching, warranty expiry'],
+    outcomes:['Eliminate manual log aggregation and KQL work','Proactive issue detection before users report problems','Single source of truth for all endpoint health','Reduced MTTR through faster root cause identification'],
+    next:['Map current monitoring gaps and blind spots','Demo Nerdio\'s unified dashboard with real environment data','Plan integration alongside existing ITSM/monitoring tools','Start a trial to see visibility across current AVD/W365 estate']
+  },
+  {
+    id:'scaling-issues', trigger: i => /scal|capacity|on-demand|peak|seasonal|burst/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['challenges','projects'],
+    title:'Dynamic Scaling & Capacity', impact:'medium', pillar:'Cost Optimisation',
+    why:'Scaling challenges are present. Nerdio\'s patented auto-scaling engine dynamically adjusts Azure compute capacity based on real-time user demand — scaling up for peak periods and scaling down overnight and weekends, so you never over-provision or under-deliver.',
+    benefits:['Scale up in minutes for peak demand periods','Scale down automatically during off-hours','Burst capacity for seasonal or project-based needs','No manual intervention required — fully automated'],
+    outcomes:['Up to 80% reduction in Azure compute spend','Zero over-provisioning waste','Consistent user experience during demand spikes','Capacity planning becomes automated, not manual'],
+    next:['Analyse current usage patterns to identify scaling opportunity','Model auto-scaling savings with the ROI Calculator','Plan a pilot with one host pool to measure actual savings','Review Reserved Instance strategy alongside auto-scaling']
+  },
+  {
+    id:'win10-eol', trigger: i => /win.*10|windows 10|eol|end.of.life.*oct|end.of.support/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['challenges','projects','priorities'],
+    title:'Windows 10 End-of-Life Transition', impact:'high', pillar:'Automation',
+    why:'Windows 10 end-of-support is a critical deadline. Nerdio accelerates the transition to Windows 11 — whether on AVD, Windows 365, or Intune-managed physical endpoints — with automated image management and deployment at scale.',
+    benefits:['Golden image management for Windows 11 rollout','Automated deployment across AVD and physical endpoints','Parallel running of W10 and W11 during transition','Intune policy baselines for W11 compliance'],
+    outcomes:['Reduce OS migration timeline from months to weeks','Consistent W11 experience across virtual and physical','Automated compliance enforcement from day one','Zero-touch deployment for new W11 images'],
+    next:['Assess application compatibility for Windows 11','Plan golden image build for W11 with Nerdio image management','Create phased rollout plan starting with AVD/W365','Use the Assessment Tool to score migration readiness']
+  },
+  {
+    id:'on-prem-servers', trigger: i => /on.prem|rds|windows server|data.cent|sccm|mecm|config.man/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['estate'],
+    title:'Legacy Infrastructure Modernisation', impact:'medium', pillar:'Automation',
+    why:'On-premises infrastructure is still in the estate. Nerdio provides a path to modernise RDS, SCCM, and on-prem server workloads by migrating to cloud-native AVD and Intune management — reducing hardware dependency and operational burden.',
+    benefits:['Migrate RDS workloads to AVD with guided wizards','Replace SCCM with Intune management via Nerdio','Eliminate on-prem hardware refresh cycles','Cloud-native deployment in the customer\'s own Azure subscription'],
+    outcomes:['Ceeva: tasks that took weeks of billable hours now done rapidly','Reduction in on-prem server footprint','Lower infrastructure maintenance costs','Improved DR posture through Azure-native architecture'],
+    next:['Inventory on-prem workloads suitable for cloud migration','Assess RDS-to-AVD migration candidates','Plan SCCM-to-Intune transition timeline','Use the Journey Models to map the modernisation path']
+  },
+  {
+    id:'intune-endpoint', trigger: i => /intune|mem|endpoint.manage/i.test(i.name+i.detail+i.note+i.badges),
+    zones:['estate','projects'],
+    title:'Intune Management Enhancement', impact:'low', pillar:'Visibility',
+    why:'Intune is present in your estate. Nerdio extends native Intune with powerful Insights — device compliance, patching status, app usage, and warranty expiration — all without additional agents or the need for complex KQL queries.',
+    benefits:['Intune Insights dashboard with zero agent deployment','Device compliance and patching status at a glance','Warranty expiration tracking across all endpoints','CIS Benchmark-aligned policy baselines'],
+    outcomes:['Eliminate manual Intune log aggregation','Proactive patching and compliance enforcement','Unified view alongside AVD and W365 management','Reduced time-to-resolution for endpoint issues'],
+    next:['Demo Nerdio Intune Insights with current device fleet','Review CIS baseline policies against current Intune config','Plan unified management strategy across all endpoint types','Assess policy drift across the current Intune environment']
+  }
+];
+
+function showValue(){
+  const cust = document.getElementById('custName').value || 'Customer';
+  const allItems = items.filter(i => i.zone !== 'nerdio'); // Analyse non-nerdio items
+  if(!allItems.length){
+    document.getElementById('valCard').innerHTML = `<div class="val-hero"><h2>No items to analyse</h2><p>Add components to the whiteboard zones first, then click Show Me Value to generate intelligent recommendations.</p></div>`;
+    document.getElementById('valOverlay').classList.add('visible');
+    return;
+  }
+
+  // Run rules engine
+  const matches = [];
+  VALUE_RULES.forEach(rule => {
+    const triggered = allItems.filter(i => rule.zones.includes(i.zone) && rule.trigger(i));
+    if(triggered.length > 0){
+      matches.push({...rule, triggeredBy: triggered, score: triggered.length * (rule.impact==='high'?3:rule.impact==='medium'?2:1)});
+    }
+  });
+  matches.sort((a,b) => b.score - a.score);
+
+  // Count zones
+  const estateCount = items.filter(i=>i.zone==='estate').length;
+  const challengeCount = items.filter(i=>i.zone==='challenges').length;
+  const projectCount = items.filter(i=>i.zone==='projects').length;
+  const priorityCount = items.filter(i=>i.zone==='priorities').length;
+
+  // Aggregate notes
+  const allNotes = allItems.filter(i=>i.note.trim()).map(i=>`${i.name}: "${i.note}"`);
+
+  const buildRecCard = m => `
+      <div class="val-rec ${m.impact}">
+        <div class="val-rec-head">
+          <div>
+            <div class="val-rec-title">${m.title}</div>
+            <div style="font-size:10px;color:var(--gray-500);margin-top:2px">Pillar: ${m.pillar} · Triggered by ${m.triggeredBy.length} item${m.triggeredBy.length>1?'s':''}</div>
+          </div>
+          <span class="val-rec-impact ${m.impact}">${m.impact} impact</span>
+        </div>
+        <div class="val-rec-why">${m.why}</div>
+        <div class="val-rec-grid">
+          <div class="val-rec-box"><h5 class="benefits">✦ Benefits</h5><ul>${m.benefits.map(b=>`<li>${b}</li>`).join('')}</ul></div>
+          <div class="val-rec-box"><h5 class="outcomes">📊 Expected Outcomes</h5><ul>${m.outcomes.map(o=>`<li>${o}</li>`).join('')}</ul></div>
+          <div class="val-rec-box"><h5 class="next">▶ What To Do Next</h5><ul>${m.next.map(n=>`<li>${n}</li>`).join('')}</ul></div>
+        </div>
+        <div class="val-rec-triggers">${m.triggeredBy.map(t=>`<span class="val-rec-trigger">${t.icon} ${t.name}</span>`).join('')}</div>
+      </div>`;
+
+  const highRecs = matches.filter(m=>m.impact==='high');
+  const medRecs = matches.filter(m=>m.impact==='medium');
+  const lowRecs = matches.filter(m=>m.impact==='low');
+
+  let recsHtml = '';
+  if(matches.length){
+    if(highRecs.length) recsHtml += `<div class="val-section-title" style="color:var(--red);border-color:var(--red)">🔴 High Impact Opportunities</div>` + highRecs.map(buildRecCard).join('');
+    if(medRecs.length) recsHtml += `<div class="val-section-title" style="color:var(--orange);border-color:var(--orange)">🟠 Medium Impact Opportunities</div>` + medRecs.map(buildRecCard).join('');
+    if(lowRecs.length) recsHtml += `<div class="val-section-title" style="color:var(--teal);border-color:var(--teal)">🔵 Additional Opportunities</div>` + lowRecs.map(buildRecCard).join('');
+  } else {
+    recsHtml = '<div class="val-empty">No specific Nerdio recommendations matched your current board items. Try adding more detail to the estate, challenges, or projects zones.</div>';
+  }
+
+  document.getElementById('valCard').innerHTML = `
+    <div class="val-hero">
+      <div class="val-hero-top">
+        <svg width="40" height="40" viewBox="0 0 80 50" fill="none"><circle cx="22" cy="25" r="12" stroke="#CDFF4E" stroke-width="3.5" fill="none"/><circle cx="58" cy="25" r="12" stroke="#CDFF4E" stroke-width="3.5" fill="none"/><path d="M34 25 Q40 18 46 25" fill="none" stroke="#CDFF4E" stroke-width="3" stroke-linecap="round"/></svg>
+        <div>
+          <h2>${cust} — Nerdio Value Analysis</h2>
+          <p>Based on ${allItems.length} items across your whiteboard, we've identified ${matches.length} areas where Nerdio can deliver measurable value. Each recommendation includes benefits, expected outcomes, and clear next steps.</p>
+        </div>
+      </div>
+      <div class="val-stats">
+        <div class="val-stat"><span class="val-stat-num teal">${estateCount}</span><div class="val-stat-label">Estate Items</div></div>
+        <div class="val-stat"><span class="val-stat-num orange">${challengeCount}</span><div class="val-stat-label">Challenges</div></div>
+        <div class="val-stat"><span class="val-stat-num purple">${projectCount}</span><div class="val-stat-label">Projects</div></div>
+        <div class="val-stat"><span class="val-stat-num green">${matches.length}</span><div class="val-stat-label">Recommendations</div></div>
+      </div>
+    </div>
+    <div class="val-body">
+      ${recsHtml}
+      ${allNotes.length ? `<div class="val-section-title">📝 Captured Notes</div><div style="background:var(--gray-50);border-radius:10px;padding:16px;font-size:12px;color:var(--navy);line-height:1.7">${allNotes.map(n=>`<div style="margin-bottom:6px">• ${n}</div>`).join('')}</div>` : ''}
+      <div style="text-align:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--gray-200)">
+        <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Ready to explore further? These tools can help build the next stage of the conversation.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <a class="val-btn-cta" href="nerdio-roi-calculator.html">🧮 ROI Calculator</a>
+          <a class="val-btn-cta" href="nerdio-journeys.html">🗺️ Journey Models</a>
+          <a class="val-btn-cta" href="nerdio-discovery-engine.html">💬 Discovery Engine</a>
+          <a class="val-btn-cta" href="nerdio-battlecards.html">🎯 Battlecards</a>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('valOverlay').classList.add('visible');
+}
+function hideValue(){ document.getElementById('valOverlay').classList.remove('visible'); }
+
+// ── CANVAS PANNING (middle-click or shift+drag) ──
+const canvasWrap = document.getElementById('canvasWrap');
+canvasWrap.addEventListener('mousedown', e => {
+  if (e.button === 1 || (e.shiftKey && e.button === 0)) {
+    isPanning = true;
+    panStartX = e.clientX - panX;
+    panStartY = e.clientY - panY;
+    canvasWrap.style.cursor = 'grabbing';
+    e.preventDefault();
+  }
+});
+document.addEventListener('mousemove', e => {
+  if (!isPanning) return;
+  panX = e.clientX - panStartX;
+  panY = e.clientY - panStartY;
+  canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+});
+document.addEventListener('mouseup', () => {
+  if (isPanning) {
+    isPanning = false;
+    canvasWrap.style.cursor = 'default';
+  }
+});
+
+// ── INIT ──
+loadSession();
+</script>
+</body>
+</html>
