@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerdio Sales Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#042838;--navy-light:#0a3a50;--navy-mid:#0d2f42;
+  --teal:#1E9DB8;--white:#FFFFFF;--green:#CDFF4E;--purple:#A795C7;
+  --gray-50:#f5f8fa;--gray-100:#eaf0f4;--gray-200:#dce4ea;--gray-300:#b8c7d1;--gray-500:#6b8294;
+}
+body{font-family:'Poppins',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden}
+
+/* ── BG PATTERN ── */
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at 20% 50%,rgba(30,157,184,0.08) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(167,149,199,0.06) 0%,transparent 50%),
+             radial-gradient(ellipse at 50% 90%,rgba(205,255,78,0.03) 0%,transparent 40%);
+  pointer-events:none;z-index:0}
+
+/* ── HEADER ── */
+.header{position:relative;z-index:2;padding:48px 48px 0;max-width:1300px;margin:0 auto}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
+.logo-area{display:flex;align-items:center;gap:16px}
+.brand-line{height:1px;background:linear-gradient(90deg,rgba(30,157,184,0.4),transparent);margin-bottom:48px}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:2;max-width:1300px;margin:0 auto;padding:0 48px 48px}
+.hero h1{font-size:42px;font-weight:800;letter-spacing:-1px;line-height:1.15;margin-bottom:12px}
+.hero h1 span{background:linear-gradient(135deg,var(--teal),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:16px;color:var(--gray-300);max-width:600px;line-height:1.7;margin-bottom:8px}
+.hero-stats{display:flex;gap:32px;margin-top:24px}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:28px;font-weight:800;color:var(--teal);display:block;font-family:'Poppins',sans-serif}
+.hero-stat-label{font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:1px}
+
+/* ── CARDS GRID ── */
+.cards-section{position:relative;z-index:2;max-width:1300px;margin:0 auto;padding:0 48px 60px}
+.section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--teal);margin-bottom:20px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+
+.tool-card{background:linear-gradient(145deg,rgba(10,58,80,0.6),rgba(4,40,56,0.8));
+  border:1px solid rgba(30,157,184,0.15);border-radius:16px;padding:28px 24px;
+  cursor:pointer;transition:all 0.3s ease;position:relative;overflow:hidden;
+  text-decoration:none;color:var(--white);display:flex;flex-direction:column}
+.tool-card:hover{border-color:var(--teal);transform:translateY(-4px);
+  box-shadow:0 12px 40px rgba(30,157,184,0.15),0 0 0 1px rgba(30,157,184,0.3)}
+.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--teal),var(--green));opacity:0;transition:opacity 0.3s}
+.tool-card:hover::before{opacity:1}
+
+.card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:16px;flex-shrink:0}
+.card-title{font-size:16px;font-weight:700;margin-bottom:6px;line-height:1.3}
+.card-desc{font-size:12px;color:var(--gray-300);line-height:1.6;flex:1;margin-bottom:16px}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.card-tag{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;
+  background:rgba(30,157,184,0.1);color:var(--teal);border:1px solid rgba(30,157,184,0.2)}
+.card-tag.purple{background:rgba(167,149,199,0.1);color:var(--purple);border-color:rgba(167,149,199,0.2)}
+.card-tag.green{background:rgba(205,255,78,0.1);color:var(--green);border-color:rgba(205,255,78,0.2)}
+
+.card-status{position:absolute;top:16px;right:16px;padding:3px 10px;border-radius:8px;
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px}
+.card-status.live{background:rgba(205,255,78,0.15);color:var(--green)}
+.card-status.new{background:rgba(30,157,184,0.15);color:var(--teal)}
+
+/* ── COMING SOON ROW ── */
+.coming-section{position:relative;z-index:2;max-width:1300px;margin:0 auto;padding:0 48px 60px}
+.coming-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.coming-card{background:rgba(10,58,80,0.3);border:1px dashed rgba(30,157,184,0.2);border-radius:12px;
+  padding:20px;text-align:center;opacity:0.6;transition:all 0.2s}
+.coming-card:hover{opacity:0.8;border-color:rgba(30,157,184,0.4)}
+.coming-icon{font-size:24px;margin-bottom:8px}
+.coming-title{font-size:13px;font-weight:600;color:var(--gray-300)}
+.coming-sub{font-size:10px;color:var(--gray-500);margin-top:2px}
+
+/* ── FOOTER ── */
+.footer{position:relative;z-index:2;max-width:1300px;margin:0 auto;padding:20px 48px 40px;
+  border-top:1px solid rgba(30,157,184,0.1);display:flex;justify-content:space-between;align-items:center}
+.footer-left{font-size:11px;color:var(--gray-500)}
+.footer-right{display:flex;gap:16px;align-items:center}
+.footer-link{font-size:11px;color:var(--teal);text-decoration:none;font-weight:600}
+.footer-link:hover{color:var(--green)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .header,.hero,.cards-section,.coming-section,.footer{padding-left:20px;padding-right:20px}
+  .hero h1{font-size:28px}
+  .cards-grid{grid-template-columns:1fr}
+  .hero-stats{flex-wrap:wrap;gap:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo-area">
+      <svg width="160" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="26" r="15" fill="none" stroke="#1E9DB8" stroke-width="3.2"/>
+        <circle cx="58" cy="26" r="15" fill="none" stroke="#1E9DB8" stroke-width="3.2"/>
+        <path d="M37 22 Q40 15 43 22" fill="none" stroke="#1E9DB8" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M7 23 L3 17" fill="none" stroke="#1E9DB8" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M73 23 L77 17" fill="none" stroke="#1E9DB8" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M58 18 L58 23" fill="none" stroke="#1E9DB8" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M52 21 A7.5 7.5 0 1 0 64 21" fill="none" stroke="#1E9DB8" stroke-width="2.2" stroke-linecap="round"/>
+        <text x="86" y="32" fill="#FFFFFF" font-family="Poppins, sans-serif" font-size="16" font-weight="600" letter-spacing="0.5">nerdio</text>
+      </svg>
+    </div>
+    <div style="font-size:10px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:1.5px">Sales Command Centre</div>
+  </div>
+  <div class="brand-line"></div>
+</div>
+
+<div class="hero">
+  <h1>Your Nerdio<br><span>sales toolkit.</span></h1>
+  <p>Every strategic tool, journey model, and deal asset in one place. Built to accelerate pipeline, sharpen positioning, and close faster.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="hero-stat-num" id="toolCount">9</span>
+      <div class="hero-stat-label">Active Tools</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">6</span>
+      <div class="hero-stat-label">Journey Models</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">10</span>
+      <div class="hero-stat-label">Maturity Dimensions</div>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">7</span>
+      <div class="hero-stat-label">Deal Phases</div>
+    </div>
+  </div>
+</div>
+
+<div class="cards-section">
+  <div class="section-label">Tools &amp; Frameworks</div>
+  <div class="cards-grid" id="toolsGrid">
+
+    <a class="tool-card" href="nerdio-journeys.html">
+      <div class="card-status live">Live</div>
+      <div class="card-icon" style="background:rgba(30,157,184,0.15)">🗺️</div>
+      <div class="card-title">Journey Models &amp; Maturity Assessment</div>
+      <div class="card-desc">Six strategic journey frameworks — maturity model (5 levels), industry evolution, customer lifecycle, migration paths, partner journey, and value realization. Includes the interactive As-Is / To-Be assessment tool with radar chart, gap analysis, and prioritized Nerdio capability roadmap.</div>
+      <div class="card-tags">
+        <span class="card-tag">Maturity Model</span>
+        <span class="card-tag">Assessment Tool</span>
+        <span class="card-tag purple">Gap Analysis</span>
+        <span class="card-tag">6 Journeys</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="nerdio-reverse-timeline.html">
+      <div class="card-status live">Live</div>
+      <div class="card-icon" style="background:rgba(167,149,199,0.15)">⏱️</div>
+      <div class="card-title">Deal Reverse Timeline Builder</div>
+      <div class="card-desc">7-phase sales lifecycle with MEDPIC qualification at every stage. Enter a close date and complexity level — the tool generates a reverse-engineered timeline with Nerdio positioning, partner tasks, coaching alerts, and deal scoring. Saves and tracks multiple deals.</div>
+      <div class="card-tags">
+        <span class="card-tag purple">MEDPIC</span>
+        <span class="card-tag">7 Phases</span>
+        <span class="card-tag green">Deal Scoring</span>
+        <span class="card-tag">Multi-Deal</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="nerdio-deal-dashboard.html">
+      <div class="card-status live">Live</div>
+      <div class="card-icon" style="background:rgba(205,255,78,0.1)">📊</div>
+      <div class="card-title">Deal Pipeline Dashboard</div>
+      <div class="card-desc">Visual deal pipeline with MEDPIC qualification scores, deal tracking, activity feeds, and summary cards. Track deal name, partner status, value, score, phase progress, and status across your entire opportunity set at a glance.</div>
+      <div class="card-tags">
+        <span class="card-tag green">Pipeline View</span>
+        <span class="card-tag">MEDPIC Scores</span>
+        <span class="card-tag">Activity Feed</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="nerdio_crm_4.html">
+      <div class="card-status live">Live</div>
+      <div class="card-icon" style="background:rgba(30,157,184,0.15)">🏢</div>
+      <div class="card-title">Account Intelligence</div>
+      <div class="card-desc">Deep account intelligence engine for Nerdio UK. Comprehensive account profiles, stakeholder mapping, heat scoring, opportunity tracking, and strategic account planning — all in one interactive workspace.</div>
+      <div class="card-tags">
+        <span class="card-tag">Account Profiles</span>
+        <span class="card-tag purple">Heat Scoring</span>
+        <span class="card-tag">Stakeholder Maps</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="nerdio-battlecards.html">
+      <div class="card-status new">New</div>
+      <div class="card-icon" style="background:rgba(205,255,78,0.1)">🎯</div>
+      <div class="card-title">Competitive Battlecards</div>
+      <div class="card-desc">Side-by-side competitive intelligence for Citrix, VMware/Omnissa, and Native Azure. Expandable sections covering positioning, feature comparisons, discovery questions, objection handling, proof points, landmines to set, and ready-to-use talk tracks.</div>
+      <div class="card-tags">
+        <span class="card-tag">vs Citrix</span>
+        <span class="card-tag purple">vs VMware</span>
+        <span class="card-tag green">vs Native Azure</span>
+        <span class="card-tag">Talk Tracks</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="nerdio-discovery-engine.html">
+      <div class="card-status new">New</div>
+      <div class="card-icon" style="background:rgba(167,149,199,0.15)">💬</div>
+      <div class="card-title">Discovery Question Engine</div>
+      <div class="card-desc">Meeting prep tool with 50+ persona-targeted discovery questions. Filter by stakeholder role, competitive situation, product focus, deal stage, and value pillars. Each question includes coaching notes, listen-for signals, and Nerdio capability mapping.</div>
+      <div class="card-tags">
+        <span class="card-tag purple">Persona-Based</span>
+        <span class="card-tag">Coaching Notes</span>
+        <span class="card-tag">50+ Questions</span>
+        <span class="card-tag green">Meeting Prep</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="nerdio-outreach.html">
+      <div class="card-status new">New</div>
+      <div class="card-icon" style="background:rgba(30,157,184,0.15)">📧</div>
+      <div class="card-title">Outreach Sequences</div>
+      <div class="card-desc">Eight ready-to-send email sequences covering Citrix displacement, VMware migration, Azure cost optimization, new AVD deployment, Win10 EOL, MSP recruitment, post-event follow-up, and customer expansion. Editable in-place with one-click copy.</div>
+      <div class="card-tags">
+        <span class="card-tag">8 Sequences</span>
+        <span class="card-tag purple">Editable</span>
+        <span class="card-tag green">Copy & Send</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="nerdio-roi-calculator.html">
+      <div class="card-status new">New</div>
+      <div class="card-icon" style="background:rgba(205,255,78,0.1)">🧮</div>
+      <div class="card-title">ROI Calculator</div>
+      <div class="card-desc">Interactive ROI modelling tool calculating Azure compute savings, operational efficiency gains, license consolidation, and risk reduction value. Shows ROI percentage, payback period, and 3/5-year projections with exportable summary.</div>
+      <div class="card-tags">
+        <span class="card-tag green">Cost Savings</span>
+        <span class="card-tag">Payback Period</span>
+        <span class="card-tag purple">Exportable</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="nerdio_sdr_pipeline_engine.html">
+      <div class="card-status new">New</div>
+      <div class="card-icon" style="background:rgba(167,149,199,0.15)">🚀</div>
+      <div class="card-title">SDR Pipeline Engine</div>
+      <div class="card-desc">Complete SDR playbook for FSI and Retail UK. Target account profiles, trigger-based outreach timing, research playbooks, personalised hooks, multi-touch email sequences, LinkedIn messaging, cold call scripts, and meeting positioning frameworks — all in one engine.</div>
+      <div class="card-tags">
+        <span class="card-tag">Email Sequences</span>
+        <span class="card-tag purple">Call Scripts</span>
+        <span class="card-tag green">LinkedIn</span>
+        <span class="card-tag">Research Playbook</span>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-left">Nerdio Sales Command Centre — Built for the field</div>
+  <div class="footer-right">
+    <a class="footer-link" href="https://getnerdio.com" target="_blank">getnerdio.com</a>
+  </div>
+</div>
+
+</body>
+</html>

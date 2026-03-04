@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nerdio Discovery Question Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: #042838;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: #042838;
+            padding: 16px 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .logo-wordmark {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-subtitle {
+            color: #1E9DB8;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .header-title {
+            margin-left: auto;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* MAIN CONTAINER */
+        .container {
+            display: flex;
+            height: calc(100vh - 72px);
+            gap: 0;
+            background-color: #f5f7fa;
+        }
+
+        /* LEFT PANEL - CONFIG */
+        .left-panel {
+            width: 320px;
+            background-color: #ffffff;
+            border-right: 1px solid #e8eef5;
+            padding: 24px;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .config-section {
+            margin-bottom: 28px;
+        }
+
+        .config-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #042838;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .chip-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chip {
+            padding: 10px 14px;
+            border: 2px solid #e8eef5;
+            border-radius: 24px;
+            background-color: #ffffff;
+            color: #042838;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .chip:hover {
+            border-color: #1E9DB8;
+            color: #1E9DB8;
+        }
+
+        .chip.active {
+            background-color: #1E9DB8;
+            border-color: #1E9DB8;
+            color: #ffffff;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1E9DB8;
+        }
+
+        .checkbox-item label {
+            font-size: 13px;
+            color: #042838;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: #1E9DB8;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a7fa0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 157, 184, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #f0f4f8;
+            color: #042838;
+            border: 1px solid #e8eef5;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e8eef5;
+        }
+
+        /* RIGHT PANEL - QUESTIONS */
+        .right-panel {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background-color: #f5f7fa;
+        }
+
+        .questions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e8eef5;
+        }
+
+        .questions-count {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .questions-count strong {
+            color: #1E9DB8;
+            font-weight: 700;
+        }
+
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+
+        .question-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 5px solid #1E9DB8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .question-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-pillar {
+            background-color: #f0f4f8;
+            color: #042838;
+        }
+
+        .badge-pillar.automation {
+            background-color: #e8f5f7;
+            color: #1E9DB8;
+        }
+
+        .badge-pillar.cost {
+            background-color: #f0f9e8;
+            color: #7fa800;
+        }
+
+        .badge-pillar.security {
+            background-color: #ede5f5;
+            color: #7a5c9d;
+        }
+
+        .badge-pillar.visibility {
+            background-color: #fff9e8;
+            color: #b88600;
+        }
+
+        .badge-difficulty {
+            background-color: #042838;
+            color: #ffffff;
+        }
+
+        .question-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #042838;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+
+        .question-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e8eef5;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #666;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .section-content {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e8eef5;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e8eef5;
+            background-color: #ffffff;
+            color: #042838;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-action:hover {
+            background-color: #f0f4f8;
+            border-color: #1E9DB8;
+            color: #1E9DB8;
+        }
+
+        .btn-action.starred {
+            background-color: #CDFF4E;
+            border-color: #CDFF4E;
+            color: #042838;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        /* PILLAR SECTIONS */
+        .questions-by-pillar {
+            margin-top: 20px;
+        }
+
+        .pillar-section {
+            margin-bottom: 32px;
+        }
+
+        .pillar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #e8eef5;
+        }
+
+        .pillar-header.automation {
+            border-bottom-color: #1E9DB8;
+        }
+
+        .pillar-header.cost {
+            border-bottom-color: #7fa800;
+        }
+
+        .pillar-header.security {
+            border-bottom-color: #7a5c9d;
+        }
+
+        .pillar-header.visibility {
+            border-bottom-color: #b88600;
+        }
+
+        .pillar-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #042838;
+            margin: 0;
+        }
+
+        .pillar-count {
+            font-size: 12px;
+            color: #999;
+            margin-left: auto;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            .left-panel {
+                display: none;
+            }
+
+            .right-panel {
+                width: 100%;
+                height: auto;
+                background-color: #ffffff;
+            }
+
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .question-card {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                margin-bottom: 20px;
+            }
+
+            .header {
+                position: static;
+                margin-bottom: 20px;
+            }
+
+            .container {
+                height: auto;
+            }
+
+            body {
+                background-color: #ffffff;
+            }
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f5f7fa;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c8d5e5;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b0c5dd;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .left-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e8eef5;
+                max-height: 400px;
+            }
+
+            .right-panel {
+                width: 100%;
+                height: auto;
+            }
+
+            .questions-grid {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .header-title {
+                margin-left: 0;
+                font-size: 16px;
+            }
+
+            .left-panel {
+                padding: 16px;
+            }
+
+            .right-panel {
+                padding: 16px;
+            }
+
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .questions-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: #042838;
+            color: #ffffff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast.success {
+            background-color: #7fa800;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-logo">
+            <svg class="logo-svg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                <!-- Left Lens -->
+                <circle cx="14" cy="24" r="11" fill="none" stroke="#1E9DB8" stroke-width="2"/>
+                <!-- Right Lens -->
+                <circle cx="34" cy="24" r="11" fill="none" stroke="#1E9DB8" stroke-width="2"/>
+                <!-- Bridge -->
+                <line x1="25" y1="24" x2="23" y2="24" stroke="#1E9DB8" stroke-width="2"/>
+                <!-- Left Arm -->
+                <path d="M 5 24 Q 3 24 3 26" fill="none" stroke="#1E9DB8" stroke-width="2" stroke-linecap="round"/>
+                <!-- Right Arm -->
+                <path d="M 45 24 Q 47 24 47 26" fill="none" stroke="#1E9DB8" stroke-width="2" stroke-linecap="round"/>
+                <!-- Power Button in Right Lens -->
+                <circle cx="34" cy="15" r="2" fill="#1E9DB8"/>
+            </svg>
+            <div class="logo-text">
+                <div class="logo-wordmark">nerdio</div>
+                <div class="logo-subtitle">Discovery Engine</div>
+            </div>
+        </div>
+        <div class="header-title">Meeting Prep Tool</div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <!-- LEFT PANEL - CONFIGURATION -->
+        <div class="left-panel">
+            <form id="configForm">
+                <!-- PERSONA -->
+                <div class="config-section">
+                    <label class="config-label">Buyer Persona</label>
+                    <div class="chip-group">
+                        <button type="button" class="chip" data-type="persona" data-value="cio">CIO/CTO</button>
+                        <button type="button" class="chip" data-type="persona" data-value="director">IT Director</button>
+                        <button type="button" class="chip" data-type="persona" data-value="admin">IT Admin/Architect</button>
+                        <button type="button" class="chip" data-type="persona" data-value="msp">MSP Owner</button>
+                        <button type="button" class="chip" data-type="persona" data-value="finance">Finance/Procurement</button>
+                    </div>
+                </div>
+
+                <!-- SITUATION -->
+                <div class="config-section">
+                    <label class="config-label">Business Situation</label>
+                    <div class="chip-group">
+                        <button type="button" class="chip" data-type="situation" data-value="citrix-renewal">Citrix Renewal</button>
+                        <button type="button" class="chip" data-type="situation" data-value="vmware">VMware/Broadcom Uncertainty</button>
+                        <button type="button" class="chip" data-type="situation" data-value="azure-cost">Azure Cost Shock</button>
+                        <button type="button" class="chip" data-type="situation" data-value="avd-deploy">New AVD Deployment</button>
+                        <button type="button" class="chip" data-type="situation" data-value="win10-eol">Windows 10 EOL</button>
+                        <button type="button" class="chip" data-type="situation" data-value="modernization">Desktop Modernization</button>
+                        <button type="button" class="chip" data-type="situation" data-value="intune">Intune Consolidation</button>
+                        <button type="button" class="chip" data-type="situation" data-value="discovery">General Discovery</button>
+                    </div>
+                </div>
+
+                <!-- PRODUCT FOCUS -->
+                <div class="config-section">
+                    <label class="config-label">Product Focus</label>
+                    <div class="chip-group">
+                        <button type="button" class="chip" data-type="product" data-value="nme">NME (Enterprise)</button>
+                        <button type="button" class="chip" data-type="product" data-value="nmm">NMM (MSP)</button>
+                        <button type="button" class="chip" data-type="product" data-value="both">Both</button>
+                    </div>
+                </div>
+
+                <!-- DEAL STAGE -->
+                <div class="config-section">
+                    <label class="config-label">Deal Stage</label>
+                    <div class="chip-group">
+                        <button type="button" class="chip" data-type="stage" data-value="early">Early Discovery</button>
+                        <button type="button" class="chip" data-type="stage" data-value="deep">Deep Qualification</button>
+                        <button type="button" class="chip" data-type="stage" data-value="technical">Technical Validation</button>
+                        <button type="button" class="chip" data-type="stage" data-value="business">Business Case</button>
+                    </div>
+                </div>
+
+                <!-- PRIORITY PILLARS -->
+                <div class="config-section">
+                    <label class="config-label">Priority Pillars</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pillar-automation" name="pillar" value="automation">
+                            <label for="pillar-automation">Automation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pillar-cost" name="pillar" value="cost">
+                            <label for="pillar-cost">Cost Optimization</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pillar-security" name="pillar" value="security">
+                            <label for="pillar-security">Security & Compliance</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pillar-visibility" name="pillar" value="visibility">
+                            <label for="pillar-visibility">Visibility</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" id="resetBtn">Reset</button>
+                    <button type="button" class="btn btn-primary" id="prepareBtn">Meeting Prep</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- RIGHT PANEL - QUESTIONS -->
+        <div class="right-panel">
+            <div class="questions-header">
+                <div class="questions-count">
+                    <strong id="matchCount">0</strong> questions match your criteria
+                </div>
+            </div>
+            <div class="questions-grid" id="questionsContainer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎯</div>
+                    <div class="empty-state-text">Select your meeting context to generate tailored questions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // QUESTION DATABASE
+        const questionDatabase = [
+            // COST OPTIMIZATION
+            {
+                id: 'cost-001',
+                pillar: 'cost',
+                difficulty: 'Opener',
+                persona: ['cio', 'director', 'finance'],
+                situation: ['azure-cost', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "How confident are you that you're not overpaying for Azure compute? Do you know what your VMs are doing at 2 AM?",
+                why: "Surfaces visibility gap and wasted compute spend. Most enterprises have VMs running idle 60% of the time.",
+                listenFor: "Hesitation, acknowledgment of unknown utilization, or mentions of 24/7 workloads that don't need to be.",
+                followUp: "If they don't know, ask: 'Would a 30-day usage baseline help you optimize that?'",
+                nerdioConnection: "NME dynamic scaling & autoscaling policies"
+            },
+            {
+                id: 'cost-002',
+                pillar: 'cost',
+                difficulty: 'Deepener',
+                persona: ['director', 'finance'],
+                situation: ['azure-cost', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "What's your current Azure monthly spend on virtual desktops? How has that trended over the last 12 months?",
+                why: "Establishes baseline and uncovers cost creep. Shows if they're tracking it at all.",
+                listenFor: "Vague answers, surprise at the number, month-to-month increases, or 'I'd have to check.'",
+                followUp: "If trending up: 'Is that driven by more users, larger VMs, or just more always-on infrastructure?'",
+                nerdioConnection: "NME cost analytics & optimization reporting"
+            },
+            {
+                id: 'cost-003',
+                pillar: 'cost',
+                difficulty: 'Deepener',
+                persona: ['cio', 'director', 'finance'],
+                situation: ['azure-cost', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "Have you calculated the total cost of your current VDI — not just licensing, but infrastructure, admin hours, and opportunity cost?",
+                why: "Most orgs only count licensing. TCO opens their eyes to what it really costs.",
+                listenFor: "No clear TCO model, focus only on licensing, underestimation of admin burden.",
+                followUp: "If they haven't: 'Would it help to run a TCO comparison against cloud-native options like AVD?'",
+                nerdioConnection: "NME reduces admin hours through automation"
+            },
+            {
+                id: 'cost-004',
+                pillar: 'cost',
+                difficulty: 'Challenger',
+                persona: ['finance', 'director'],
+                situation: ['discovery', 'azure-cost'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'business'],
+                question: "If I could show you 55% savings on Azure compute in your own environment in 30 days, would that be worth a conversation?",
+                why: "High-impact value prop that creates urgency without being pushy. Tests their openness to optimization.",
+                listenFor: "Immediate interest, skepticism (good—they want proof), or shifting to budget/approval concerns.",
+                followUp: "If interested: 'Let's run a quick utilization analysis on your current environment.'",
+                nerdioConnection: "NME achieves 55% average compute savings through intelligent scaling"
+            },
+            {
+                id: 'cost-005',
+                pillar: 'cost',
+                difficulty: 'Opener',
+                persona: ['director', 'admin'],
+                situation: ['avd-deploy', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "How do you handle scaling in your current environment? Are your VMs running 24/7 or do you have some automation?",
+                why: "Uncovers whether they're manually managing capacity (waste) or have automation (readiness for cloud).",
+                listenFor: "Manual scaling, always-on infrastructure, seasonal capacity planning challenges.",
+                followUp: "If manual: 'Imagine if new users could auto-provision AVD sessions in minutes without IT involvement.'",
+                nerdioConnection: "NME rapid provisioning & auto-scaling"
+            },
+            {
+                id: 'cost-006',
+                pillar: 'cost',
+                difficulty: 'Deepener',
+                persona: ['cio', 'director'],
+                situation: ['citrix-renewal'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "When does your Citrix renewal come up? Have you calculated what that renewal will cost including all supporting infrastructure?",
+                why: "Citrix renewals are 30-40% of total cost. Most don't factor in the infrastructure tax.",
+                listenFor: "Renewal anxiety, sticker shock from last renewal, infrastructure complexity they hadn't quantified.",
+                followUp: "If renewal is imminent: 'AVD + NME can cut that total cost while improving flexibility.'",
+                nerdioConnection: "NME AVD alternative to Citrix"
+            },
+            {
+                id: 'cost-007',
+                pillar: 'cost',
+                difficulty: 'Deepener',
+                persona: ['finance', 'director'],
+                situation: ['citrix-renewal', 'vmware'],
+                product: ['nmm', 'both'],
+                stage: ['deep', 'business'],
+                question: "As an MSP, how does your margin look on VDI management? Are licensing costs eating into profitability?",
+                why: "MSPs often have thin margins on Citrix. NMM offers higher-margin cloud-native alternative.",
+                listenFor: "Margin pressure, licensing complexity, customer churn due to costs.",
+                followUp: "If margins are thin: 'With NMM, you'd manage AVD with the same margin as your other cloud services.'",
+                nerdioConnection: "NMM higher-margin alternative to Citrix VDI management"
+            },
+            {
+                id: 'cost-008',
+                pillar: 'cost',
+                difficulty: 'Opener',
+                persona: ['admin', 'director'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early'],
+                question: "How many subscriptions and licensing agreements are you managing for your desktop/VDI infrastructure?",
+                why: "License sprawl is invisible cost leakage. This surfaces the complexity and hidden spend.",
+                listenFor: "More than 3-5 agreements, confusion about what they have, no clear owner.",
+                followUp: "If high complexity: 'Consolidating to fewer tools reduces license complexity and cost.'",
+                nerdioConnection: "NME simplifies through unified management"
+            },
+            {
+                id: 'cost-009',
+                pillar: 'cost',
+                difficulty: 'Deepener',
+                persona: ['director'],
+                situation: ['azure-cost', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep'],
+                question: "Do you have visibility into unused Azure resources? Are there orphaned VMs, unused storage, or overprovisioned instances?",
+                why: "Orphaned resources are silent cost drains. 15-30% of Azure spend is typically wasted.",
+                listenFor: "No visibility, acknowledgment of 'probably some', IT team running resources that shouldn't be.",
+                followUp: "If no visibility: 'NME can identify and clean up unused resources automatically.'",
+                nerdioConnection: "NME resource optimization & cleanup"
+            },
+            {
+                id: 'cost-010',
+                pillar: 'cost',
+                difficulty: 'Deepener',
+                persona: ['finance'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['business'],
+                question: "How are you modeling the cost impact of Windows 10 EOL? Are you budgeting for a migration, and have you factored in the infrastructure changes?",
+                why: "Win10 EOL forces re-platforming decision. Budgeting process reveals procurement/approval cycles.",
+                listenFor: "No plan yet, underestimated migration cost, or forced into reactive mode.",
+                followUp: "If unplanned: 'A managed cloud migration to AVD could reduce both capital and operational costs.'",
+                nerdioConnection: "NME simplifies Win11 migration path"
+            },
+
+            // AUTOMATION
+            {
+                id: 'auto-001',
+                pillar: 'automation',
+                difficulty: 'Opener',
+                persona: ['director', 'admin', 'cio'],
+                situation: ['avd-deploy', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "How long does it take your team to spin up a new AVD environment today? What if that were under an hour?",
+                why: "Surfaces manual overhead and time-to-deployment friction. Creates urgency for automation.",
+                listenFor: "Days or weeks, multi-step approval process, manual configuration, or 'I'd have to check with the team.'",
+                followUp: "If slow: 'Imagine self-service provisioning that cuts that from weeks to hours.'",
+                nerdioConnection: "NME rapid deployment & provisioning"
+            },
+            {
+                id: 'auto-002',
+                pillar: 'automation',
+                difficulty: 'Opener',
+                persona: ['admin', 'director'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "How many consoles does your team use to manage endpoints, desktops, and policies?",
+                why: "Console sprawl is toil. Multiple tools = fragmented workflows, higher error rates, and context switching.",
+                listenFor: "More than 2-3 tools, frustration with switching contexts, incomplete visibility.",
+                followUp: "If many tools: 'NME unifies management so your team has one place for everything.'",
+                nerdioConnection: "NME unified management console"
+            },
+            {
+                id: 'auto-003',
+                pillar: 'automation',
+                difficulty: 'Challenger',
+                persona: ['admin', 'director', 'cio'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "When a session host breaks at 3 AM, what happens? How long until it's fixed? And who pays the on-call tax?",
+                why: "Exposes manual remediation burden and hidden operational cost. Shows need for automation.",
+                listenFor: "Manual troubleshooting, escalation chains, slow MTTR, on-call burden for senior staff.",
+                followUp: "If manual: 'NME can auto-remediate most issues or alert the right person with context.'",
+                nerdioConnection: "NME proactive monitoring & auto-remediation"
+            },
+            {
+                id: 'auto-004',
+                pillar: 'automation',
+                difficulty: 'Deepener',
+                persona: ['admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "How do you manage golden images today? How often do you update them, and what's the process?",
+                why: "Image management is a major operational bottleneck. Manual processes cause drift and tech debt.",
+                listenFor: "Manual update process, infrequent updates, outdated baseline, lack of version control.",
+                followUp: "If manual: 'NME automates patching and image updates with scheduled maintenance windows.'",
+                nerdioConnection: "NME image management & automated patching"
+            },
+            {
+                id: 'auto-005',
+                pillar: 'automation',
+                difficulty: 'Deepener',
+                persona: ['admin', 'director'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "What's your team spending the most time on that you wish was automated?",
+                why: "Open-ended discovery question. Lets them identify their own pain points.",
+                listenFor: "Repetitive manual tasks, reactive firefighting, administrative grunt work.",
+                followUp: "If they cite something: 'That's exactly what NME is built to automate. Let me show you how.'",
+                nerdioConnection: "Varies by answer - NME handles most common desktop admin tasks"
+            },
+            {
+                id: 'auto-006',
+                pillar: 'automation',
+                difficulty: 'Deepener',
+                persona: ['admin'],
+                situation: ['avd-deploy', 'intune'],
+                product: ['nme', 'both'],
+                stage: ['technical'],
+                question: "How are you currently handling day-2 operations for AVD? Who patches, restarts, and manages scaling?",
+                why: "Day-2 ops are often an afterthought in AVD deployments. Reveals readiness for management burden.",
+                listenFor: "No clear plan, manual processes, undersourced team, or scaling crises.",
+                followUp: "If unprepared: 'NME handles day-2 ops so you don't have to staff up for it.'",
+                nerdioConnection: "NME day-2 operations automation"
+            },
+            {
+                id: 'auto-007',
+                pillar: 'automation',
+                difficulty: 'Opener',
+                persona: ['director', 'msp'],
+                situation: ['discovery'],
+                product: ['nmm', 'both'],
+                stage: ['early'],
+                question: "For your managed service customers, how do you scale desktop management without scaling your team size?",
+                why: "MSPs face infinite scaling problem. Automation is the only way to grow profitably.",
+                listenFor: "Manual scaling, limited capacity, inability to take on more customers, understaffed team.",
+                followUp: "If scaling is limited: 'NMM scales the management layer without adding headcount.'",
+                nerdioConnection: "NMM enables MSP scale without staffing"
+            },
+            {
+                id: 'auto-008',
+                pillar: 'automation',
+                difficulty: 'Deepener',
+                persona: ['admin'],
+                situation: ['intune', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "How are you managing policy compliance across all endpoints? Is it reactive (checking after issues) or proactive?",
+                why: "Reactive compliance = security debt. Proactive = automation and baseline monitoring.",
+                listenFor: "Reactive approach, manual compliance checking, policy drift, security gaps.",
+                followUp: "If reactive: 'NME continuously monitors and enforces policy baselines automatically.'",
+                nerdioConnection: "NME proactive policy enforcement"
+            },
+            {
+                id: 'auto-009',
+                pillar: 'automation',
+                difficulty: 'Challenger',
+                persona: ['director', 'cio'],
+                situation: ['discovery', 'win10-eol'],
+                product: ['nme', 'both'],
+                stage: ['technical', 'business'],
+                question: "During your Windows 10 EOL migration, how will you handle 1000+ devices? Are you planning manual updates or want to automate it?",
+                why: "Large-scale migrations demand automation. Surfaces scope and readiness.",
+                listenFor: "No plan, underestimating scope, or planning manual/phased approach without tooling.",
+                followUp: "If no automation: 'NME can orchestrate a 1000-device migration in days, not months.'",
+                nerdioConnection: "NME bulk device management & orchestration"
+            },
+            {
+                id: 'auto-010',
+                pillar: 'automation',
+                difficulty: 'Opener',
+                persona: ['admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early'],
+                question: "How much of your monthly IT workload is routine, repetitive tasks that don't require human judgment?",
+                why: "Quantifies automation opportunity. Even 30% automation frees capacity for strategic work.",
+                listenFor: "High percentage (60%+), routine tasks consuming senior staff, inability to hire.",
+                followUp: "If high: 'Automating those would let your team focus on strategic projects.'",
+                nerdioConnection: "NME automation reduces manual tasks"
+            },
+
+            // SECURITY & COMPLIANCE
+            {
+                id: 'sec-001',
+                pillar: 'security',
+                difficulty: 'Challenger',
+                persona: ['cio', 'director', 'admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "If audit came tomorrow, how fast could you prove compliance across all endpoints?",
+                why: "Exposes compliance readiness gap. Most organizations are slower than they'd like to admit.",
+                listenFor: "Hesitation, 'weeks not days', reliance on manual log searches, or 'we'd need to prepare.'",
+                followUp: "If slow: 'NME generates compliance reports in minutes, not days.'",
+                nerdioConnection: "NME compliance reporting & audit trails"
+            },
+            {
+                id: 'sec-002',
+                pillar: 'security',
+                difficulty: 'Deepener',
+                persona: ['admin', 'director'],
+                situation: ['intune', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "Are you using CIS Benchmarks for your Intune baselines? How are you enforcing them across all devices?",
+                why: "CIS Benchmarks are security standard. Surfaces whether they have a baseline or ad-hoc security.",
+                listenFor: "Not familiar with CIS, no baseline, or manual enforcement with gaps.",
+                followUp: "If no baseline: 'NME includes pre-built CIS baselines and enforces them automatically.'",
+                nerdioConnection: "NME CIS benchmark baselines & enforcement"
+            },
+            {
+                id: 'sec-003',
+                pillar: 'security',
+                difficulty: 'Deepener',
+                persona: ['admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "How do you detect configuration drift across your environment? What's your MTTR for policy violations?",
+                why: "Drift = security gaps. Manual detection is slow and incomplete.",
+                listenFor: "Manual detection, slow MTTR, unknown drift rate, or 'we assume it's happening.'",
+                followUp: "If slow: 'NME continuously monitors and alerts on drift within minutes.'",
+                nerdioConnection: "NME drift detection & remediation"
+            },
+            {
+                id: 'sec-004',
+                pillar: 'security',
+                difficulty: 'Deepener',
+                persona: ['cio', 'director'],
+                situation: ['avd-deploy', 'azure-cost'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "Where does your data reside? Does your management layer keep data in your Azure subscription or in a third-party cloud?",
+                why: "Data residency is a compliance requirement for regulated industries. Critical for trust.",
+                listenFor: "Uncertainty, reliance on third-party clouds, or 'I'm not sure where data lives.'",
+                followUp: "If uncertain: 'NME keeps all management data in your own Azure subscription—full data sovereignty.'",
+                nerdioConnection: "NME data residency in customer Azure subscriptions"
+            },
+            {
+                id: 'sec-005',
+                pillar: 'security',
+                difficulty: 'Opener',
+                persona: ['director', 'admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "How are you managing privileged access to your infrastructure? Do you have MFA on all administrative accounts?",
+                why: "PAM is foundational. Reveals whether they have security basics in place.",
+                listenFor: "No MFA, shared accounts, or 'some systems are not ready yet.'",
+                followUp: "If gaps exist: 'NME enforces MFA and role-based access across all administrative functions.'",
+                nerdioConnection: "NME RBAC & MFA enforcement"
+            },
+            {
+                id: 'sec-006',
+                pillar: 'security',
+                difficulty: 'Deepener',
+                persona: ['cio'],
+                situation: ['intune', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['technical', 'business'],
+                question: "Are you tracking which endpoints have unpatched vulnerabilities? How long is your average patch lag?",
+                why: "Patch lag directly correlates to breach risk. Surfaces security posture.",
+                listenFor: "Long lag, reactive patching, unknown vulnerability inventory, or patches breaking things.",
+                followUp: "If lag is high: 'NME automates patches and can roll back if there are issues.'",
+                nerdioConnection: "NME automated patching & rollback capability"
+            },
+            {
+                id: 'sec-007',
+                pillar: 'security',
+                difficulty: 'Deepener',
+                persona: ['admin', 'director'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "When you enable a new security policy or make a baseline change, how do you test it before production deployment?",
+                why: "Lack of staging = high risk of policy breaking things. Shows maturity of their change process.",
+                listenFor: "No staging environment, test-in-production, or slow change cycles due to risk.",
+                followUp: "If no staging: 'NME lets you test policies in a sandbox before full deployment.'",
+                nerdioConnection: "NME policy staging & gradual rollout"
+            },
+            {
+                id: 'sec-008',
+                pillar: 'security',
+                difficulty: 'Opener',
+                persona: ['cio', 'director'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early'],
+                question: "Who has administrative access to your cloud infrastructure today? Is there an audit trail for what they change?",
+                why: "Unlimited admin access is a classic risk. Creates insider threat and audit concerns.",
+                listenFor: "Too many people with admin rights, no audit logging, or 'probably too many people.'",
+                followUp: "If broad access: 'NME implements role-based access and complete audit trails.'",
+                nerdioConnection: "NME RBAC & comprehensive audit logging"
+            },
+
+            // VISIBILITY
+            {
+                id: 'vis-001',
+                pillar: 'visibility',
+                difficulty: 'Challenger',
+                persona: ['cio', 'director', 'admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep'],
+                question: "If I asked you right now — what's the compliance status of every endpoint in your org?",
+                why: "Most don't have instant answers. Tests whether they have real-time visibility.",
+                listenFor: "Can't answer instantly, need to run a report, or unsure which systems are compliant.",
+                followUp: "If no instant answer: 'NME gives you a real-time compliance dashboard for every device.'",
+                nerdioConnection: "NME real-time compliance dashboard"
+            },
+            {
+                id: 'vis-002',
+                pillar: 'visibility',
+                difficulty: 'Opener',
+                persona: ['director', 'admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "How many tools does your team use to get a complete picture of desktop health?",
+                why: "Tool sprawl fragments visibility. Complete picture requires stitching multiple data sources.",
+                listenFor: "3+ tools, incomplete visibility, or 'we use different tools for different aspects.'",
+                followUp: "If fragmented: 'NME consolidates all desktop health metrics in one unified view.'",
+                nerdioConnection: "NME unified health monitoring"
+            },
+            {
+                id: 'vis-003',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['director', 'admin'],
+                situation: ['avd-deploy', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "Can you see AVD, Windows 365, and Intune device status in one place today?",
+                why: "Most organizations have fragmented views. Unified visibility is a differentiator.",
+                listenFor: "Have to switch between tools, incomplete picture, or 'not in a single pane.'",
+                followUp: "If fragmented: 'NME gives you one dashboard for all desktop environments.'",
+                nerdioConnection: "NME unified multi-environment dashboard"
+            },
+            {
+                id: 'vis-004',
+                pillar: 'visibility',
+                difficulty: 'Opener',
+                persona: ['admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early'],
+                question: "How long does it take to get answers to basic questions like 'How many devices have software X installed?'",
+                why: "Slow query time = poor visibility. Fast queries = good data structure.",
+                listenFor: "Minutes or hours, requires SQL queries, or 'we'd have to ask the team.'",
+                followUp: "If slow: 'NME lets you query across thousands of devices in seconds.'",
+                nerdioConnection: "NME real-time inventory & analytics"
+            },
+            {
+                id: 'vis-005',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['director', 'admin'],
+                situation: ['azure-cost', 'discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "Do you have visibility into Azure spending by department, cost center, or business unit?",
+                why: "Cost visibility by business unit enables chargeback and accountability.",
+                listenFor: "No visibility into cost breakdown, can't allocate to departments, or flat bill.",
+                followUp: "If no breakdown: 'NME can tag and allocate costs by department or project.'",
+                nerdioConnection: "NME cost allocation & chargeback reporting"
+            },
+            {
+                id: 'vis-006',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['cio', 'director'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['technical', 'business'],
+                question: "How are you tracking metrics that matter to the business — like user login times or session quality?",
+                why: "Most IT teams track infrastructure but not user experience. UX metrics drive business value.",
+                listenFor: "Focus on infra metrics, no UX tracking, or 'we measure what we can extract.'",
+                followUp: "If no UX tracking: 'NME tracks the metrics your business cares about—login speed, session quality.'",
+                nerdioConnection: "NME user experience analytics"
+            },
+            {
+                id: 'vis-007',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "When a user reports a slow session, how long does it take to identify the root cause?",
+                why: "Slow troubleshooting = poor visibility into session internals. Shows observability maturity.",
+                listenFor: "Takes hours or days, requires multiple tools, or relies on user feedback.",
+                followUp: "If slow: 'NME traces each session and shows you exactly what's causing slowness.'",
+                nerdioConnection: "NME session tracing & diagnostics"
+            },
+            {
+                id: 'vis-008',
+                pillar: 'visibility',
+                difficulty: 'Opener',
+                persona: ['director'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "Do you have dashboards that show your team the state of the desktop infrastructure right now?",
+                why: "Dashboards = at-a-glance health. Shows whether they have observability or fly blind.",
+                listenFor: "No dashboards, manual status checks, or 'we call people when things break.'",
+                followUp: "If no dashboards: 'NME includes executive and operational dashboards that update in real-time.'",
+                nerdioConnection: "NME operational dashboards"
+            },
+
+            // SITUATIONAL - CITRIX
+            {
+                id: 'sit-citrix-001',
+                pillar: 'cost',
+                difficulty: 'Opener',
+                persona: ['cio', 'director', 'finance'],
+                situation: ['citrix-renewal'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "What was the size of your last Citrix renewal, and how much of that goes to infrastructure costs versus licensing?",
+                why: "Citrix renewals are usually 30-40% infrastructure. Shows true cost and renewal pain.",
+                listenFor: "Large amount, significant infrastructure spend, or 'I'd have to check with finance.'",
+                followUp: "If renewal was painful: 'AVD + NME could cut that cost while improving flexibility.'",
+                nerdioConnection: "NME as Citrix alternative"
+            },
+            {
+                id: 'sit-citrix-002',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['admin', 'director'],
+                situation: ['citrix-renewal'],
+                product: ['nme', 'both'],
+                stage: ['deep'],
+                question: "How many Citrix administrators do you need to keep the environment running? How much time is spent on maintenance?",
+                why: "Citrix is operationally heavy. Reveals hidden staffing cost.",
+                listenFor: "Multiple dedicated admins, significant maintenance burden, or constant troubleshooting.",
+                followUp: "If heavy: 'AVD + NME is operationally lighter and needs fewer skilled admins.'",
+                nerdioConnection: "NME reduces admin overhead vs. Citrix"
+            },
+            {
+                id: 'sit-citrix-003',
+                pillar: 'automation',
+                difficulty: 'Deepener',
+                persona: ['director'],
+                situation: ['citrix-renewal'],
+                product: ['nme', 'both'],
+                stage: ['technical'],
+                question: "How long does it take to provision a new Citrix user or update golden images in your Citrix environment?",
+                why: "Citrix provisioning is slow and manual. Creates deployment friction.",
+                listenFor: "Days or weeks, manual steps, or requires Citrix expertise.",
+                followUp: "If slow: 'AVD with NME can provision users in minutes.'",
+                nerdioConnection: "NME faster provisioning vs. Citrix"
+            },
+
+            // SITUATIONAL - VMWARE
+            {
+                id: 'sit-vmware-001',
+                pillar: 'cost',
+                difficulty: 'Challenger',
+                persona: ['cio', 'director', 'finance'],
+                situation: ['vmware'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "How has the Broadcom acquisition of VMware affected your virtualization strategy? Are you reconsidering your platform?",
+                why: "VMware/Broadcom uncertainty creates openness to alternatives. This is a strategic conversation.",
+                listenFor: "Concern about costs, licensing changes, or actively evaluating alternatives.",
+                followUp: "If reconsidering: 'AVD + NME is a viable alternative that many organizations are transitioning to.'",
+                nerdioConnection: "NME as VMware alternative"
+            },
+            {
+                id: 'sit-vmware-002',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['cio'],
+                situation: ['vmware'],
+                product: ['nme', 'both'],
+                stage: ['deep'],
+                question: "Are you considering moving away from on-premises VMware infrastructure? What's holding you back?",
+                why: "Tests appetite for cloud transition. Surfaces blockers and concerns.",
+                listenFor: "Cost of migration, skill gaps, application dependencies, or regulatory concerns.",
+                followUp: "If blocked: 'NME can manage a phased migration so you don't have to do it all at once.'",
+                nerdioConnection: "NME supports phased cloud migration"
+            },
+
+            // SITUATIONAL - AZURE COST
+            {
+                id: 'sit-azure-001',
+                pillar: 'cost',
+                difficulty: 'Opener',
+                persona: ['finance', 'director'],
+                situation: ['azure-cost'],
+                product: ['nme', 'both'],
+                stage: ['early', 'deep'],
+                question: "Was there a moment when you got your Azure bill and realized it was higher than expected?",
+                why: "Creates emotional hook. Everyone has a moment when Azure cost surprised them.",
+                listenFor: "Yes, with examples, or acknowledgment that tracking is hard.",
+                followUp: "If yes: 'That's the moment most organizations realize they need better cost management.'",
+                nerdioConnection: "NME prevents surprise Azure bills"
+            },
+            {
+                id: 'sit-azure-002',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['finance'],
+                situation: ['azure-cost'],
+                product: ['nme', 'both'],
+                stage: ['deep'],
+                question: "Do you have a forecasting model that predicts your Azure spend 3-6 months out?",
+                why: "Budget forecasting is table stakes for cloud. Shows maturity and prevents surprises.",
+                listenFor: "No model, manual estimation, or 'we just react to monthly bills.'",
+                followUp: "If no forecasting: 'NME helps you forecast and optimize spend before it happens.'",
+                nerdioConnection: "NME cost forecasting"
+            },
+
+            // SITUATIONAL - NEW AVD
+            {
+                id: 'sit-avd-001',
+                pillar: 'automation',
+                difficulty: 'Deepener',
+                persona: ['director', 'admin'],
+                situation: ['avd-deploy'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "Are you planning to manage your new AVD environment with native Azure tools only, or are you looking for a management platform?",
+                why: "Tests whether they've thought about day-2 ops. Azure tools are minimal for production AVD.",
+                listenFor: "Assuming native tools are enough, or not yet thinking about management.",
+                followUp: "If planning native tools: 'Most organizations need a management layer for production AVD. That's where NME comes in.'",
+                nerdioConnection: "NME management for AVD"
+            },
+            {
+                id: 'sit-avd-002',
+                pillar: 'cost',
+                difficulty: 'Deepener',
+                persona: ['director', 'finance'],
+                situation: ['avd-deploy'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "Have you modeled the total cost of ownership for your AVD deployment? Are you budgeting for the management layer?",
+                why: "AVD TCO often underestimates management overhead. Reveals budget readiness.",
+                listenFor: "No TCO model, assumes native management is sufficient, or limited budget for tooling.",
+                followUp: "If no model: 'NME is often cheaper than the staff you'd hire to manage AVD manually.'",
+                nerdioConnection: "NME cost-effective management"
+            },
+
+            // SITUATIONAL - WIN10 EOL
+            {
+                id: 'sit-win10-001',
+                pillar: 'automation',
+                difficulty: 'Deepener',
+                persona: ['director', 'admin', 'cio'],
+                situation: ['win10-eol'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "How are you planning to migrate 500+ devices from Windows 10 to Windows 11 or cloud? Do you have an automation strategy?",
+                why: "Large-scale migrations demand automation. Shows whether they're prepared.",
+                listenFor: "Manual migration plan, phased but slow approach, or no clear timeline.",
+                followUp: "If manual: 'NME can orchestrate bulk OS upgrades or cloud migrations in parallel.'",
+                nerdioConnection: "NME bulk OS upgrade & migration"
+            },
+            {
+                id: 'sit-win10-002',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['cio'],
+                situation: ['win10-eol'],
+                product: ['nme', 'both'],
+                stage: ['technical'],
+                question: "Do you know which devices can upgrade to Windows 11 versus which ones will need replacement?",
+                why: "Hardware compatibility is often the blocker. Shows readiness for migration.",
+                listenFor: "Unknown device inventory, compatibility uncertainty, or budgeting nightmare.",
+                followUp: "If unknown: 'NME scans all devices for Win11 compatibility in one report.'",
+                nerdioConnection: "NME compatibility scanning & reporting"
+            },
+
+            // SITUATIONAL - DESKTOP MODERNIZATION
+            {
+                id: 'sit-mod-001',
+                pillar: 'automation',
+                difficulty: 'Deepener',
+                persona: ['cio', 'director'],
+                situation: ['modernization'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'business'],
+                question: "What does 'desktop modernization' mean for your organization? Is it cloud, new OS, new management, or all of the above?",
+                why: "Open-ended to understand their modernization vision. Clarifies scope and priorities.",
+                listenFor: "Unclear vision, multiple competing priorities, or reactive vs. strategic modernization.",
+                followUp: "If unclear: 'NME fits into modernization plans—whether that's cloud, modern management, or both.'",
+                nerdioConnection: "NME modernization enabler"
+            },
+
+            // SITUATIONAL - INTUNE CONSOLIDATION
+            {
+                id: 'sit-intune-001',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['admin', 'director'],
+                situation: ['intune'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'technical'],
+                question: "Are you consolidating multiple MDM/management platforms into Intune? What's your timeline and blockers?",
+                why: "Intune consolidation is common. Shows whether they're maturing their management strategy.",
+                listenFor: "Multiple tools they're retiring, timeline challenges, or legacy systems they can't move.",
+                followUp: "If consolidating: 'NME accelerates Intune adoption by managing the complexity.'",
+                nerdioConnection: "NME Intune management"
+            },
+
+            // GENERAL DISCOVERY ADDITIONS
+            {
+                id: 'gen-001',
+                pillar: 'visibility',
+                difficulty: 'Opener',
+                persona: ['cio', 'director'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early'],
+                question: "What's your biggest operational challenge with desktop and VDI management today?",
+                why: "Open-ended discovery. Lets them identify their most painful problem.",
+                listenFor: "Specific pain point, operational burden, cost concern, or unmet need.",
+                followUp: "If they cite something: 'That's a common challenge. Let me show you how others have solved it.'",
+                nerdioConnection: "Varies - NME addresses broad range of desktop management challenges"
+            },
+            {
+                id: 'gen-002',
+                pillar: 'cost',
+                difficulty: 'Opener',
+                persona: ['finance'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early'],
+                question: "What's your biggest pressure from finance regarding infrastructure costs?",
+                why: "Finance pressure is a key driver. Shows whether there's budget urgency.",
+                listenFor: "Margin pressure, cost reduction targets, or need to optimize spending.",
+                followUp: "If budget pressure: 'Cost optimization is one of the biggest ROI drivers we see with NME.'",
+                nerdioConnection: "NME delivers cost savings and ROI"
+            },
+            {
+                id: 'gen-003',
+                pillar: 'security',
+                difficulty: 'Opener',
+                persona: ['cio'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early'],
+                question: "What keeps you up at night from a security or compliance perspective?",
+                why: "Security is top-of-mind for CIOs. Shows their risk profile.",
+                listenFor: "Audit readiness, data residency, compliance gaps, or threat concerns.",
+                followUp: "If concerned: 'Security and compliance are built into everything NME does.'",
+                nerdioConnection: "NME security & compliance built-in"
+            },
+            {
+                id: 'gen-004',
+                pillar: 'automation',
+                difficulty: 'Opener',
+                persona: ['director', 'admin'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['early'],
+                question: "If you could eliminate one manual process or toil from your team's work, what would it be?",
+                why: "Surfaces highest-value automation opportunity. Personal to the team.",
+                listenFor: "Specific repetitive task, frustration level, or impact to strategic work.",
+                followUp: "If clear candidate: 'NME can fully automate that and similar processes.'",
+                nerdioConnection: "NME automation"
+            },
+            {
+                id: 'gen-005',
+                pillar: 'visibility',
+                difficulty: 'Deepener',
+                persona: ['director'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep'],
+                question: "How confident are you that you have complete visibility into the health and performance of your desktop infrastructure right now?",
+                why: "Tests confidence in visibility. Most are less confident than they think.",
+                listenFor: "Uncertainty, known blind spots, or reliance on user complaints.",
+                followUp: "If lacking confidence: 'NME gives you complete visibility so you're never surprised by outages.'",
+                nerdioConnection: "NME comprehensive visibility"
+            },
+            {
+                id: 'gen-006',
+                pillar: 'cost',
+                difficulty: 'Deepener',
+                persona: ['director', 'finance'],
+                situation: ['discovery'],
+                product: ['nme', 'both'],
+                stage: ['deep', 'business'],
+                question: "What would a 30-40% reduction in desktop infrastructure costs mean for your budget next year?",
+                why: "Quantifies financial impact of optimization. Creates urgency.",
+                listenFor: "Significant impact, budget pressure, or competitive advantage.",
+                followUp: "If impactful: 'That's the range our customers see. Let's model it for your environment.'",
+                nerdioConnection: "NME delivers 30-55% cost savings"
+            }
+        ];
+
+        // STATE MANAGEMENT
+        let selectedFilters = {
+            persona: null,
+            situation: null,
+            product: null,
+            stage: null,
+            pillars: []
+        };
+
+        let starredQuestions = new Set();
+
+        // INITIALIZE
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            renderQuestions();
+        });
+
+        function setupEventListeners() {
+            // Chip buttons
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const type = this.dataset.type;
+                    const value = this.dataset.value;
+
+                    if (type === 'persona' || type === 'situation' || type === 'product' || type === 'stage') {
+                        // Single select - toggle
+                        const currentValue = selectedFilters[type];
+                        if (currentValue === value) {
+                            selectedFilters[type] = null;
+                            this.classList.remove('active');
+                        } else {
+                            // Remove active from other chips of same type
+                            document.querySelectorAll(`[data-type="${type}"]`).forEach(c => c.classList.remove('active'));
+                            selectedFilters[type] = value;
+                            this.classList.add('active');
+                        }
+                    }
+                    renderQuestions();
+                });
+            });
+
+            // Pillar checkboxes
+            document.querySelectorAll('input[name="pillar"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    selectedFilters.pillars = Array.from(
+                        document.querySelectorAll('input[name="pillar"]:checked')
+                    ).map(c => c.value);
+                    renderQuestions();
+                });
+            });
+
+            // Reset button
+            document.getElementById('resetBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                selectedFilters = {
+                    persona: null,
+                    situation: null,
+                    product: null,
+                    stage: null,
+                    pillars: []
+                };
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('input[name="pillar"]').forEach(c => c.checked = false);
+                renderQuestions();
+            });
+
+            // Meeting Prep button
+            document.getElementById('prepareBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.print();
+            });
+        }
+
+        function matchesFilters(question) {
+            // Persona filter
+            if (selectedFilters.persona && !question.persona.includes(selectedFilters.persona)) {
+                return false;
+            }
+
+            // Situation filter
+            if (selectedFilters.situation && !question.situation.includes(selectedFilters.situation)) {
+                return false;
+            }
+
+            // Product filter
+            if (selectedFilters.product && !question.product.includes(selectedFilters.product)) {
+                return false;
+            }
+
+            // Stage filter
+            if (selectedFilters.stage && !question.stage.includes(selectedFilters.stage)) {
+                return false;
+            }
+
+            // Pillars filter - only show if pillar is selected
+            if (selectedFilters.pillars.length > 0) {
+                if (!selectedFilters.pillars.includes(question.pillar)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function renderQuestions() {
+            const filteredQuestions = questionDatabase.filter(matchesFilters);
+            const container = document.getElementById('questionsContainer');
+
+            // Update count
+            document.getElementById('matchCount').textContent = filteredQuestions.length;
+
+            if (filteredQuestions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div class="empty-state-text">No questions match your current filters. Try adjusting your selections.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group by pillar if any are selected
+            if (selectedFilters.pillars.length > 0) {
+                let html = '<div class="questions-by-pillar">';
+
+                const pillarOrder = ['automation', 'cost', 'security', 'visibility'];
+                for (const pillar of pillarOrder) {
+                    if (!selectedFilters.pillars.includes(pillar)) continue;
+
+                    const pillarQuestions = filteredQuestions.filter(q => q.pillar === pillar);
+                    if (pillarQuestions.length === 0) continue;
+
+                    html += `<div class="pillar-section">
+                        <div class="pillar-header ${pillar}">
+                            <h3 class="pillar-title">${getPillarName(pillar)}</h3>
+                            <span class="pillar-count">${pillarQuestions.length}</span>
+                        </div>
+                        <div class="questions-grid">
+                            ${pillarQuestions.map(q => renderQuestionCard(q)).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                html += '</div>';
+                container.innerHTML = html;
+            } else {
+                // No pillar filter - show all as a grid
+                container.innerHTML = filteredQuestions.map(q => renderQuestionCard(q)).join('');
+            }
+
+            // Attach event listeners to action buttons
+            setupQuestionActions();
+        }
+
+        function renderQuestionCard(question) {
+            const isStarred = starredQuestions.has(question.id);
+            const pillarBadgeClass = `badge-pillar ${question.pillar}`;
+
+            return `
+                <div class="question-card" data-question-id="${question.id}">
+                    <div class="question-badges">
+                        <span class="badge ${pillarBadgeClass}">${getPillarName(question.pillar)}</span>
+                        <span class="badge badge-difficulty">${question.difficulty}</span>
+                    </div>
+
+                    <div class="question-text">"${question.question}"</div>
+
+                    <div class="question-section">
+                        <span class="section-label">Why This Works</span>
+                        <div class="section-content">${question.why}</div>
+                    </div>
+
+                    <div class="question-section">
+                        <span class="section-label">Listen For</span>
+                        <div class="section-content">${question.listenFor}</div>
+                    </div>
+
+                    <div class="question-section">
+                        <span class="section-label">If They Confirm</span>
+                        <div class="section-content">${question.followUp}</div>
+                    </div>
+
+                    <div class="question-section">
+                        <span class="section-label">Nerdio Connection</span>
+                        <div class="section-content">${question.nerdioConnection}</div>
+                    </div>
+
+                    <div class="question-actions">
+                        <button class="btn-action copy-btn" data-question-id="${question.id}">📋 Copy</button>
+                        <button class="btn-action star-btn ${isStarred ? 'starred' : ''}" data-question-id="${question.id}">
+                            ${isStarred ? '⭐ Starred' : '☆ Star'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getPillarName(pillar) {
+            const names = {
+                'automation': 'Automation',
+                'cost': 'Cost Optimization',
+                'security': 'Security & Compliance',
+                'visibility': 'Visibility'
+            };
+            return names[pillar] || pillar;
+        }
+
+        function setupQuestionActions() {
+            // Copy buttons
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const questionId = this.dataset.questionId;
+                    const question = questionDatabase.find(q => q.id === questionId);
+
+                    navigator.clipboard.writeText(question.question).then(() => {
+                        showToast('Question copied to clipboard!', 'success');
+                    });
+                });
+            });
+
+            // Star buttons
+            document.querySelectorAll('.star-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const questionId = this.dataset.questionId;
+
+                    if (starredQuestions.has(questionId)) {
+                        starredQuestions.delete(questionId);
+                        this.classList.remove('starred');
+                        this.textContent = '☆ Star';
+                    } else {
+                        starredQuestions.add(questionId);
+                        this.classList.add('starred');
+                        this.textContent = '⭐ Starred';
+                    }
+                });
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

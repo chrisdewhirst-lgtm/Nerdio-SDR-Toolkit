@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerdio SDR Pipeline Engine — FSI & Retail UK</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+  :root {
+    --navy: #042838;
+    --teal: #1E9DB8;
+    --white: #FFFFFF;
+    --green: #CDFF4E;
+    --purple: #A795C7;
+    --navy-mid: #0a3d52;
+    --navy-light: #0f4f6a;
+    --teal-light: #e8f7fb;
+    --text-muted: #6b8fa0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #f0f5f8;
+    color: var(--navy);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  .top-nav {
+    background: var(--navy);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 2px solid var(--teal);
+  }
+  .nav-logo {
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 14px 24px 14px 0;
+    border-right: 1px solid rgba(255,255,255,0.15);
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-logo span { color: var(--teal); }
+  .nav-tabs { display: flex; gap: 0; flex: 1; overflow-x: auto; }
+  .nav-tab {
+    color: rgba(255,255,255,0.6);
+    padding: 14px 18px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { color: var(--white); background: rgba(255,255,255,0.05); }
+  .nav-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  /* SECTIONS */
+  .section { display: none; padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* PAGE HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: var(--white);
+    padding: 32px 40px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(30,157,184,0.2) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .hero-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .hero-sub { font-size: 13px; color: rgba(255,255,255,0.7); max-width: 600px; }
+
+  /* CARDS */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 20px;
+    border-left: 4px solid var(--teal);
+    box-shadow: 0 2px 8px rgba(4,40,56,0.08);
+  }
+  .card.navy { background: var(--navy); color: var(--white); border-left-color: var(--green); }
+  .card.green-accent { border-left-color: var(--green); }
+  .card.purple-accent { border-left-color: var(--purple); }
+  .card-eyebrow {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .card.navy .card-eyebrow { color: var(--green); }
+  .card-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .card-body { font-size: 12px; color: #4a6575; line-height: 1.7; }
+  .card.navy .card-body { color: rgba(255,255,255,0.75); }
+
+  /* SECTION HEADING */
+  .section-heading {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 24px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--teal);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-heading .badge {
+    background: var(--teal);
+    color: var(--white);
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* ACCOUNT TABLE */
+  .account-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(4,40,56,0.08); margin-bottom: 20px; }
+  .account-table thead { background: var(--navy); color: var(--white); }
+  .account-table thead th { padding: 12px 14px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
+  .account-table tbody tr { border-bottom: 1px solid #e8f0f4; }
+  .account-table tbody tr:hover { background: var(--teal-light); }
+  .account-table tbody td { padding: 11px 14px; font-size: 11.5px; vertical-align: top; }
+  .account-table tbody td:first-child { font-weight: 700; font-size: 12px; }
+
+  .heat-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .h5 { background: #c0392b; }
+  .h4 { background: #e67e22; }
+  .h3 { background: #f1c40f; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 700; letter-spacing: 0.3px; margin: 1px 2px; }
+  .tag-citrix { background: #fde3e3; color: #c0392b; }
+  .tag-vmware { background: #fdefd3; color: #b7770d; }
+  .tag-avd { background: #d4edf7; color: #1a6f8a; }
+  .tag-fsi { background: #e8e0f5; color: #6b4f9e; }
+  .tag-retail { background: #e0f0e3; color: #2e7d46; }
+  .tag-w365 { background: #dff5e3; color: #1e6b3c; }
+
+  /* EMAIL SEQUENCE */
+  .email-card {
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(4,40,56,0.08);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .email-header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .email-num {
+    background: var(--teal);
+    color: var(--white);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .email-meta { flex: 1; }
+  .email-meta-title { font-size: 13px; font-weight: 700; }
+  .email-meta-timing { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+  .email-body { padding: 20px; }
+  .email-subject {
+    background: #f0f5f8;
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-bottom: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .email-subject span { color: var(--text-muted); font-weight: 400; }
+  .email-copy {
+    font-size: 12.5px;
+    color: #2a4555;
+    line-height: 1.8;
+    white-space: pre-line;
+  }
+
+  /* HOOK CARDS */
+  .hooks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .hook-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 16px 18px;
+    border-top: 3px solid var(--teal);
+    box-shadow: 0 2px 6px rgba(4,40,56,0.07);
+    position: relative;
+  }
+  .hook-card.fsi { border-top-color: #A795C7; }
+  .hook-card.retail { border-top-color: #2ecc71; }
+  .hook-num {
+    position: absolute;
+    top: -1px; right: 12px;
+    background: var(--navy);
+    color: var(--white);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 0 0 6px 6px;
+  }
+  .hook-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .hook-text { font-size: 12.5px; font-weight: 600; color: var(--navy); margin-bottom: 6px; line-height: 1.5; }
+  .hook-context { font-size: 11px; color: #5a7a8c; line-height: 1.6; }
+
+  /* LINKEDIN CARDS */
+  .li-card {
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(4,40,56,0.08);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .li-header {
+    background: #0077b5;
+    color: var(--white);
+    padding: 12px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .li-body {
+    padding: 16px 18px;
+    font-size: 12.5px;
+    color: #2a4555;
+    line-height: 1.8;
+    white-space: pre-line;
+  }
+
+  /* CALL SCRIPT */
+  .script-step {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--teal);
+    box-shadow: 0 1px 6px rgba(4,40,56,0.06);
+  }
+  .script-step.navy-step { border-left-color: var(--navy); background: var(--navy); color: var(--white); }
+  .script-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .script-step.navy-step .script-label { color: var(--green); }
+  .script-content { font-size: 12.5px; color: #1e3a4a; line-height: 1.8; }
+  .script-step.navy-step .script-content { color: rgba(255,255,255,0.9); }
+  .script-note { font-size: 11px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+
+  /* RESEARCH PLAYBOOK */
+  .playbook-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .playbook-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 6px rgba(4,40,56,0.06);
+    border-top: 3px solid var(--teal);
+  }
+  .playbook-icon { font-size: 22px; margin-bottom: 8px; }
+  .playbook-title { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .playbook-list { list-style: none; }
+  .playbook-list li {
+    font-size: 11.5px;
+    color: #3a5a6e;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f5f8;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .playbook-list li::before { content: '→'; color: var(--teal); flex-shrink: 0; font-weight: 700; }
+  .playbook-list li:last-child { border-bottom: none; }
+
+  /* TRIGGER PILLS */
+  .trigger-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .trigger-pill {
+    background: var(--white);
+    border: 1px solid #d0e4ed;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    color: var(--navy);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .trigger-pill.hot { border-color: #e74c3c; background: #fef0ee; color: #c0392b; }
+  .trigger-pill.warm { border-color: #e67e22; background: #fdf4ea; color: #b7560a; }
+
+  /* MEETING POSITIONING */
+  .meeting-theme {
+    background: var(--navy);
+    color: var(--white);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .meeting-theme::before {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(30,157,184,0.3) 0%, transparent 70%);
+  }
+  .meeting-theme-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 6px; }
+  .meeting-theme-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .meeting-theme-body { font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.7; }
+  .meeting-theme-hook { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.15); font-size: 11.5px; color: var(--green); font-weight: 600; }
+
+  /* FILTER CONTROLS */
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #d0e4ed;
+    background: var(--white);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Poppins', sans-serif;
+  }
+  .filter-btn:hover, .filter-btn.active { background: var(--teal); color: var(--white); border-color: var(--teal); }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-box {
+    background: var(--navy);
+    color: var(--white);
+    border-radius: 10px;
+    padding: 16px 18px;
+    text-align: center;
+  }
+  .stat-num { font-size: 26px; font-weight: 700; color: var(--green); }
+  .stat-label { font-size: 10px; color: rgba(255,255,255,0.65); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* PROOF POINT STRIP */
+  .proof-strip {
+    background: linear-gradient(90deg, var(--teal) 0%, #0a7a9a 100%);
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex;
+    gap: 32px;
+    color: var(--white);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .proof-item { text-align: center; }
+  .proof-num { font-size: 20px; font-weight: 700; color: var(--green); }
+  .proof-label { font-size: 10px; color: rgba(255,255,255,0.8); }
+
+  /* FOOTER */
+  .doc-footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.5);
+    padding: 12px 32px;
+    font-size: 10px;
+    text-align: center;
+    margin-top: 40px;
+  }
+  .doc-footer strong { color: var(--teal); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .section { padding: 16px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .proof-strip { gap: 16px; }
+    .nav-tab { padding: 12px 12px; font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top-nav">
+  <div class="nav-logo">
+    <svg width="28" height="28" viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="25" r="12" stroke="#1E9DB8" stroke-width="3.5" fill="none"/>
+      <circle cx="58" cy="25" r="12" stroke="#1E9DB8" stroke-width="3.5" fill="none"/>
+      <path d="M34 25 Q40 18 46 25" fill="none" stroke="#1E9DB8" stroke-width="3" stroke-linecap="round"/>
+      <path d="M10 25 L3 18" fill="none" stroke="#1E9DB8" stroke-width="3" stroke-linecap="round"/>
+      <path d="M70 25 L77 18" fill="none" stroke="#1E9DB8" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="58" cy="22" r="5" stroke="#1E9DB8" stroke-width="2" fill="none"/>
+      <path d="M58 17 L58 22" fill="none" stroke="#1E9DB8" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>nerdio</span> SDR ENGINE
+  </div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showSection('accounts', this)">🎯 Target Accounts</div>
+    <div class="nav-tab" onclick="showSection('triggers', this)">⚡ Triggers</div>
+    <div class="nav-tab" onclick="showSection('research', this)">🔍 Research Playbook</div>
+    <div class="nav-tab" onclick="showSection('hooks', this)">🪝 Outreach Hooks</div>
+    <div class="nav-tab" onclick="showSection('emails', this)">✉️ Email Sequence</div>
+    <div class="nav-tab" onclick="showSection('linkedin', this)">💼 LinkedIn</div>
+    <div class="nav-tab" onclick="showSection('calls', this)">📞 Call Script</div>
+    <div class="nav-tab" onclick="showSection('meeting', this)">📅 Meeting Positioning</div>
+  </div>
+</nav>
+
+<!-- ======================== TARGET ACCOUNTS ======================== -->
+<section class="section active" id="accounts">
+  <div class="hero">
+    <div class="hero-eyebrow">Nerdio UK · FSI & Retail & Consumer Goods · FY2026</div>
+    <div class="hero-title">SDR Pipeline Engine — Top 15 Priority Accounts</div>
+    <div class="hero-sub">Scored on: EUC estate size · Citrix/VMware exposure · Azure momentum · Workforce profile · Regulatory pressure. Prioritise accounts with 3+ active trigger signals.</div>
+  </div>
+
+  <div class="proof-strip">
+    <div class="proof-item"><div class="proof-num">55%</div><div class="proof-label">Avg Azure cost saving</div></div>
+    <div class="proof-item"><div class="proof-num">3M+</div><div class="proof-label">Desktops managed</div></div>
+    <div class="proof-item"><div class="proof-num">$20K/mo</div><div class="proof-label">Grant Thornton saving</div></div>
+    <div class="proof-item"><div class="proof-num">75%</div><div class="proof-label">LexisNexis support reduction</div></div>
+    <div class="proof-item"><div class="proof-num">&lt;1hr</div><div class="proof-label">AVD deployment time</div></div>
+  </div>
+
+  <div class="section-heading">
+    Top 15 Priority Accounts <span class="badge">FSI · Retail · Consumer Goods</span>
+  </div>
+
+  <table class="account-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Organisation</th>
+        <th>Industry</th>
+        <th>Scale</th>
+        <th>EUC Platform Signals</th>
+        <th>Priority Triggers</th>
+        <th>Why Now</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="heat-dot h5"></span>1</td>
+        <td>Lloyds Banking Group</td>
+        <td><span class="tag tag-fsi">FSI</span></td>
+        <td>~65,000 employees</td>
+        <td><span class="tag tag-citrix">Citrix</span> <span class="tag tag-avd">AVD Pilots</span></td>
+        <td>Citrix renewal · FCA compliance pressure · Azure-first strategy · Cost optimisation</td>
+        <td>Publicly committed to Azure migration. Citrix costs are significant at this scale. FCA operational resilience rules create audit pressure Nerdio directly addresses.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h5"></span>2</td>
+        <td>Barclays</td>
+        <td><span class="tag tag-fsi">FSI</span></td>
+        <td>~50,000 UK employees</td>
+        <td><span class="tag tag-citrix">Citrix</span> <span class="tag tag-avd">AVD Pilots</span></td>
+        <td>Citrix renewal · Trading floor EUC complexity · Azure investment · Regulatory compliance</td>
+        <td>Trading infrastructure demands high desktop reliability. Citrix renewal conversations are live across major UK banks. Azure adoption confirmed in public reporting.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h5"></span>3</td>
+        <td>HSBC UK</td>
+        <td><span class="tag tag-fsi">FSI</span></td>
+        <td>~40,000 UK employees</td>
+        <td><span class="tag tag-citrix">Citrix</span> <span class="tag tag-vmware">VMware</span></td>
+        <td>Dual VDI vendor cost · Broadcom VMware fallout · Microsoft strategic partnership · Hybrid workforce</td>
+        <td>HSBC runs both Citrix and VMware in certain divisions. Post-Broadcom pricing shock creates urgent platform consolidation conversation.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h5"></span>4</td>
+        <td>Aviva</td>
+        <td><span class="tag tag-fsi">FSI</span></td>
+        <td>~22,000 employees</td>
+        <td><span class="tag tag-citrix">Citrix</span> <span class="tag tag-avd">Azure Adoption</span></td>
+        <td>Citrix renewal · Cloud modernisation · Distributed claims workforce · FCA resilience</td>
+        <td>Active digital transformation programme. Distributed workforce of underwriters, claims handlers, and advisors is a natural fit for AVD at scale with Nerdio management.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h5"></span>5</td>
+        <td>Legal & General</td>
+        <td><span class="tag tag-fsi">FSI</span></td>
+        <td>~12,000 employees</td>
+        <td><span class="tag tag-vmware">VMware</span> <span class="tag tag-avd">Azure Investment</span></td>
+        <td>Broadcom VMware fallout · Windows 365 pilots · Azure investment · Compliance</td>
+        <td>Insurance and investment management operations depend on desktop reliability. VMware post-Broadcom pricing shock is a live trigger for EUC strategy review.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h4"></span>6</td>
+        <td>Marks & Spencer</td>
+        <td><span class="tag tag-retail">Retail</span></td>
+        <td>~65,000 employees</td>
+        <td><span class="tag tag-citrix">Citrix</span> <span class="tag tag-avd">Microsoft 365</span></td>
+        <td>Seasonal workforce scaling · Hybrid store/office EUC · Azure adoption · Cost optimisation</td>
+        <td>Post-cyberattack infrastructure review creates openness to platform change. Seasonal peak workforce (Christmas) is a natural autoscaling conversation. Large Microsoft footprint.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h4"></span>7</td>
+        <td>Tesco</td>
+        <td><span class="tag tag-retail">Retail</span></td>
+        <td>~300,000 employees (UK)</td>
+        <td><span class="tag tag-avd">Azure Adoption</span> <span class="tag tag-w365">W365 Candidate</span></td>
+        <td>Massive seasonal scaling · Store/depot EUC · Azure investment · Contractor workforce</td>
+        <td>Scale of workforce makes Nerdio autoscaling economics extremely compelling. Store technology teams managing desktops at scale face significant operational complexity.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h4"></span>8</td>
+        <td>Kingfisher Group</td>
+        <td><span class="tag tag-retail">Retail</span></td>
+        <td>~80,000 employees</td>
+        <td><span class="tag tag-avd">AVD Pilots</span> <span class="tag tag-avd">Azure Confirmed</span></td>
+        <td>Known AVD interest · Multi-country EUC · Seasonal workforce · Cost pressure</td>
+        <td>Inherited pipeline opportunity. Kingfisher operates B&Q, Screwfix across UK and EMEA — multi-country AVD management is a natural NME use case.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h4"></span>9</td>
+        <td>Next plc</td>
+        <td><span class="tag tag-retail">Retail</span></td>
+        <td>~45,000 employees</td>
+        <td><span class="tag tag-avd">Azure Adoption</span> <span class="tag tag-citrix">Citrix</span></td>
+        <td>Seasonal workforce · Online/logistics EUC · Cost control · Azure momentum</td>
+        <td>Next's digital-first strategy and large seasonal distribution workforce makes Nerdio autoscaling a direct cost conversation. Tech-forward retailer likely to engage on platform modernisation.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h4"></span>10</td>
+        <td>Standard Chartered UK</td>
+        <td><span class="tag tag-fsi">FSI</span></td>
+        <td>~5,000 UK employees</td>
+        <td><span class="tag tag-citrix">Citrix</span> <span class="tag tag-avd">Azure Investment</span></td>
+        <td>Trading infrastructure · Regulatory compliance · Citrix renewal · Global EUC standardisation</td>
+        <td>Global bank with significant UK trading and wealth operations. Citrix dependency in trading environments is under review industry-wide.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h3"></span>11</td>
+        <td>Schroders</td>
+        <td><span class="tag tag-fsi">FSI</span></td>
+        <td>~6,000 employees</td>
+        <td><span class="tag tag-citrix">Citrix</span> <span class="tag tag-avd">AVD Interest</span></td>
+        <td>Citrix renewal · FCA compliance · Wealth management EUC · Azure adoption</td>
+        <td>Active inherited pipeline opportunity. Asset management firms are under FCA pressure on operational resilience — desktop reliability and governance are board-level concerns.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h3"></span>12</td>
+        <td>MUFG Bank UK</td>
+        <td><span class="tag tag-fsi">FSI</span></td>
+        <td>~2,500 UK employees</td>
+        <td><span class="tag tag-avd">AVD Evaluation</span> <span class="tag tag-citrix">Citrix</span></td>
+        <td>AVD evaluation · Japanese bank UK ops · Regulatory compliance · Citrix cost</td>
+        <td>Active inherited pipeline. Japanese banks operating in London face FCA scrutiny and typically run complex VDI environments for regulatory separation of trading desks.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h3"></span>13</td>
+        <td>Unilever UK</td>
+        <td><span class="tag tag-retail">Consumer Goods</span></td>
+        <td>~10,000 UK employees</td>
+        <td><span class="tag tag-vmware">VMware</span> <span class="tag tag-avd">Azure Adoption</span></td>
+        <td>Broadcom VMware fallout · Azure investment · Contractor workforce · Global EUC standardisation</td>
+        <td>Large consumer goods enterprise with global digital transformation underway. Post-Broadcom VMware review creates natural migration conversation.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h3"></span>14</td>
+        <td>Willis Towers Watson UK</td>
+        <td><span class="tag tag-fsi">FSI</span></td>
+        <td>~10,000 UK employees</td>
+        <td><span class="tag tag-avd">Nerdio Customer</span></td>
+        <td>Reference customer · Expansion potential · Consulting workforce EUC · AVD at scale</td>
+        <td>Nerdio named customer — valuable as a reference. Consultant/analyst workforce on cloud desktops is a strong use case to expand within the account or reference outward.</td>
+      </tr>
+      <tr>
+        <td><span class="heat-dot h3"></span>15</td>
+        <td>ASOS</td>
+        <td><span class="tag tag-retail">Retail</span></td>
+        <td>~3,500 employees</td>
+        <td><span class="tag tag-avd">Azure Native</span> <span class="tag tag-w365">W365 Candidate</span></td>
+        <td>Digital-native retailer · Azure investment · Seasonal demand · Engineering team scaling</td>
+        <td>Digital-native, Azure-first business. Engineering and tech workforce that scales rapidly around seasonal peaks. Strong Windows 365 conversation given contractor workforce profile.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card-grid">
+    <div class="card navy">
+      <div class="card-eyebrow">Competitive Context</div>
+      <div class="card-title">Citrix Exposure Across This List</div>
+      <div class="card-body">9 of the 15 accounts have confirmed or strongly likely Citrix environments. Post-Broadcom Citrix pricing has increased 40–300% for many customers. Every Citrix renewal is a Nerdio AVD migration conversation waiting to happen.</div>
+    </div>
+    <div class="card navy">
+      <div class="card-eyebrow">Market Moment</div>
+      <div class="card-title">VMware / Broadcom Fallout</div>
+      <div class="card-body">4 accounts show VMware Horizon dependency. Post-Broadcom acquisition, perpetual licensing has been discontinued and pricing for subscriptions has risen sharply. This is the single biggest unplanned migration trigger in the UK EUC market right now.</div>
+    </div>
+    <div class="card green-accent">
+      <div class="card-eyebrow">Reference Selling</div>
+      <div class="card-title">Use Willis Towers Watson & Grant Thornton</div>
+      <div class="card-body">WTW is a named Nerdio customer. Grant Thornton saved $20K/month and deployed globally. Both are credible FSI/professional services references for conversations with financial services accounts on this list.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== TRIGGERS ======================== -->
+<section class="section" id="triggers">
+  <div class="hero">
+    <div class="hero-eyebrow">Opportunity Intelligence</div>
+    <div class="hero-title">High-Probability Trigger Signals</div>
+    <div class="hero-sub">Accounts showing 3+ of these signals should be moved to immediate outreach. Hot signals (red) indicate an active, time-sensitive event. Warm signals (orange) indicate strategic drift requiring engagement.</div>
+  </div>
+
+  <div class="section-heading">Hot Triggers — Act Now <span class="badge">Time-Sensitive</span></div>
+  <div class="trigger-grid">
+    <div class="trigger-pill hot">🔴 Citrix renewal within 12 months</div>
+    <div class="trigger-pill hot">🔴 Broadcom / VMware licensing shock</div>
+    <div class="trigger-pill hot">🔴 Active AVD pilot with no management tooling</div>
+    <div class="trigger-pill hot">🔴 FCA operational resilience deadline (March 2025 — compliance review ongoing)</div>
+    <div class="trigger-pill hot">🔴 Cybersecurity incident triggering infrastructure review</div>
+    <div class="trigger-pill hot">🔴 CIO hire in last 6 months — new mandate</div>
+  </div>
+
+  <div class="section-heading">Warm Triggers — Strategic Engagement</div>
+  <div class="trigger-grid">
+    <div class="trigger-pill warm">🟠 Job postings: AVD engineer, EUC architect, cloud desktop</div>
+    <div class="trigger-pill warm">🟠 Windows 365 pilot confirmed</div>
+    <div class="trigger-pill warm">🟠 Azure cost optimisation programme</div>
+    <div class="trigger-pill warm">🟠 Digital workplace transformation programme</div>
+    <div class="trigger-pill warm">🟠 Seasonal workforce scaling challenges</div>
+    <div class="trigger-pill warm">🟠 Large contractor / contingent workforce</div>
+    <div class="trigger-pill warm">🟠 VDI performance complaints surfacing on LinkedIn</div>
+    <div class="trigger-pill warm">🟠 Cloud desktop consolidation initiative</div>
+    <div class="trigger-pill warm">🟠 EUC team under capacity pressure (no headcount growth)</div>
+    <div class="trigger-pill warm">🟠 Azure Marketplace procurement preference confirmed</div>
+    <div class="trigger-pill warm">🟠 Microsoft co-sell or EA renewal activity</div>
+    <div class="trigger-pill warm">🟠 Hybrid workforce expansion / new office openings</div>
+    <div class="trigger-pill warm">🟠 CIO automation in IT operations initiative</div>
+    <div class="trigger-pill warm">🟠 Platform consolidation from 3+ EUC vendors to 1–2</div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-eyebrow">FSI-Specific Triggers</div>
+      <div class="card-title">Financial Services Signals</div>
+      <div class="card-body">Trading floor desktop reliability complaints · FCA PS21/3 operational resilience (annual review) · Wealth management compliance audit prep · SMBC / MUFG regulatory separation of trading systems · Branch rationalisation (fewer physical desks, more cloud desktops) · Acquisition/merger creating two separate VDI estates</div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">Retail-Specific Triggers</div>
+      <div class="card-title">Retail & Consumer Goods Signals</div>
+      <div class="card-body">Black Friday / Christmas seasonal scaling pain · New distribution centre opening · Store technology refresh programme · Online/physical integration tech stack review · Warehouse / logistics workforce requiring rapid desktop provisioning · Supply chain disruption driving remote working expansion</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== RESEARCH PLAYBOOK ======================== -->
+<section class="section" id="research">
+  <div class="hero">
+    <div class="hero-eyebrow">SDR Intelligence Framework</div>
+    <div class="hero-title">Account Research Playbook</div>
+    <div class="hero-sub">Before first outreach, spend 20–30 minutes per account building an intelligence profile. The goal is to enter the conversation already knowing something they haven't told you.</div>
+  </div>
+
+  <div class="section-heading">Where to Look & What to Find</div>
+  <div class="playbook-grid">
+    <div class="playbook-card">
+      <div class="playbook-icon">💼</div>
+      <div class="playbook-title">LinkedIn — People Intelligence</div>
+      <ul class="playbook-list">
+        <li>Search "Head of EUC / Digital Workplace / End User Computing" at the target org</li>
+        <li>Check their post history — have they shared anything about AVD, Azure, or cloud desktops?</li>
+        <li>Look at their career history — prior experience at Citrix shops signals existing platform dependency</li>
+        <li>Check mutual connections for warm intro paths</li>
+        <li>Look at recent activity — conference attendance, tech posts, comments on Microsoft announcements</li>
+      </ul>
+    </div>
+    <div class="playbook-card">
+      <div class="playbook-icon">📢</div>
+      <div class="playbook-title">Job Postings — Platform Signals</div>
+      <ul class="playbook-list">
+        <li>Search LinkedIn Jobs / Indeed for: "Azure Virtual Desktop", "AVD", "Windows 365", "Citrix", "VMware Horizon", "EUC", "Digital Workplace"</li>
+        <li>New AVD engineer hire = they have an AVD environment with no management tooling yet</li>
+        <li>Citrix admin role closing + AVD role opening = active migration conversation</li>
+        <li>Cloud Desktop Architect role = platform evaluation underway</li>
+        <li>Volume of EUC roles = team under capacity pressure</li>
+      </ul>
+    </div>
+    <div class="playbook-card">
+      <div class="playbook-icon">📰</div>
+      <div class="playbook-title">News & Press — Event Triggers</div>
+      <ul class="playbook-list">
+        <li>Google "[Company] digital transformation / cloud strategy / EUC"</li>
+        <li>Check annual reports / investor days for technology investment commitments</li>
+        <li>CIO/CTO interviews in Computer Weekly, The Reg, ZDNet UK — look for Azure mentions</li>
+        <li>M&A activity = two EUC estates to consolidate</li>
+        <li>Security incidents = infrastructure review underway</li>
+        <li>New CIO appointment in last 6 months = mandate to modernise</li>
+      </ul>
+    </div>
+    <div class="playbook-card">
+      <div class="playbook-icon">🔧</div>
+      <div class="playbook-title">Tech Stack Intelligence</div>
+      <ul class="playbook-list">
+        <li>Check BuiltWith / Wappalyzer for Microsoft 365 signals</li>
+        <li>G2 / Gartner Peer Insights reviews from the company = platform pain surfacing publicly</li>
+        <li>Azure Marketplace — is NME visible in their procurement channels?</li>
+        <li>Microsoft partner portal signals (if you have access via WOPR data)</li>
+        <li>Check if they attend Microsoft Ignite / NerdioCon partner events</li>
+      </ul>
+    </div>
+    <div class="playbook-card">
+      <div class="playbook-icon">⚡</div>
+      <div class="playbook-title">WOPR / Intent Data</div>
+      <ul class="playbook-list">
+        <li>Run target accounts through WOPR for Azure / EUC intent signals</li>
+        <li>Look for spikes in research around: Azure Virtual Desktop, Citrix alternatives, VMware replacement, Windows 365</li>
+        <li>Cross-reference against your inherited pipeline accounts (Schroders, MUFG, SMBC, Kingfisher)</li>
+        <li>Use intent data to prioritise call order within same account tier</li>
+      </ul>
+    </div>
+    <div class="playbook-card">
+      <div class="playbook-icon">🏦</div>
+      <div class="playbook-title">FSI-Specific Research</div>
+      <ul class="playbook-list">
+        <li>FCA register — check if they've flagged operational resilience gaps in annual submissions</li>
+        <li>Bank of England DORA readiness documents (for systemically important firms)</li>
+        <li>Look for trading floor / front office technology mentions in annual reports</li>
+        <li>Check if firm has received FCA enforcement action on technology resilience</li>
+        <li>PRA publications referencing operational resilience at named firms</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card navy" style="margin-bottom:16px">
+    <div class="card-eyebrow">The Intelligence Brief — Build Before You Call</div>
+    <div class="card-title">The 5 Questions to Answer Before First Outreach</div>
+    <div class="card-body">
+      1. What EUC platform(s) are they running today and when might renewal/review be due?<br>
+      2. Are they actively hiring for AVD/cloud desktop skills? (Yes = live initiative)<br>
+      3. Has there been a leadership change in IT/EUC in the last 12 months?<br>
+      4. What's their Azure investment story — strategic commitment or still evaluating?<br>
+      5. What's the single operational pain most likely to resonate with this specific team?
+    </div>
+  </div>
+</section>
+
+<!-- ======================== OUTREACH HOOKS ======================== -->
+<section class="section" id="hooks">
+  <div class="hero">
+    <div class="hero-eyebrow">Conversation Starters</div>
+    <div class="hero-title">15 Intelligent Outreach Hooks</div>
+    <div class="hero-sub">Each hook opens with an observation, not a pitch. The goal is to make the contact feel seen — not sold to. Personalise with account-specific intelligence before sending.</div>
+  </div>
+
+  <div class="section-heading">FSI Hooks <span class="badge">Financial Services</span></div>
+  <div class="hooks-grid">
+    <div class="hook-card fsi">
+      <div class="hook-num">01</div>
+      <div class="hook-label">FSI · Citrix Renewal</div>
+      <div class="hook-text">Most of the banks I speak to are mid-conversation about what Citrix looks like in two years. Curious where [Company] has landed on that.</div>
+      <div class="hook-context">Works for any FSI account with a known Citrix environment. Let the contact correct you if they're already committed — either answer is useful intelligence.</div>
+    </div>
+    <div class="hook-card fsi">
+      <div class="hook-num">02</div>
+      <div class="hook-label">FSI · VMware / Broadcom</div>
+      <div class="hook-text">Post-Broadcom, we're seeing a lot of financial services firms rethinking Horizon. Some are accelerating AVD timelines they thought were 3 years out. Is that conversation live at [Company]?</div>
+      <div class="hook-context">Especially effective for HSBC, Legal & General, and any account with known VMware exposure. References a real market event without claiming to know their specific situation.</div>
+    </div>
+    <div class="hook-card fsi">
+      <div class="hook-num">03</div>
+      <div class="hook-label">FSI · FCA Operational Resilience</div>
+      <div class="hook-text">With operational resilience now a standing agenda item for FCA-regulated firms, I've been speaking to a few EUC teams about how they're demonstrating desktop platform governance. Sounds like it's shaping how some firms think about cloud desktop tooling.</div>
+      <div class="hook-context">Opens a compliance-angle conversation without being alarmist. FCA PS21/3 and DORA are live obligations for UK financial services — this is genuinely on their radar.</div>
+    </div>
+    <div class="hook-card fsi">
+      <div class="hook-num">04</div>
+      <div class="hook-label">FSI · Trading Infrastructure</div>
+      <div class="hook-text">Trading floor desktop reliability is one of those problems that only gets visible when something breaks — and then the whole firm knows about it. We work with a few UK banks on the AVD side of that. Is that part of the EUC estate you're actively managing?</div>
+      <div class="hook-context">Tailored for Barclays, Standard Chartered, MUFG, SMBC. Opens a conversation about a high-stakes, high-visibility EUC environment.</div>
+    </div>
+    <div class="hook-card fsi">
+      <div class="hook-num">05</div>
+      <div class="hook-label">FSI · Azure Cost Governance</div>
+      <div class="hook-text">One pattern we're seeing consistently across financial services AVD deployments — teams discover their Azure compute spend is significantly higher than it needs to be once they start looking at overnight and weekend VM usage. Has that come up at [Company]?</div>
+      <div class="hook-context">The 55% average compute saving is a real, defensible number. This hook doesn't pitch Nerdio — it surfaces a pain the contact will recognise from their own environment.</div>
+    </div>
+  </div>
+
+  <div class="section-heading">Retail & Consumer Goods Hooks <span class="badge">Retail · CG</span></div>
+  <div class="hooks-grid">
+    <div class="hook-card retail">
+      <div class="hook-num">06</div>
+      <div class="hook-label">Retail · Seasonal Scaling</div>
+      <div class="hook-text">Seasonal desktop provisioning is one of those problems retailers have just accepted as painful — spinning up capacity for Christmas and then tearing it down. We've been working with a few UK retailers on making that automatic. Is that something your EUC team has to manage manually today?</div>
+      <div class="hook-context">Directly relevant to Tesco, M&S, Next, ASOS. Nerdio's autoscaling is the core value proposition — this hook frames it in language retail EUC teams already use.</div>
+    </div>
+    <div class="hook-card retail">
+      <div class="hook-num">07</div>
+      <div class="hook-label">Retail · Store Technology</div>
+      <div class="hook-text">Managing cloud desktops across a large retail estate — stores, logistics, head office — creates a level of operational complexity that centralised tooling wasn't really designed for. Curious how your team handles that at [Company].</div>
+      <div class="hook-context">Opens a conversation about scale without making assumptions. Good for Kingfisher (B&Q/Screwfix), Tesco, M&S where store + HQ EUC is genuinely complex.</div>
+    </div>
+    <div class="hook-card retail">
+      <div class="hook-num">08</div>
+      <div class="hook-label">Retail · Contractor / Temp Workforce</div>
+      <div class="hook-text">One thing I hear consistently from retail EUC teams — provisioning desktops for temporary and seasonal workers is disproportionately labour-intensive. Windows 365 is solving part of that problem but the management layer adds another layer of overhead. Recognise that at [Company]?</div>
+      <div class="hook-context">Sets up a Windows 365 + Nerdio management conversation. Relevant for any retailer with significant seasonal or contractor workforce.</div>
+    </div>
+    <div class="hook-card retail">
+      <div class="hook-num">09</div>
+      <div class="hook-label">Consumer Goods · VMware Migration</div>
+      <div class="hook-text">Post-Broadcom, a lot of the large consumer goods firms I speak to are running unplanned VDI strategy reviews. Some are accelerating AVD moves they expected to be two or three years away. Is that conversation on the table at [Company]?</div>
+      <div class="hook-context">Relevant for Unilever, Reckitt, any CG firm with known VMware Horizon deployment.</div>
+    </div>
+    <div class="hook-card retail">
+      <div class="hook-num">10</div>
+      <div class="hook-label">Retail · Azure Cost</div>
+      <div class="hook-text">Azure AVD is a strong platform but the economics only really work once you have proper autoscaling in place. A lot of retailers are running Azure at higher cost than they need to because idle VMs run overnight. Has your team quantified what that looks like across your estate?</div>
+      <div class="hook-context">Works for any account running AVD without Nerdio's autoscaling. The insight is genuine and actionable — not a product pitch.</div>
+    </div>
+  </div>
+
+  <div class="section-heading">Cross-Vertical Hooks <span class="badge">All Verticals</span></div>
+  <div class="hooks-grid">
+    <div class="hook-card">
+      <div class="hook-num">11</div>
+      <div class="hook-label">Universal · AVD Complexity</div>
+      <div class="hook-text">Azure Virtual Desktop is genuinely capable, but it asks a lot from the EUC team managing it. Most of the organisations I speak to have more operational overhead than they expected when they made the AVD decision. How has that played out at [Company]?</div>
+      <div class="hook-context">Validates the prospect's lived experience without criticising their technology choice. Opens a conversation about operational burden.</div>
+    </div>
+    <div class="hook-card">
+      <div class="hook-num">12</div>
+      <div class="hook-label">Universal · Image Management</div>
+      <div class="hook-text">Golden image management is one of those EUC problems that looks straightforward until you're managing it across multiple host pools and geographies. We've seen it become a significant overhead at scale. Is that something your team invests significant time in?</div>
+      <div class="hook-context">Opens a technical conversation with EUC architects and engineers. Image lifecycle is a core Nerdio capability — this hook creates a natural product reveal moment.</div>
+    </div>
+    <div class="hook-card">
+      <div class="hook-num">13</div>
+      <div class="hook-label">Universal · New AVD Deployment</div>
+      <div class="hook-text">I noticed [Company] is hiring for AVD engineers — looks like a live platform initiative. When teams are scaling up an AVD environment, the first six months are often when the management overhead becomes visible. Happy to share what early-stage deployments typically look like in practice.</div>
+      <div class="hook-context">Triggered by LinkedIn job posting intelligence. Human, genuinely helpful framing — not a pitch, an offer to share experience.</div>
+    </div>
+    <div class="hook-card">
+      <div class="hook-num">14</div>
+      <div class="hook-label">Universal · Microsoft Momentum</div>
+      <div class="hook-text">Microsoft's investment in AVD and Windows 365 is significant — the platform keeps getting better. What we're finding is that the rate-limiting factor for most enterprises isn't the Microsoft technology, it's the operational model for managing it at scale. Does that resonate?</div>
+      <div class="hook-context">Positions Nerdio as a complement to Microsoft investment, not a competitor. Good for Microsoft-committed accounts who may not have considered the management layer.</div>
+    </div>
+    <div class="hook-card">
+      <div class="hook-num">15</div>
+      <div class="hook-label">Universal · Automation Agenda</div>
+      <div class="hook-text">Most CIOs I speak to have automation in IT operations as a 2025/2026 initiative. For EUC teams, that usually means desktop deployment, scaling, and image management. Curious how far along [Company] is with that agenda on the cloud desktop side.</div>
+      <div class="hook-context">Anchors Nerdio in a board-level initiative rather than a niche product conversation. Works for any account where CIO automation mandate is confirmed or assumed.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== EMAIL SEQUENCE ======================== -->
+<section class="section" id="emails">
+  <div class="hero">
+    <div class="hero-eyebrow">4-Touch Outbound Sequence</div>
+    <div class="hero-title">Cold Email Sequence — FSI & Retail</div>
+    <div class="hero-sub">Each email stands alone. Short. Insight-led. No product pitch. The goal is one reply. Personalise [Company], [Name], and the bracketed hook line before sending.</div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-header">
+      <div class="email-num">1</div>
+      <div class="email-meta">
+        <div class="email-meta-title">Day 1 — The Observation</div>
+        <div class="email-meta-timing">Send Tuesday or Wednesday morning · Under 80 words · No attachment</div>
+      </div>
+    </div>
+    <div class="email-body">
+      <div class="email-subject"><span>Subject: </span>Azure Virtual Desktop at [Company]</div>
+      <div class="email-copy">Hi [Name],
+
+[Personalised hook — e.g. "Noticed you're hiring for AVD engineers" / "Following [Company]'s Azure announcement" / "Given the Broadcom situation with VMware..."]
+
+I speak to a lot of EUC and digital workplace teams managing cloud desktop environments at scale. The consistent theme — more operational overhead than expected once the AVD environment grows past a certain size.
+
+Worth a 20-minute conversation to share what we're seeing?
+
+[Your name]</div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-header">
+      <div class="email-num">2</div>
+      <div class="email-meta">
+        <div class="email-meta-title">Day 5 — The Relevant Insight</div>
+        <div class="email-meta-timing">Send 4 days after Email 1 · New angle · Reference a real stat</div>
+      </div>
+    </div>
+    <div class="email-body">
+      <div class="email-subject"><span>Subject: </span>AVD cost patterns — [Industry] context</div>
+      <div class="email-copy">Hi [Name],
+
+One thing that comes up consistently in conversations with [FSI/retail] EUC teams running AVD environments — Azure compute spend is often 40–55% higher than it needs to be because of idle VMs running overnight and at weekends.
+
+The fix isn't complicated, but it requires tooling that Azure doesn't provide out of the box.
+
+Happy to share how a couple of similar organisations have approached it. 20 minutes?
+
+[Your name]</div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-header">
+      <div class="email-num">3</div>
+      <div class="email-meta">
+        <div class="email-meta-title">Day 12 — The Proof Point</div>
+        <div class="email-meta-timing">Send 7 days after Email 2 · Reference a named customer · Keep it brief</div>
+      </div>
+    </div>
+    <div class="email-body">
+      <div class="email-subject"><span>Subject: </span>How Grant Thornton cut $20K/month from their AVD costs</div>
+      <div class="email-copy">Hi [Name],
+
+Grant Thornton moved off Citrix to Azure Virtual Desktop and cut $20,000 a month from their cloud desktop costs — with the environment deployed in days rather than weeks.
+
+The operational management piece (the bit Microsoft doesn't automate) was the difference between a good outcome and a great one.
+
+If [Company] is in any kind of VDI strategy conversation, that's probably a relevant data point.
+
+Worth 20 minutes?
+
+[Your name]</div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-header">
+      <div class="email-num">4</div>
+      <div class="email-meta">
+        <div class="email-meta-title">Day 21 — The Graceful Exit</div>
+        <div class="email-meta-timing">Final touch · Light tone · Leaves the door open · Never burn the contact</div>
+      </div>
+    </div>
+    <div class="email-body">
+      <div class="email-subject"><span>Subject: </span>Leaving this with you</div>
+      <div class="email-copy">Hi [Name],
+
+I'll stop filling your inbox — but wanted to leave one thought.
+
+If cloud desktop operational complexity, AVD cost, or a Citrix/VMware strategy conversation becomes live at [Company] in the next 6–12 months, I'd be a useful person to speak to.
+
+No pressure on timing. Happy to reconnect whenever it's relevant.
+
+[Your name] | [Title] | Nerdio</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== LINKEDIN ======================== -->
+<section class="section" id="linkedin">
+  <div class="hero">
+    <div class="hero-eyebrow">LinkedIn Outreach</div>
+    <div class="hero-title">Connection & Follow-Up Messages</div>
+    <div class="hero-sub">LinkedIn is a relationship channel, not a broadcast channel. Short, human, no pitch in the connection request. Always personalise with something specific about their profile or company.</div>
+  </div>
+
+  <div class="section-heading">Connection Request</div>
+  <div class="li-card">
+    <div class="li-header">💼 Connection Request — Under 300 characters</div>
+    <div class="li-body">Hi [Name] — I work with a number of [FSI/retail] EUC teams managing cloud desktop environments in the UK. Your work at [Company] caught my attention — particularly [personalised observation]. Would be good to connect.</div>
+  </div>
+
+  <div class="section-heading">Follow-Up 1 — After Connection Accepted (Day 3–5)</div>
+  <div class="li-card">
+    <div class="li-header">💬 First Message — The Relevant Observation</div>
+    <div class="li-body">Thanks for connecting, [Name].
+
+I've been speaking to quite a few EUC and digital workplace teams managing AVD environments this year. The consistent theme — the Microsoft platform is strong, but the operational management layer creates more overhead than most teams anticipated.
+
+Given [Company]'s [Azure momentum / Citrix environment / scale of workforce], curious whether that resonates with what you're seeing.
+
+No pitch here — genuinely happy to share what's working for similar teams if useful.</div>
+  </div>
+
+  <div class="section-heading">Follow-Up 2 — 7 Days Later (If No Reply)</div>
+  <div class="li-card">
+    <div class="li-header">💬 Second Message — Light Touch Proof Point</div>
+    <div class="li-body">One more thought, [Name] — then I'll leave you to it.
+
+A [bank / insurer / retailer] of similar scale to [Company] recently cut their Azure desktop compute costs by over 50% by addressing how their VM estate was managed overnight and at weekends. Took less time than they expected.
+
+If cloud desktop cost or operational management ever becomes a live conversation at [Company], I'd be worth a call.
+
+Happy to connect properly whenever the timing's right.</div>
+  </div>
+</section>
+
+<!-- ======================== CALL SCRIPT ======================== -->
+<section class="section" id="calls">
+  <div class="hero">
+    <div class="hero-eyebrow">SDR Call Framework</div>
+    <div class="hero-title">Cold Call Script — Cloud Desktop Platform</div>
+    <div class="hero-sub">This isn't a word-for-word script. It's a framework. The goal of the call is one of three outcomes: discovery conversation, meeting booked, or intelligence gathered. All three are wins.</div>
+  </div>
+
+  <div class="script-step navy-step">
+    <div class="script-label">Opening — First 10 Seconds</div>
+    <div class="script-content">"Hi [Name], it's [Your Name] from Nerdio. I'll be brief — I work with EUC and digital workplace teams managing cloud desktop environments at [FSI/retail] organisations in the UK. I wanted to reach out because [personalised hook — job posting / Azure news / Citrix context]. Is now a bad time for 2 minutes?"</div>
+    <div class="script-note">Key: lead with relevance, not your company. "Is now a bad time" outperforms "Do you have a minute" — it's respectful and gets a genuine response.</div>
+  </div>
+
+  <div class="script-step">
+    <div class="script-label">Bridge — If They Stay On</div>
+    <div class="script-content">"Thanks — I'll be quick. I've been speaking to a number of [banks / insurers / retailers] this year about how they're managing Azure Virtual Desktop environments at scale. The consistent theme is that the operational overhead — image management, autoscaling, governance — creates more work than most teams anticipated. Does that resonate with what you're seeing at [Company]?"</div>
+    <div class="script-note">Pause after this. Let them answer. The answer — however short — is intelligence you can use.</div>
+  </div>
+
+  <div class="script-step">
+    <div class="script-label">Discovery Question 1 — Platform Reality</div>
+    <div class="script-content">"Can I ask — what does your current cloud desktop estate look like? Are you predominantly AVD, Citrix, VMware, or a mix? And is that under active review?"</div>
+    <div class="script-note">Don't rush past their answer. If they say "we're mid-Citrix review" — that's the whole conversation now.</div>
+  </div>
+
+  <div class="script-step">
+    <div class="script-label">Discovery Question 2 — Operational Pain</div>
+    <div class="script-content">"And for the team managing that environment — what's taking the most time? I'm curious whether it's the day-to-day management overhead, the cost of running the Azure infrastructure, or something else entirely."</div>
+    <div class="script-note">This question surfaces the specific pain point that determines which Nerdio capability to lead with in the meeting.</div>
+  </div>
+
+  <div class="script-step navy-step">
+    <div class="script-label">Meeting Invitation</div>
+    <div class="script-content">"Based on what you've shared — it sounds like [reflect back their specific pain]. We've helped a number of [similar organisations] address exactly that. I'd like to set up 30 minutes with you and [AE name] to walk through how — and be honest if it's not a fit. Are you free [offer two specific days and times]?"</div>
+    <div class="script-note">Reflect their language back to them. "We've helped organisations like [Company]" is more persuasive than "let me tell you about our product."</div>
+  </div>
+
+  <div class="card-grid" style="margin-top:16px">
+    <div class="card green-accent">
+      <div class="card-eyebrow">Objection: "We're happy with how we manage it"</div>
+      <div class="card-title">Response</div>
+      <div class="card-body">"That's great to hear — and I'm not going to tell you there's a problem where there isn't one. A lot of the teams I speak to said the same thing before they actually quantified what AVD management was costing them in engineering time and compute spend. The 30 minutes is just to validate that — if the numbers don't stack up, I'll tell you."</div>
+    </div>
+    <div class="card green-accent">
+      <div class="card-eyebrow">Objection: "We're locked into Citrix / contract"</div>
+      <div class="card-title">Response</div>
+      <div class="card-body">"That's a very common position right now. Most of the conversations we're having aren't about moving this week — they're about understanding what the landscape looks like so when the contract comes up, you're not making a reactive decision. That's honestly the most valuable 30 minutes I can offer you."</div>
+    </div>
+    <div class="card green-accent">
+      <div class="card-eyebrow">Objection: "Send me some information"</div>
+      <div class="card-title">Response</div>
+      <div class="card-body">"I can do that — but I'd rather send you something specific to your situation rather than a brochure. Can I ask two quick questions so I can make sure what I send is actually relevant? [Go to Discovery Question 1]"</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== MEETING POSITIONING ======================== -->
+<section class="section" id="meeting">
+  <div class="hero">
+    <div class="hero-eyebrow">Meeting Design</div>
+    <div class="hero-title">How to Position the First Meeting</div>
+    <div class="hero-sub">Never position the first meeting as "a demo of Nerdio." Frame it as a conversation about their world — with Nerdio as the context. The meeting should feel like a briefing, not a sales call.</div>
+  </div>
+
+  <div class="section-heading">Meeting Themes — Choose the Most Relevant</div>
+
+  <div class="meeting-theme">
+    <div class="meeting-theme-label">Theme 1 — Operational Complexity</div>
+    <div class="meeting-theme-title">"How UK Enterprises Are Operating Azure Virtual Desktop at Scale"</div>
+    <div class="meeting-theme-body">Framed as a peer briefing — what we're seeing across the UK EUC market, how organisations at similar scale are managing AVD environments, and where the operational gaps most commonly appear. We'll show you how leading teams have addressed them — and let you tell us if any of it maps to [Company]'s situation.</div>
+    <div class="meeting-theme-hook">Best for: Any account running AVD or actively evaluating it. EUC architects and Heads of EUC.</div>
+  </div>
+
+  <div class="meeting-theme">
+    <div class="meeting-theme-label">Theme 2 — Migration Momentum</div>
+    <div class="meeting-theme-title">"Citrix to AVD in Financial Services — Lessons from Early Movers"</div>
+    <div class="meeting-theme-body">Specifically designed for FSI accounts in a Citrix strategy conversation. We'll walk through how similar firms have approached the transition — what the decision looked like, how the operational model changed, and what the cost picture actually looked like 12 months in. No commitment required to attend.</div>
+    <div class="meeting-theme-hook">Best for: FSI accounts with Citrix · Barclays, Lloyds, Aviva, Standard Chartered personas. Reference: Grant Thornton $20K/month saving.</div>
+  </div>
+
+  <div class="meeting-theme">
+    <div class="meeting-theme-label">Theme 3 — Cost Governance</div>
+    <div class="meeting-theme-title">"Why Azure Cloud Desktop Costs Are Higher Than They Need to Be"</div>
+    <div class="meeting-theme-body">A data-led session on where Azure compute spend leaks in AVD environments — idle VMs, over-provisioned host pools, manual scaling decisions made at 9am that don't account for the 11pm usage pattern. We'll run the numbers against what your estate might look like and show you what the savings opportunity is before asking for anything.</div>
+    <div class="meeting-theme-hook">Best for: Any account with Azure investment and a cost optimisation agenda. CFO-adjacent personas. Finance and insurance sector.</div>
+  </div>
+
+  <div class="meeting-theme">
+    <div class="meeting-theme-label">Theme 4 — Windows 365 Adoption</div>
+    <div class="meeting-theme-title">"Windows 365 at Scale — What the Management Layer Looks Like"</div>
+    <div class="meeting-theme-body">Windows 365 is increasingly the right answer for a significant portion of workforce personas — especially contractors, seasonal workers, and branch staff. This session covers how organisations are structuring their W365 deployment alongside AVD, and what the management model looks like when you're managing both at scale.</div>
+    <div class="meeting-theme-hook">Best for: Retail accounts (M&S, Tesco, ASOS) · Accounts with W365 pilot activity · Contractor-heavy workforce personas.</div>
+  </div>
+
+  <div class="section-heading">Meeting Prep — What the SDR Hands Over to the AE</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-eyebrow">Before the Handoff Brief</div>
+      <div class="card-title">What the AE Needs from You</div>
+      <div class="card-body">
+        ✓ Platform: Current EUC platform (Citrix / VMware / AVD / mix)<br>
+        ✓ Trigger: What signal drove outreach (job posting / renewal / Broadcom)<br>
+        ✓ Pain: What the contact said was taking the most time or costing most<br>
+        ✓ Persona: Role, seniority, technical or business-focused<br>
+        ✓ Context: Any news, leadership changes, or company events in last 90 days<br>
+        ✓ Theme: Which meeting theme was used to book the call
+      </div>
+    </div>
+    <div class="card navy">
+      <div class="card-eyebrow">Proof Points to Have Ready</div>
+      <div class="card-title">Reference by Industry in the Meeting</div>
+      <div class="card-body">
+        FSI: Willis Towers Watson · Grant Thornton ($20K/month saving) · LexisNexis (50% cost reduction, 75% support reduction)<br><br>
+        Retail / Enterprise: ASDA · Kraft Heinz · Carnival Cruise Line<br><br>
+        Platform credibility: Scott Manchester (ex-Microsoft VP, now Nerdio CPTO) · 3M+ desktops managed · $1B+ valuation · Microsoft Partner of the Year finalist 2025
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="doc-footer">
+  <strong>Nerdio SDR Pipeline Engine</strong> · FSI & Retail UK · Built for Chris Dewhirst, Enterprise AE · FY2026 · Internal Use Only · getnerdio.com
+</div>
+
+<script>
+function showSection(id, tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  tab.classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+
+</body>
+</html>

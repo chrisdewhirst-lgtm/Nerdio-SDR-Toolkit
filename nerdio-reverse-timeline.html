@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerdio Deal Reverse Timeline Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #042838; --teal: #1E9DB8; --white: #FFFFFF; --green: #CDFF4E;
+    --purple: #A795C7; --navy-light: #0a3a50; --gray-100: #f0f4f7;
+    --gray-200: #dce4ea; --gray-300: #b8c7d1; --gray-500: #6b8294;
+    --red: #e74c3c; --orange: #f39c12; --green-status: #27ae60;
+  }
+  body { font-family: 'Poppins', sans-serif; background: var(--gray-100); color: var(--navy); min-height: 100vh; }
+
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    padding: 20px 32px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(4,40,56,0.3);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .nerdio-logo { display: flex; align-items: center; gap: 10px; }
+  .nerdio-logo svg { width: 48px; height: auto; }
+  .header h1 { color: var(--white); font-size: 20px; font-weight: 600; }
+  .header .subtitle { color: var(--teal); font-size: 12px; font-weight: 400; letter-spacing: 0.5px; }
+  .header-actions { display: flex; gap: 10px; }
+  .btn { font-family: 'Poppins', sans-serif; padding: 9px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--teal); color: var(--white); }
+  .btn-primary:hover { background: #17869e; }
+  .btn-accent { background: var(--green); color: var(--navy); }
+  .btn-outline { background: transparent; color: var(--white); border: 1.5px solid var(--gray-300); }
+  .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* Layout: 3 columns */
+  .main { display: flex; min-height: calc(100vh - 72px); }
+
+  /* Left sidebar - deal config */
+  .sidebar-left {
+    width: 300px; background: var(--white); border-right: 1px solid var(--gray-200);
+    padding: 22px 18px; overflow-y: auto; flex-shrink: 0;
+  }
+  .sidebar-left h2 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--gray-500); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.7px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 8px 12px; border: 1.5px solid var(--gray-200); border-radius: 7px;
+    font-family: 'Poppins', sans-serif; font-size: 13px; color: var(--navy); background: var(--white);
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--teal); }
+  .form-group textarea { resize: vertical; min-height: 48px; }
+  .deal-size-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .chip { padding: 5px 12px; border-radius: 16px; font-size: 11px; font-weight: 500; border: 1.5px solid var(--gray-200); cursor: pointer; transition: all 0.2s; background: var(--white); }
+  .chip.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+  .chip:hover:not(.active) { border-color: var(--teal); color: var(--teal); }
+  .divider { height: 1px; background: var(--gray-200); margin: 18px 0; }
+
+  /* Right sidebar - MEDPIC */
+  .sidebar-right {
+    width: 420px; background: var(--white); border-left: 1px solid var(--gray-200);
+    padding: 0; overflow-y: auto; flex-shrink: 0;
+  }
+
+  /* MEDPIC Tabs */
+  .medpic-tabs {
+    display: flex; border-bottom: 2px solid var(--gray-100); position: sticky; top: 0;
+    background: var(--white); z-index: 10;
+  }
+  .medpic-tab {
+    flex: 1; padding: 14px 4px 10px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 600;
+    border-bottom: 3px solid transparent; transition: all 0.2s; color: var(--gray-500);
+  }
+  .medpic-tab:hover { color: var(--navy); }
+  .medpic-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+  .medpic-tab .tab-letter { font-size: 16px; display: block; font-weight: 700; }
+  .medpic-tab .tab-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .medpic-tab .tab-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-top: 3px; }
+  .tab-dot.empty { background: var(--gray-300); }
+  .tab-dot.partial { background: var(--orange); }
+  .tab-dot.complete { background: var(--green-status); }
+
+  .medpic-panel { padding: 20px 18px; display: none; }
+  .medpic-panel.active { display: block; }
+  .medpic-panel h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .medpic-panel .panel-desc { font-size: 12px; color: var(--gray-500); margin-bottom: 16px; line-height: 1.5; }
+
+  .qual-question { margin-bottom: 16px; }
+  .qual-question label { display: block; font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 5px; }
+  .qual-question .hint { font-size: 11px; color: var(--gray-500); margin-bottom: 5px; font-style: italic; }
+  .qual-question input, .qual-question textarea, .qual-question select {
+    width: 100%; padding: 8px 12px; border: 1.5px solid var(--gray-200); border-radius: 7px;
+    font-family: 'Poppins', sans-serif; font-size: 13px; color: var(--navy);
+  }
+  .qual-question input:focus, .qual-question textarea:focus, .qual-question select:focus { outline: none; border-color: var(--teal); }
+  .qual-question textarea { resize: vertical; min-height: 56px; }
+
+  .confidence-row { display: flex; gap: 6px; margin-top: 4px; }
+  .conf-btn {
+    flex: 1; padding: 6px; border: 1.5px solid var(--gray-200); border-radius: 6px;
+    font-size: 11px; font-weight: 600; cursor: pointer; text-align: center;
+    background: var(--white); color: var(--gray-500); transition: all 0.15s;
+  }
+  .conf-btn:hover { border-color: var(--teal); }
+  .conf-btn.sel-red { background: rgba(231,76,60,0.1); border-color: var(--red); color: var(--red); }
+  .conf-btn.sel-orange { background: rgba(243,156,18,0.1); border-color: var(--orange); color: var(--orange); }
+  .conf-btn.sel-green { background: rgba(39,174,96,0.1); border-color: var(--green-status); color: var(--green-status); }
+
+  /* Deal Score Gauge */
+  .deal-score-bar {
+    background: var(--white); border-bottom: 1px solid var(--gray-200);
+    padding: 16px 18px; position: sticky; top: 0; z-index: 11;
+  }
+  .score-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .score-header h3 { font-size: 13px; font-weight: 600; }
+  .score-value { font-size: 22px; font-weight: 700; }
+  .score-value.low { color: var(--red); }
+  .score-value.mid { color: var(--orange); }
+  .score-value.high { color: var(--green-status); }
+  .score-track { height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 4px; transition: width 0.4s, background 0.4s; }
+  .score-fill.low { background: var(--red); }
+  .score-fill.mid { background: var(--orange); }
+  .score-fill.high { background: var(--green-status); }
+  .score-breakdown { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .score-chip { padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .score-chip.empty { background: var(--gray-100); color: var(--gray-500); }
+  .score-chip.partial { background: rgba(243,156,18,0.12); color: var(--orange); }
+  .score-chip.complete { background: rgba(39,174,96,0.12); color: var(--green-status); }
+
+  /* Partner Section */
+  .partner-toggle { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
+  .toggle-switch { width: 38px; height: 22px; border-radius: 11px; background: var(--gray-300); cursor: pointer; position: relative; transition: background 0.2s; }
+  .toggle-switch.on { background: var(--teal); }
+  .toggle-switch .toggle-knob { width: 18px; height: 18px; border-radius: 50%; background: var(--white); position: absolute; top: 2px; left: 2px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+  .toggle-switch.on .toggle-knob { left: 18px; }
+  .partner-fields { margin-top: 12px; }
+
+  /* Content Area */
+  .content { flex: 1; padding: 24px 28px; overflow-y: auto; min-width: 0; }
+  .stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-card { flex: 1; min-width: 130px; background: var(--white); border-radius: 12px; padding: 14px 16px; border: 1px solid var(--gray-200); }
+  .stat-card .stat-label { font-size: 10px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.7px; }
+  .stat-card .stat-value { font-size: 22px; font-weight: 700; color: var(--navy); margin-top: 2px; }
+  .stat-card .stat-sub { font-size: 11px; color: var(--gray-500); margin-top: 1px; }
+  .stat-card.highlight { border-left: 4px solid var(--teal); }
+  .stat-card.warning { border-left: 4px solid var(--orange); }
+  .stat-card.success { border-left: 4px solid var(--green-status); }
+  .stat-card.score-card { border-left: 4px solid var(--purple); }
+
+  /* Timeline */
+  .timeline-phase { margin-bottom: 6px; background: var(--white); border-radius: 12px; border: 1px solid var(--gray-200); overflow: hidden; transition: box-shadow 0.2s; }
+  .timeline-phase:hover { box-shadow: 0 3px 12px rgba(4,40,56,0.06); }
+  .timeline-phase.overdue { border-left: 4px solid var(--red); }
+  .timeline-phase.current { border-left: 4px solid var(--teal); }
+  .timeline-phase.upcoming { border-left: 4px solid var(--gray-300); }
+  .timeline-phase.completed { border-left: 4px solid var(--green-status); }
+  .phase-header { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+  .phase-header-left { display: flex; align-items: center; gap: 12px; }
+  .phase-week { background: var(--navy); color: var(--white); padding: 5px 10px; border-radius: 7px; font-size: 10px; font-weight: 600; min-width: 56px; text-align: center; }
+  .phase-week.overdue { background: var(--red); }
+  .phase-week.current { background: var(--teal); }
+  .phase-week.completed-bg { background: var(--green-status); }
+  .phase-title { font-size: 14px; font-weight: 600; }
+  .phase-date { font-size: 11px; color: var(--gray-500); margin-top: 1px; }
+  .phase-header-right { display: flex; align-items: center; gap: 10px; }
+  .status-select { padding: 4px 8px; border-radius: 7px; border: 1px solid var(--gray-200); font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .phase-toggle { font-size: 16px; color: var(--gray-300); transition: transform 0.2s; }
+  .phase-toggle.open { transform: rotate(180deg); }
+  .phase-body { padding: 0 18px 16px; display: none; }
+  .phase-body.open { display: block; }
+  .phase-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .phase-col h4 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--gray-100); }
+  .phase-col h4.medpic-h { color: var(--navy); }
+  .phase-col h4.nerdio-h { color: var(--teal); }
+  .phase-col h4.partner-h { color: var(--purple); }
+  .task-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; font-size: 12px; line-height: 1.5; }
+  .task-check { width: 17px; height: 17px; border-radius: 5px; border: 2px solid var(--gray-300); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; }
+  .task-check.checked { background: var(--green-status); border-color: var(--green-status); }
+  .task-check.checked::after { content: '✓'; color: white; font-size: 10px; font-weight: 700; }
+  .task-text { flex: 1; }
+  .task-text.done { text-decoration: line-through; color: var(--gray-300); }
+  .nerdio-tip { background: linear-gradient(135deg, rgba(30,157,184,0.06), rgba(167,149,199,0.06)); border-radius: 8px; padding: 12px 14px; margin-top: 10px; border: 1px solid rgba(30,157,184,0.15); }
+  .nerdio-tip-header { font-size: 10px; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 4px; }
+  .nerdio-tip p { font-size: 11px; color: var(--navy); line-height: 1.6; }
+  .phase-notes { margin-top: 12px; }
+  .phase-notes textarea { width: 100%; min-height: 44px; padding: 8px 12px; border: 1.5px solid var(--gray-200); border-radius: 7px; font-family: 'Poppins', sans-serif; font-size: 12px; resize: vertical; }
+  .phase-notes textarea:focus { outline: none; border-color: var(--teal); }
+  .phase-notes label { font-size: 10px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 3px; display: block; }
+
+  .medpic-letter { font-size: 10px; font-weight: 700; color: var(--teal); background: rgba(30,157,184,0.1); padding: 2px 6px; border-radius: 4px; }
+  .empty-state { text-align: center; padding: 60px 30px; color: var(--gray-500); }
+  .empty-state .empty-icon { font-size: 42px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .empty-state p { font-size: 13px; max-width: 360px; margin: 0 auto; }
+
+  /* Coaching Alert */
+  .coaching-alert {
+    background: linear-gradient(135deg, rgba(243,156,18,0.08), rgba(231,76,60,0.05));
+    border: 1px solid rgba(243,156,18,0.25); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 16px;
+  }
+  .coaching-alert h4 { font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 6px; }
+  .coaching-alert ul { list-style: none; padding: 0; }
+  .coaching-alert li { font-size: 12px; color: var(--navy); padding: 3px 0; padding-left: 18px; position: relative; }
+  .coaching-alert li::before { content: '!'; position: absolute; left: 0; font-weight: 700; color: var(--orange); }
+
+  /* Saved Deals */
+  .saved-deals { margin-top: 4px; }
+  .saved-deal-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; border: 1.5px solid var(--gray-200); border-radius: 8px;
+    margin-bottom: 6px; cursor: pointer; transition: all 0.15s; font-size: 12px;
+  }
+  .saved-deal-item:hover { border-color: var(--teal); background: rgba(30,157,184,0.03); }
+  .saved-deal-item.active-deal { border-color: var(--teal); background: rgba(30,157,184,0.08); }
+  .saved-deal-info { flex: 1; min-width: 0; }
+  .saved-deal-name { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .saved-deal-meta { font-size: 10px; color: var(--gray-500); }
+  .saved-deal-score { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin: 0 8px; flex-shrink: 0; }
+  .saved-deal-score.low { background: rgba(231,76,60,0.1); color: var(--red); }
+  .saved-deal-score.mid { background: rgba(243,156,18,0.1); color: var(--orange); }
+  .saved-deal-score.high { background: rgba(39,174,96,0.1); color: var(--green-status); }
+  .deal-delete-btn {
+    width: 22px; height: 22px; border: none; background: none; color: var(--gray-300);
+    cursor: pointer; font-size: 14px; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .deal-delete-btn:hover { color: var(--red); background: rgba(231,76,60,0.08); }
+  .no-saved-deals { font-size: 11px; color: var(--gray-500); text-align: center; padding: 12px 0; }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .btn-block { width: 100%; justify-content: center; }
+  .import-label { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 8px; cursor: pointer; border: 1.5px solid var(--gray-200); color: var(--gray-500); transition: all 0.15s; }
+  .import-label:hover { border-color: var(--teal); color: var(--teal); }
+  .autosave-badge { font-size: 10px; color: var(--green-status); text-align: center; padding: 4px 0; opacity: 0; transition: opacity 0.3s; }
+  .autosave-badge.show { opacity: 1; }
+
+  @media (max-width: 1400px) { .sidebar-right { width: 360px; } .sidebar-left { width: 260px; } }
+  @media (max-width: 1100px) {
+    .main { flex-direction: column; }
+    .sidebar-left, .sidebar-right { width: 100%; border: none; border-bottom: 1px solid var(--gray-200); }
+    .phase-columns { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="nerdio-logo">
+      <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- Left lens -->
+        <circle cx="58" cy="48" r="32" fill="none" stroke="#1E9DB8" stroke-width="10"/>
+        <!-- Right lens (open at top-right for power button) -->
+        <path d="M 138 18 A 32 32 0 1 0 158 28" fill="none" stroke="#1E9DB8" stroke-width="10" stroke-linecap="round"/>
+        <!-- Power button stem -->
+        <line x1="148" y1="10" x2="148" y2="38" stroke="#1E9DB8" stroke-width="10" stroke-linecap="round"/>
+        <!-- Bridge between lenses -->
+        <path d="M 90 48 Q 100 32 116 48" fill="none" stroke="#1E9DB8" stroke-width="10" stroke-linecap="round"/>
+        <!-- nerdio text -->
+        <text x="100" y="108" text-anchor="middle" fill="#FFFFFF" font-family="Poppins, sans-serif" font-size="32" font-weight="600" letter-spacing="2">nerdio</text>
+      </svg>
+    </div>
+    <div>
+      <h1>Deal Reverse Timeline Builder</h1>
+      <div class="subtitle">MEDPIC QUALIFICATION ENGINE &bull; NERDIO POSITIONING</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <a href="nerdio-deal-dashboard.html" class="btn btn-accent" style="text-decoration:none;">&#9635; Dashboard</a>
+    <label class="btn btn-outline" style="cursor:pointer;">&#11121; Import<input type="file" id="importFile" accept=".xlsx,.xls" onchange="importFromExcel(this)" style="display:none;"></label>
+    <button class="btn btn-primary" onclick="exportToExcel()">&#11123; Export</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- LEFT SIDEBAR: Deal Config -->
+  <div class="sidebar-left">
+    <!-- Saved Deals -->
+    <h2>Saved Deals</h2>
+    <div class="saved-deals" id="savedDealsList"></div>
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <button class="btn btn-primary btn-sm btn-block" onclick="saveCurrentDeal()">&#10010; Save Current Deal</button>
+    </div>
+    <button class="btn btn-outline btn-sm btn-block" onclick="newDeal()" style="color:var(--navy);border-color:var(--gray-200);margin-bottom:2px;">New Blank Deal</button>
+    <div class="autosave-badge" id="autosaveBadge">&#10003; Saved</div>
+    <div class="divider"></div>
+
+    <h2>Deal Configuration</h2>
+    <div class="form-group">
+      <label>Opportunity Name</label>
+      <input type="text" id="dealName" placeholder="e.g. Acme Corp — AVD Migration" oninput="autoSave(); refresh()">
+    </div>
+    <div class="form-group">
+      <label>Target Close Date</label>
+      <input type="date" id="closeDate" oninput="autoSave(); refresh()">
+    </div>
+    <div class="form-group">
+      <label>Deal Complexity</label>
+      <div class="deal-size-chips" id="complexityChips">
+        <div class="chip" data-val="fast" onclick="selectChip(this,'complexityChips')">Fast (30d)</div>
+        <div class="chip active" data-val="standard" onclick="selectChip(this,'complexityChips')">Standard (60-90d)</div>
+        <div class="chip" data-val="enterprise" onclick="selectChip(this,'complexityChips')">Enterprise (6mo+)</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Primary Use Case</label>
+      <select id="useCase" onchange="autoSave(); refresh()">
+        <option value="avd">AVD Deployment / Management</option>
+        <option value="migration">Citrix / VMware Migration</option>
+        <option value="w365">Windows 365 Management</option>
+        <option value="intune">Intune / Endpoint Management</option>
+        <option value="cost">Azure Cost Optimization</option>
+        <option value="unified">Unified Platform (AVD + W365 + Intune)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Product</label>
+      <select id="product" onchange="autoSave(); refresh()">
+        <option value="nme">Nerdio Manager for Enterprise (NME)</option>
+        <option value="nmm">Nerdio Manager for MSP (NMM)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Estimated Deal Size</label>
+      <input type="text" id="dealSize" placeholder="e.g. $50,000 ARR">
+    </div>
+    <div class="divider"></div>
+
+    <!-- Partner Toggle -->
+    <h2>Partner Involvement</h2>
+    <div class="partner-toggle">
+      <div class="toggle-switch" id="partnerToggle" onclick="togglePartner()"><div class="toggle-knob"></div></div>
+      <span style="font-size:13px;font-weight:500;">Partner involved in this deal</span>
+    </div>
+    <div class="partner-fields" id="partnerFields" style="display:none;">
+      <div class="form-group">
+        <label>Partner Name</label>
+        <input type="text" id="partnerName" placeholder="e.g. Insight, SHI, CDW" oninput="autoSave(); refresh()">
+      </div>
+      <div class="form-group">
+        <label>Partner Type</label>
+        <select id="partnerType" onchange="autoSave(); refresh()">
+          <option value="reseller">Reseller / VAR</option>
+          <option value="msp">MSP</option>
+          <option value="si">Systems Integrator</option>
+          <option value="microsoft">Microsoft Co-Sell</option>
+          <option value="referral">Referral Partner</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Partnerd Tier</label>
+        <select id="partnerTier">
+          <option value="none">Not Enrolled</option>
+          <option value="bronze">Bronze</option>
+          <option value="silver">Silver</option>
+          <option value="gold">Gold</option>
+          <option value="platinum">Platinum</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Partner Sales Rep</label>
+        <input type="text" id="partnerRep" placeholder="Name of partner contact">
+      </div>
+      <div class="form-group">
+        <label>Partner Engagement Level</label>
+        <div class="confidence-row">
+          <div class="conf-btn" data-field="partnerEngagement" data-val="1" onclick="setConf(this)">Low</div>
+          <div class="conf-btn" data-field="partnerEngagement" data-val="2" onclick="setConf(this)">Medium</div>
+          <div class="conf-btn" data-field="partnerEngagement" data-val="3" onclick="setConf(this)">High</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIDDLE: Timeline Content -->
+  <div class="content" id="contentArea">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">&#128197;</div>
+      <h3>Set your target close date</h3>
+      <p>Enter a deal name and close date to generate a reverse timeline with MEDPIC qualification and Nerdio positioning.</p>
+    </div>
+    <div id="timelineArea" style="display:none;"></div>
+  </div>
+
+  <!-- RIGHT SIDEBAR: MEDPIC Qualification -->
+  <div class="sidebar-right">
+    <div class="deal-score-bar" id="dealScoreBar">
+      <div class="score-header">
+        <h3>Deal Qualification Score</h3>
+        <div class="score-value" id="scoreValue">0%</div>
+      </div>
+      <div class="score-track"><div class="score-fill" id="scoreFill" style="width:0%"></div></div>
+      <div class="score-breakdown" id="scoreBreakdown"></div>
+    </div>
+
+    <div class="medpic-tabs" id="medpicTabs">
+      <div class="medpic-tab active" data-tab="M" onclick="switchTab('M')">
+        <div class="tab-letter">M</div><div class="tab-label">Metrics</div><div class="tab-dot empty"></div>
+      </div>
+      <div class="medpic-tab" data-tab="E" onclick="switchTab('E')">
+        <div class="tab-letter">E</div><div class="tab-label">Econ Buyer</div><div class="tab-dot empty"></div>
+      </div>
+      <div class="medpic-tab" data-tab="D" onclick="switchTab('D')">
+        <div class="tab-letter">D</div><div class="tab-label">Criteria</div><div class="tab-dot empty"></div>
+      </div>
+      <div class="medpic-tab" data-tab="P" onclick="switchTab('P')">
+        <div class="tab-letter">P</div><div class="tab-label">Process</div><div class="tab-dot empty"></div>
+      </div>
+      <div class="medpic-tab" data-tab="I" onclick="switchTab('I')">
+        <div class="tab-letter">I</div><div class="tab-label">Pain</div><div class="tab-dot empty"></div>
+      </div>
+      <div class="medpic-tab" data-tab="C" onclick="switchTab('C')">
+        <div class="tab-letter">C</div><div class="tab-label">Champion</div><div class="tab-dot empty"></div>
+      </div>
+    </div>
+
+    <!-- M: Metrics -->
+    <div class="medpic-panel active" id="panel-M">
+      <h3>Metrics</h3>
+      <p class="panel-desc">What quantified business outcomes does the customer expect? Tie these to Nerdio's value pillars.</p>
+      <div class="qual-question">
+        <label>What is the customer's current Azure / VDI spend?</label>
+        <div class="hint">Monthly or annual compute spend — this is the baseline for ROI</div>
+        <input type="text" data-field="m_currentSpend" placeholder="e.g. $85,000/month on Azure compute" oninput="scoreAll()">
+      </div>
+      <div class="qual-question">
+        <label>What cost savings target have they stated?</label>
+        <div class="hint">Even a rough % or $ target helps build the business case</div>
+        <input type="text" data-field="m_savingsTarget" placeholder="e.g. 30% reduction, save $300K annually" oninput="scoreAll()">
+      </div>
+      <div class="qual-question">
+        <label>How many admin hours/week are spent on manual VDI/endpoint tasks?</label>
+        <div class="hint">Nerdio automates deployment, patching, image management, troubleshooting</div>
+        <input type="text" data-field="m_adminHours" placeholder="e.g. 20+ hrs/week across 3 FTEs" oninput="scoreAll()">
+      </div>
+      <div class="qual-question">
+        <label>What are the key success metrics they'll measure?</label>
+        <div class="hint">Deployment time, cost per desktop, support ticket volume, uptime, etc.</div>
+        <textarea data-field="m_successMetrics" placeholder="e.g. Reduce AVD deployment from 2 weeks to 1 hour&#10;Cut Azure compute by 50%&#10;Reduce support tickets by 40%" oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>How many users / desktops / endpoints in scope?</label>
+        <input type="text" data-field="m_userCount" placeholder="e.g. 2,500 AVD users + 8,000 Intune endpoints" oninput="scoreAll()">
+      </div>
+      <div class="qual-question">
+        <label>Confidence: Do we have enough data to build a compelling ROI?</label>
+        <div class="confidence-row">
+          <div class="conf-btn" data-field="m_confidence" data-val="1" onclick="setConf(this)">Not Yet</div>
+          <div class="conf-btn" data-field="m_confidence" data-val="2" onclick="setConf(this)">Partial</div>
+          <div class="conf-btn" data-field="m_confidence" data-val="3" onclick="setConf(this)">Strong</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E: Economic Buyer -->
+    <div class="medpic-panel" id="panel-E">
+      <h3>Economic Buyer</h3>
+      <p class="panel-desc">Who has the budget authority and final sign-off? Have we engaged them directly?</p>
+      <div class="qual-question">
+        <label>Economic Buyer name and title</label>
+        <div class="hint">The person who can write the check — not the technical evaluator</div>
+        <input type="text" data-field="e_name" placeholder="e.g. Sarah Chen, VP of IT Infrastructure" oninput="scoreAll()">
+      </div>
+      <div class="qual-question">
+        <label>Have we met with the EB directly?</label>
+        <select data-field="e_met" onchange="scoreAll()">
+          <option value="">-- Select --</option>
+          <option value="no">No — only through Champion or other contacts</option>
+          <option value="intro">Brief intro only — no substantive conversation</option>
+          <option value="meeting">Had a meeting — discussed their priorities</option>
+          <option value="engaged">Multiple touchpoints — actively engaged</option>
+        </select>
+      </div>
+      <div class="qual-question">
+        <label>What does the EB care about most?</label>
+        <div class="hint">Map to CIO priorities: risk reduction, cost predictability, governance, Microsoft alignment</div>
+        <textarea data-field="e_priorities" placeholder="e.g. Reduce Azure spend by 40%, consolidate management tools, ensure SOC 2 compliance for cloud desktops" oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>Is budget allocated or does it need to be found?</label>
+        <select data-field="e_budget" onchange="scoreAll()">
+          <option value="">-- Select --</option>
+          <option value="none">No budget identified</option>
+          <option value="exploring">Exploring budget sources (CapEx shift, Azure credits, etc.)</option>
+          <option value="allocated">Budget allocated in current fiscal year</option>
+          <option value="approved">Budget approved specifically for this project</option>
+        </select>
+      </div>
+      <div class="qual-question">
+        <label>Fiscal year end date (drives procurement urgency)</label>
+        <input type="text" data-field="e_fiscal" placeholder="e.g. June 30, December 31" oninput="scoreAll()">
+      </div>
+      <div class="qual-question">
+        <label>Confidence: Will the EB approve this deal?</label>
+        <div class="confidence-row">
+          <div class="conf-btn" data-field="e_confidence" data-val="1" onclick="setConf(this)">Uncertain</div>
+          <div class="conf-btn" data-field="e_confidence" data-val="2" onclick="setConf(this)">Likely</div>
+          <div class="conf-btn" data-field="e_confidence" data-val="3" onclick="setConf(this)">Confirmed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D: Decision Criteria -->
+    <div class="medpic-panel" id="panel-D">
+      <h3>Decision Criteria</h3>
+      <p class="panel-desc">What technical and business requirements must the solution meet? Have we shaped the criteria in our favor?</p>
+      <div class="qual-question">
+        <label>What are the must-have technical requirements?</label>
+        <textarea data-field="d_techReqs" placeholder="e.g. Entra ID integration, auto-scaling, CIS benchmark compliance, multi-tenant support, Azure Marketplace deployment" oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>What are the business requirements?</label>
+        <textarea data-field="d_bizReqs" placeholder="e.g. ROI within 6 months, per-user pricing, vendor stability ($1B+ valuation), Microsoft endorsement" oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>Are we competing? If so, against whom?</label>
+        <select data-field="d_competition" onchange="scoreAll()">
+          <option value="">-- Select --</option>
+          <option value="none">No competition — sole evaluation</option>
+          <option value="native">vs. Native Azure (no management layer)</option>
+          <option value="citrix">vs. Citrix DaaS</option>
+          <option value="omnissa">vs. VMware / Omnissa Horizon</option>
+          <option value="other">vs. Other (Liquidware, ControlUp, etc.)</option>
+          <option value="multiple">Multiple competitors</option>
+        </select>
+      </div>
+      <div class="qual-question">
+        <label>Have we influenced the decision criteria?</label>
+        <div class="hint">E.g., added "patented auto-scaling" or "deploys in customer's own Azure subscription" as requirements</div>
+        <select data-field="d_influenced" onchange="scoreAll()">
+          <option value="">-- Select --</option>
+          <option value="no">No — using their existing RFP/criteria</option>
+          <option value="partial">Partially — shaped some requirements</option>
+          <option value="yes">Yes — criteria strongly favor Nerdio's strengths</option>
+        </select>
+      </div>
+      <div class="qual-question">
+        <label>Confidence: Does Nerdio meet their decision criteria?</label>
+        <div class="confidence-row">
+          <div class="conf-btn" data-field="d_confidence" data-val="1" onclick="setConf(this)">Gaps Exist</div>
+          <div class="conf-btn" data-field="d_confidence" data-val="2" onclick="setConf(this)">Mostly Aligned</div>
+          <div class="conf-btn" data-field="d_confidence" data-val="3" onclick="setConf(this)">Strong Fit</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P: Decision Process -->
+    <div class="medpic-panel" id="panel-P">
+      <h3>Decision Process</h3>
+      <p class="panel-desc">What steps must happen before signature? Who is involved at each step?</p>
+      <div class="qual-question">
+        <label>What are the steps to get to a signed deal?</label>
+        <div class="hint">Map each step: technical eval → security review → procurement → legal → EB sign-off</div>
+        <textarea data-field="p_steps" placeholder="1. Technical demo + POC (IT team)&#10;2. Security review (InfoSec)&#10;3. Procurement / RFP process&#10;4. Legal review (MSA, DPA)&#10;5. Budget approval (VP IT → CFO)&#10;6. Contract execution" oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>Who are the key stakeholders involved?</label>
+        <textarea data-field="p_stakeholders" placeholder="e.g. IT Director (eval lead), CISO (security sign-off), Procurement Manager (vendor onboarding), CFO (budget approval)" oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>Is there a compelling event or deadline driving this?</label>
+        <div class="hint">Citrix renewal, VMware ELA expiry, Azure EA renewal, FY budget deadline, compliance audit</div>
+        <input type="text" data-field="p_compellingEvent" placeholder="e.g. Citrix renewal due Sept 30 — $400K at stake" oninput="scoreAll()">
+      </div>
+      <div class="qual-question">
+        <label>What could stall or block this deal?</label>
+        <textarea data-field="p_blockers" placeholder="e.g. Security review backlog (6 weeks), competing priority with M365 migration, new CIO starts in Q2" oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>Confidence: Is the process mapped and on track?</label>
+        <div class="confidence-row">
+          <div class="conf-btn" data-field="p_confidence" data-val="1" onclick="setConf(this)">Unclear</div>
+          <div class="conf-btn" data-field="p_confidence" data-val="2" onclick="setConf(this)">Mapped</div>
+          <div class="conf-btn" data-field="p_confidence" data-val="3" onclick="setConf(this)">On Track</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- I: Identify Pain -->
+    <div class="medpic-panel" id="panel-I">
+      <h3>Identify Pain</h3>
+      <p class="panel-desc">What pain has the customer articulated — in their own words? Pain is the fuel of urgency.</p>
+      <div class="qual-question">
+        <label>What is the primary pain point?</label>
+        <div class="hint">In the customer's own words if possible — this should map to one of the four pillars</div>
+        <textarea data-field="i_primaryPain" placeholder='e.g. "We spend 3 days deploying a single AVD environment and our Azure bill keeps climbing with no visibility into what&#39;s driving it."' oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>Which Nerdio value pillars does this map to?</label>
+        <div class="confidence-row" style="flex-wrap:wrap;">
+          <div class="conf-btn" data-field="i_pillar_auto" data-val="1" onclick="togglePillar(this)" style="flex:none;padding:6px 12px;">Automation</div>
+          <div class="conf-btn" data-field="i_pillar_cost" data-val="1" onclick="togglePillar(this)" style="flex:none;padding:6px 12px;">Cost Optimization</div>
+          <div class="conf-btn" data-field="i_pillar_sec" data-val="1" onclick="togglePillar(this)" style="flex:none;padding:6px 12px;">Security</div>
+          <div class="conf-btn" data-field="i_pillar_vis" data-val="1" onclick="togglePillar(this)" style="flex:none;padding:6px 12px;">Visibility</div>
+        </div>
+      </div>
+      <div class="qual-question">
+        <label>What is the cost of doing nothing?</label>
+        <div class="hint">Quantify the pain of the status quo — this drives urgency</div>
+        <textarea data-field="i_costOfNothing" placeholder="e.g. Continue overspending $40K/month on Azure, 2 FTEs stuck on manual VDI management, Citrix renewal at $400K" oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>Has the customer acknowledged this pain to us directly?</label>
+        <select data-field="i_acknowledged" onchange="scoreAll()">
+          <option value="">-- Select --</option>
+          <option value="assumed">We assume the pain exists but haven't confirmed</option>
+          <option value="hinted">Customer hinted at issues but hasn't stated directly</option>
+          <option value="stated">Customer stated the pain clearly in a meeting</option>
+          <option value="quantified">Customer has quantified the pain with numbers</option>
+        </select>
+      </div>
+      <div class="qual-question">
+        <label>Confidence: Is the pain urgent enough to drive action?</label>
+        <div class="confidence-row">
+          <div class="conf-btn" data-field="i_confidence" data-val="1" onclick="setConf(this)">Low Urgency</div>
+          <div class="conf-btn" data-field="i_confidence" data-val="2" onclick="setConf(this)">Moderate</div>
+          <div class="conf-btn" data-field="i_confidence" data-val="3" onclick="setConf(this)">Urgent</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C: Champion -->
+    <div class="medpic-panel" id="panel-C">
+      <h3>Champion</h3>
+      <p class="panel-desc">Who is actively selling on our behalf inside the account? A real champion has power, access, and motivation.</p>
+      <div class="qual-question">
+        <label>Champion name and title</label>
+        <input type="text" data-field="c_name" placeholder="e.g. Marcus Rivera, Director of Cloud Infrastructure" oninput="scoreAll()">
+      </div>
+      <div class="qual-question">
+        <label>Why does this person want Nerdio to win?</label>
+        <div class="hint">Personal win: looks good, solves their problem, career advancement, reduces their team's burden</div>
+        <textarea data-field="c_motivation" placeholder="e.g. Owns AVD operations and is drowning in manual work. Nerdio would free up 2 of his 4 team members for strategic projects. Success here = promotion path." oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>Does the Champion have access to the Economic Buyer?</label>
+        <select data-field="c_access" onchange="scoreAll()">
+          <option value="">-- Select --</option>
+          <option value="none">No direct access</option>
+          <option value="indirect">Indirect — through another stakeholder</option>
+          <option value="direct">Direct access — reports to or meets regularly with EB</option>
+          <option value="trusted">Trusted advisor to the EB</option>
+        </select>
+      </div>
+      <div class="qual-question">
+        <label>Has the Champion taken action on our behalf?</label>
+        <div class="hint">Set up meetings, shared materials internally, advocated in budget discussions, provided org intel</div>
+        <textarea data-field="c_actions" placeholder="e.g. Set up demo with IT leadership, shared ROI deck with VP, provided internal org chart and buying process" oninput="scoreAll()"></textarea>
+      </div>
+      <div class="qual-question">
+        <label>Champion test: Would they tell us if we were losing?</label>
+        <select data-field="c_test" onchange="scoreAll()">
+          <option value="">-- Select --</option>
+          <option value="no">Probably not — they're friendly but not invested</option>
+          <option value="maybe">Possibly — they seem engaged but we haven't tested</option>
+          <option value="yes">Yes — they've already given us insider guidance</option>
+        </select>
+      </div>
+      <div class="qual-question">
+        <label>Confidence: Is this a real Champion or just a Coach?</label>
+        <div class="confidence-row">
+          <div class="conf-btn" data-field="c_confidence" data-val="1" onclick="setConf(this)">Coach Only</div>
+          <div class="conf-btn" data-field="c_confidence" data-val="2" onclick="setConf(this)">Emerging</div>
+          <div class="conf-btn" data-field="c_confidence" data-val="3" onclick="setConf(this)">True Champion</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let medpicData = {};
+let taskChecks = {};
+let phases = [];
+let partnerOn = false;
+let openPhases = new Set();
+let initialLoad = true;
+let phaseNotes = {};
+let phaseStatuses = {};
+let currentDealId = null;    // ID of the currently loaded deal
+let autoSaveTimer = null;
+
+// ============================================================
+// CONFIDENCE & PILLAR BUTTONS
+// ============================================================
+function setConf(el) {
+  const field = el.dataset.field;
+  const val = parseInt(el.dataset.val);
+  const row = el.parentElement;
+  row.querySelectorAll('.conf-btn').forEach(b => b.classList.remove('sel-red','sel-orange','sel-green'));
+  el.classList.add(val === 1 ? 'sel-red' : val === 2 ? 'sel-orange' : 'sel-green');
+  medpicData[field] = val;
+  scoreAll();
+}
+function togglePillar(el) {
+  const field = el.dataset.field;
+  if (medpicData[field]) { delete medpicData[field]; el.classList.remove('sel-green'); }
+  else { medpicData[field] = 1; el.classList.add('sel-green'); }
+  scoreAll();
+}
+
+// ============================================================
+// SCORING ENGINE
+// ============================================================
+function getFieldVal(field) {
+  const el = document.querySelector(`[data-field="${field}"]`);
+  if (!el) return medpicData[field] || '';
+  if (el.tagName === 'SELECT') return el.value;
+  return el.value.trim();
+}
+function scoreSection(letter) {
+  let pts = 0, max = 0;
+  const rules = {
+    M: [{field:'m_currentSpend',w:3},{field:'m_savingsTarget',w:2},{field:'m_adminHours',w:2},{field:'m_successMetrics',w:3},{field:'m_userCount',w:2},{field:'m_confidence',w:3,isConf:true}],
+    E: [{field:'e_name',w:3},{field:'e_met',w:3,isSelect:true,scores:{no:1,intro:2,meeting:3,engaged:3}},{field:'e_priorities',w:2},{field:'e_budget',w:3,isSelect:true,scores:{none:1,exploring:2,allocated:3,approved:3}},{field:'e_fiscal',w:1},{field:'e_confidence',w:3,isConf:true}],
+    D: [{field:'d_techReqs',w:3},{field:'d_bizReqs',w:2},{field:'d_competition',w:2,isSelect:true,scores:{none:3,native:2,citrix:2,omnissa:2,other:2,multiple:1}},{field:'d_influenced',w:3,isSelect:true,scores:{no:1,partial:2,yes:3}},{field:'d_confidence',w:3,isConf:true}],
+    P: [{field:'p_steps',w:3},{field:'p_stakeholders',w:2},{field:'p_compellingEvent',w:3},{field:'p_blockers',w:2},{field:'p_confidence',w:3,isConf:true}],
+    I: [{field:'i_primaryPain',w:3},{field:'i_pillar_auto',w:1,isPillar:true},{field:'i_pillar_cost',w:1,isPillar:true},{field:'i_pillar_sec',w:1,isPillar:true},{field:'i_pillar_vis',w:1,isPillar:true},{field:'i_costOfNothing',w:3},{field:'i_acknowledged',w:3,isSelect:true,scores:{assumed:1,hinted:2,stated:3,quantified:3}},{field:'i_confidence',w:3,isConf:true}],
+    C: [{field:'c_name',w:3},{field:'c_motivation',w:3},{field:'c_access',w:3,isSelect:true,scores:{none:1,indirect:2,direct:3,trusted:3}},{field:'c_actions',w:2},{field:'c_test',w:3,isSelect:true,scores:{no:1,maybe:2,yes:3}},{field:'c_confidence',w:3,isConf:true}],
+  };
+  (rules[letter]||[]).forEach(r => {
+    max += r.w * 3;
+    if (r.isConf) { pts += (medpicData[r.field]||0) * r.w; }
+    else if (r.isPillar) { pts += medpicData[r.field] ? r.w*3 : 0; }
+    else if (r.isSelect) { const v = getFieldVal(r.field); if (v && r.scores[v]) pts += r.scores[v]*r.w; }
+    else { const v = getFieldVal(r.field); if (v.length > 0) pts += (v.length>20?3:v.length>5?2:1)*r.w; }
+  });
+  return { pts, max, pct: max > 0 ? Math.round((pts/max)*100) : 0 };
+}
+function scoreAll() {
+  const letters = ['M','E','D','P','I','C'];
+  let totalPts = 0, totalMax = 0;
+  const sectionScores = {};
+  letters.forEach(l => { const s = scoreSection(l); sectionScores[l] = s; totalPts += s.pts; totalMax += s.max; });
+  if (partnerOn) {
+    const pName = document.getElementById('partnerName')?.value?.trim()||'';
+    const pEng = medpicData['partnerEngagement']||0;
+    let pp = 0; if (pName.length>0) pp += 9; pp += pEng*3;
+    totalMax += 18; totalPts += pp;
+    sectionScores['Partner'] = { pts:pp, max:18, pct:Math.round((pp/18)*100) };
+  }
+  const totalPct = totalMax>0 ? Math.round((totalPts/totalMax)*100) : 0;
+  const cls = totalPct<40?'low':totalPct<70?'mid':'high';
+  document.getElementById('scoreValue').textContent = totalPct+'%';
+  document.getElementById('scoreValue').className = 'score-value '+cls;
+  const fill = document.getElementById('scoreFill');
+  fill.style.width = totalPct+'%'; fill.className = 'score-fill '+cls;
+  const bd = document.getElementById('scoreBreakdown');
+  const names = {M:'Metrics',E:'Econ Buyer',D:'Criteria',P:'Process',I:'Pain',C:'Champion'};
+  bd.innerHTML = letters.map(l => {
+    const s = sectionScores[l]; const c = s.pct===0?'empty':s.pct<60?'partial':'complete';
+    return `<div class="score-chip ${c}">${l}: ${names[l]} ${s.pct}%</div>`;
+  }).join('') + (sectionScores['Partner'] ? `<div class="score-chip ${sectionScores['Partner'].pct<60?'partial':'complete'}">Partner ${sectionScores['Partner'].pct}%</div>` : '');
+  letters.forEach(l => {
+    const dot = document.querySelector(`.medpic-tab[data-tab="${l}"] .tab-dot`);
+    if (dot) { const s = sectionScores[l]; dot.className = 'tab-dot '+(s.pct===0?'empty':s.pct<60?'partial':'complete'); }
+  });
+  refresh();
+  autoSave();
+  return { totalPct, sectionScores };
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(letter) {
+  document.querySelectorAll('.medpic-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.medpic-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.medpic-tab[data-tab="${letter}"]`)?.classList.add('active');
+  document.getElementById(`panel-${letter}`)?.classList.add('active');
+}
+
+// ============================================================
+// PARTNER
+// ============================================================
+function togglePartner() {
+  partnerOn = !partnerOn;
+  document.getElementById('partnerToggle').classList.toggle('on', partnerOn);
+  document.getElementById('partnerFields').style.display = partnerOn ? 'block' : 'none';
+  scoreAll();
+}
+
+// ============================================================
+// DEAL CONFIG HELPERS
+// ============================================================
+function selectChip(el, groupId) {
+  document.querySelectorAll(`#${groupId} .chip`).forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  autoSave(); refresh();
+}
+function getComplexity() {
+  const a = document.querySelector('#complexityChips .chip.active');
+  return a ? a.dataset.val : 'standard';
+}
+
+// ============================================================
+// PERSISTENCE — SAVE / LOAD / DELETE DEALS
+// ============================================================
+function collectState() {
+  // Gather all form field values from MEDPIC panels
+  const formFields = {};
+  document.querySelectorAll('.medpic-panel [data-field]').forEach(el => {
+    const f = el.dataset.field;
+    if (el.tagName === 'SELECT') formFields[f] = el.value;
+    else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') formFields[f] = el.value;
+  });
+  return {
+    dealName: document.getElementById('dealName').value,
+    closeDate: document.getElementById('closeDate').value,
+    complexity: getComplexity(),
+    useCase: document.getElementById('useCase').value,
+    product: document.getElementById('product').value,
+    dealSize: document.getElementById('dealSize').value,
+    partnerOn,
+    partnerName: document.getElementById('partnerName')?.value || '',
+    partnerType: document.getElementById('partnerType')?.value || 'reseller',
+    partnerTier: document.getElementById('partnerTier')?.value || 'none',
+    partnerRep: document.getElementById('partnerRep')?.value || '',
+    medpicData: { ...medpicData },
+    formFields,
+    taskChecks: { ...taskChecks },
+    phaseNotes: { ...phaseNotes },
+    phaseStatuses: { ...phaseStatuses },
+    savedAt: new Date().toISOString(),
+  };
+}
+
+function applyState(s) {
+  // Deal config
+  document.getElementById('dealName').value = s.dealName || '';
+  document.getElementById('closeDate').value = s.closeDate || '';
+  document.getElementById('useCase').value = s.useCase || 'avd';
+  document.getElementById('product').value = s.product || 'nme';
+  document.getElementById('dealSize').value = s.dealSize || '';
+  // Complexity chip
+  document.querySelectorAll('#complexityChips .chip').forEach(c => c.classList.remove('active'));
+  const cChip = document.querySelector(`#complexityChips .chip[data-val="${s.complexity||'standard'}"]`);
+  if (cChip) cChip.classList.add('active');
+  // Partner
+  partnerOn = s.partnerOn || false;
+  document.getElementById('partnerToggle').classList.toggle('on', partnerOn);
+  document.getElementById('partnerFields').style.display = partnerOn ? 'block' : 'none';
+  document.getElementById('partnerName').value = s.partnerName || '';
+  document.getElementById('partnerType').value = s.partnerType || 'reseller';
+  document.getElementById('partnerTier').value = s.partnerTier || 'none';
+  document.getElementById('partnerRep').value = s.partnerRep || '';
+  // MEDPIC
+  medpicData = s.medpicData || {};
+  taskChecks = s.taskChecks || {};
+  phaseNotes = s.phaseNotes || {};
+  phaseStatuses = s.phaseStatuses || {};
+  // Restore MEDPIC form fields
+  const ff = s.formFields || {};
+  document.querySelectorAll('.medpic-panel [data-field]').forEach(el => {
+    const f = el.dataset.field;
+    if (ff[f] !== undefined) {
+      if (el.tagName === 'SELECT') el.value = ff[f];
+      else el.value = ff[f];
+    } else {
+      if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = '';
+    }
+  });
+  // Restore confidence buttons
+  document.querySelectorAll('.conf-btn').forEach(b => b.classList.remove('sel-red','sel-orange','sel-green'));
+  Object.entries(medpicData).forEach(([field, val]) => {
+    if (typeof val === 'number' && val >= 1 && val <= 3) {
+      const btn = document.querySelector(`.conf-btn[data-field="${field}"][data-val="${val}"]`);
+      if (btn) btn.classList.add(val===1?'sel-red':val===2?'sel-orange':'sel-green');
+    }
+  });
+  // Reset open phases for fresh load
+  openPhases = new Set();
+  initialLoad = true;
+  scoreAll();
+}
+
+function getSavedDeals() {
+  try { return JSON.parse(localStorage.getItem('nerdio_deals') || '{}'); } catch { return {}; }
+}
+function putSavedDeals(deals) {
+  localStorage.setItem('nerdio_deals', JSON.stringify(deals));
+}
+
+function computeChanges(oldState, newState) {
+  if (!oldState) return ['Initial save'];
+  const changes = [];
+  if (oldState.dealName !== newState.dealName) changes.push('Deal name changed');
+  if (oldState.closeDate !== newState.closeDate) changes.push('Close date updated to ' + newState.closeDate);
+  if (oldState.dealSize !== newState.dealSize) changes.push('Deal size updated');
+  if (oldState.complexity !== newState.complexity) changes.push('Complexity changed to ' + newState.complexity);
+  if (oldState.product !== newState.product) changes.push('Product changed to ' + newState.product.toUpperCase());
+  if (oldState.useCase !== newState.useCase) changes.push('Use case changed');
+  if (!!oldState.partnerOn !== !!newState.partnerOn) changes.push(newState.partnerOn ? 'Partner added' : 'Partner removed');
+  if (newState.partnerOn && oldState.partnerName !== newState.partnerName) changes.push('Partner name updated');
+  // Task check changes
+  const oldChecks = oldState.taskChecks || {};
+  const newChecks = newState.taskChecks || {};
+  const allKeys = new Set([...Object.keys(oldChecks), ...Object.keys(newChecks)]);
+  let tasksCompleted = 0, tasksUnchecked = 0;
+  allKeys.forEach(k => { if (!oldChecks[k] && newChecks[k]) tasksCompleted++; if (oldChecks[k] && !newChecks[k]) tasksUnchecked++; });
+  if (tasksCompleted > 0) changes.push(tasksCompleted + ' task' + (tasksCompleted>1?'s':'') + ' completed');
+  if (tasksUnchecked > 0) changes.push(tasksUnchecked + ' task' + (tasksUnchecked>1?'s':'') + ' unchecked');
+  // Phase status changes
+  const oldSt = oldState.phaseStatuses || {};
+  const newSt = newState.phaseStatuses || {};
+  const phaseNames = {discovery:'Discovery',qualification:'Qualification',demo:'Demo',trial:'Trial',proposal:'Proposal',negotiation:'Negotiation',close:'Close'};
+  Object.keys(newSt).forEach(k => { if (oldSt[k] !== newSt[k]) changes.push((phaseNames[k]||k) + ' status → ' + newSt[k]); });
+  // MEDPIC changes
+  const oldFF = oldState.formFields || {};
+  const newFF = newState.formFields || {};
+  const medpicLabels = {e_name:'Economic Buyer',c_name:'Champion',m_currentSpend:'Metrics: spend',i_primaryPain:'Pain identified',p_compellingEvent:'Compelling event',d_competition:'Competition'};
+  Object.keys(medpicLabels).forEach(f => {
+    if (!oldFF[f] && newFF[f]) changes.push(medpicLabels[f] + ' added');
+    else if (oldFF[f] && newFF[f] && oldFF[f] !== newFF[f]) changes.push(medpicLabels[f] + ' updated');
+  });
+  // Score change
+  const oldScore = calcQuickScore(oldState);
+  const newScore = calcQuickScore(newState);
+  if (Math.abs(oldScore - newScore) >= 3) changes.push('Score ' + oldScore + '% → ' + newScore + '%');
+  if (changes.length === 0) changes.push('Minor updates');
+  return changes;
+}
+
+function saveCurrentDeal() {
+  const name = document.getElementById('dealName').value.trim();
+  if (!name) { alert('Enter an opportunity name before saving.'); return; }
+  const deals = getSavedDeals();
+  const id = currentDealId || 'deal_' + Date.now();
+  const prevState = deals[id] || null;
+  const newState = collectState();
+  newState.id = id;
+  // Build change history
+  const history = (prevState && prevState.changeHistory) ? [...prevState.changeHistory] : [];
+  const changes = computeChanges(prevState, newState);
+  history.push({ timestamp: new Date().toISOString(), changes });
+  if (history.length > 50) history.splice(0, history.length - 50); // cap at 50
+  newState.changeHistory = history;
+  newState.lastChangeSummary = changes.join('; ');
+  deals[id] = newState;
+  putSavedDeals(deals);
+  currentDealId = id;
+  renderSavedDeals();
+  flashSaveBadge();
+}
+
+function autoSave() {
+  if (!currentDealId) return;
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    const deals = getSavedDeals();
+    const prevState = deals[currentDealId] || null;
+    const newState = collectState();
+    newState.id = currentDealId;
+    const history = (prevState && prevState.changeHistory) ? [...prevState.changeHistory] : [];
+    const changes = computeChanges(prevState, newState);
+    // Only add to history if something meaningful changed (avoid noise)
+    if (changes.length > 0 && changes[0] !== 'Minor updates') {
+      history.push({ timestamp: new Date().toISOString(), changes });
+      if (history.length > 50) history.splice(0, history.length - 50);
+    }
+    newState.changeHistory = history;
+    newState.lastChangeSummary = changes.join('; ');
+    deals[currentDealId] = newState;
+    putSavedDeals(deals);
+    renderSavedDeals();
+    flashSaveBadge();
+  }, 800);
+}
+
+function flashSaveBadge() {
+  const badge = document.getElementById('autosaveBadge');
+  badge.classList.add('show');
+  setTimeout(() => badge.classList.remove('show'), 1500);
+}
+
+function loadDeal(id) {
+  const deals = getSavedDeals();
+  if (!deals[id]) return;
+  currentDealId = id;
+  applyState(deals[id]);
+  renderSavedDeals();
+}
+
+function deleteDeal(id, evt) {
+  evt.stopPropagation();
+  if (!confirm('Delete this saved deal?')) return;
+  const deals = getSavedDeals();
+  delete deals[id];
+  putSavedDeals(deals);
+  if (currentDealId === id) currentDealId = null;
+  renderSavedDeals();
+}
+
+function newDeal() {
+  currentDealId = null;
+  medpicData = {}; taskChecks = {}; phaseNotes = {}; phaseStatuses = {};
+  openPhases = new Set(); initialLoad = true; partnerOn = false;
+  document.getElementById('partnerToggle').classList.remove('on');
+  document.getElementById('partnerFields').style.display = 'none';
+  document.getElementById('dealName').value = '';
+  document.getElementById('dealSize').value = '';
+  document.getElementById('partnerName').value = '';
+  document.getElementById('partnerRep').value = '';
+  const dd = new Date(); dd.setDate(dd.getDate()+90);
+  document.getElementById('closeDate').value = dd.toISOString().split('T')[0];
+  document.querySelectorAll('#complexityChips .chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector('#complexityChips .chip[data-val="standard"]').classList.add('active');
+  document.getElementById('useCase').selectedIndex = 0;
+  document.getElementById('product').selectedIndex = 0;
+  document.querySelectorAll('.medpic-panel input, .medpic-panel textarea, .medpic-panel select').forEach(el => {
+    if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = '';
+  });
+  document.querySelectorAll('.conf-btn').forEach(b => b.classList.remove('sel-red','sel-orange','sel-green'));
+  renderSavedDeals();
+  scoreAll();
+}
+
+function renderSavedDeals() {
+  const deals = getSavedDeals();
+  const list = document.getElementById('savedDealsList');
+  const ids = Object.keys(deals).sort((a,b) => (deals[b].savedAt||'').localeCompare(deals[a].savedAt||''));
+  if (ids.length === 0) {
+    list.innerHTML = '<div class="no-saved-deals">No saved deals yet</div>';
+    return;
+  }
+  list.innerHTML = ids.map(id => {
+    const d = deals[id];
+    const score = calcQuickScore(d);
+    const cls = score<40?'low':score<70?'mid':'high';
+    const isActive = id === currentDealId;
+    const date = d.savedAt ? new Date(d.savedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+    return `<div class="saved-deal-item ${isActive?'active-deal':''}" onclick="loadDeal('${id}')">
+      <div class="saved-deal-info">
+        <div class="saved-deal-name">${d.dealName||'Untitled'}</div>
+        <div class="saved-deal-meta">${d.closeDate||'No date'} &bull; ${date}</div>
+      </div>
+      <div class="saved-deal-score ${cls}">${score}%</div>
+      <button class="deal-delete-btn" onclick="deleteDeal('${id}',event)" title="Delete">&times;</button>
+    </div>`;
+  }).join('');
+}
+
+function calcQuickScore(d) {
+  // Quick score from saved state without needing DOM
+  let pts = 0, max = 0;
+  const md = d.medpicData || {};
+  const ff = d.formFields || {};
+  const allFields = [
+    'm_currentSpend','m_savingsTarget','m_adminHours','m_successMetrics','m_userCount',
+    'e_name','e_met','e_priorities','e_budget','e_fiscal',
+    'd_techReqs','d_bizReqs','d_competition','d_influenced',
+    'p_steps','p_stakeholders','p_compellingEvent','p_blockers',
+    'i_primaryPain','i_costOfNothing','i_acknowledged',
+    'c_name','c_motivation','c_access','c_actions','c_test'
+  ];
+  const confFields = ['m_confidence','e_confidence','d_confidence','p_confidence','i_confidence','c_confidence'];
+  const pillarFields = ['i_pillar_auto','i_pillar_cost','i_pillar_sec','i_pillar_vis'];
+  allFields.forEach(f => { max += 9; const v = ff[f]||''; if (v.length>0) pts += (v.length>20?9:v.length>5?6:3); });
+  confFields.forEach(f => { max += 9; pts += (md[f]||0)*3; });
+  pillarFields.forEach(f => { max += 3; if (md[f]) pts += 3; });
+  return max > 0 ? Math.round((pts/max)*100) : 0;
+}
+
+// ============================================================
+// PHASE TEMPLATES
+// ============================================================
+function getPhases(complexity, useCase, product) {
+  const isE = complexity === 'enterprise', isF = complexity === 'fast';
+  const isMig = useCase === 'migration', isMSP = product === 'nmm';
+
+  return [
+    {
+      id: 'discovery', title: 'Discovery & Qualification',
+      weeksBefore: isE ? 24 : isF ? 4 : 10, medpicFocus: ['I','M'],
+      medpicTasks: [
+        'Identify primary pain points (complexity, cost, scale)',
+        'Quantify current Azure/VDI spend and manual effort hours',
+        'Map stakeholder landscape — who owns EUC decisions?',
+        'Understand current environment (Citrix, VMware, native AVD, physical)',
+        'Determine number of users, endpoints, and Azure tenants',
+      ],
+      nerdioTasks: [
+        isMig ? 'Position Nerdio as the "legacy VDI escape hatch" — incremental transition, not rip-and-replace' : 'Position Nerdio as the "missing middle" between raw Azure complexity and enterprise-grade simplicity',
+        'Use discovery: "How confident are you that you\'re not overpaying for Azure compute?"',
+        'Ask: "How many consoles does your team use to manage endpoints, desktops, and policies?"',
+        isMSP ? 'Ask: "Are your Azure margins where you want them to be?"' : 'Ask: "How long does it take to spin up a new AVD environment today?"',
+        'Share proof: 3M+ desktops under management, 15,000+ customers',
+      ],
+      partnerTasks: [
+        'Align with partner on account strategy and deal registration',
+        'Confirm partner technical capability and certifications',
+        'Schedule joint discovery call — partner brings relationship, we bring product expertise',
+        isMSP ? 'Discuss Partnerd program tier benefits and margin structure' : 'Coordinate partner co-sell motion with Microsoft field team',
+      ],
+      nerdioTip: isMig ? 'Migration deals open with the cost narrative. Citrix charges premium licensing ON TOP of Azure. 62% of enterprises already use AVD. Position Nerdio as the transition path.' : 'Lead with the "2 AM question" — what are your VMs doing when nobody is working? Auto-scaling saves 55% on compute average.',
+      status: 'not-started', notes: '',
+    },
+    {
+      id: 'qualification', title: 'Deep Qualification & Champion Building',
+      weeksBefore: isE ? 20 : isF ? 3 : 8, medpicFocus: ['E','C','D'],
+      medpicTasks: [
+        'Identify and engage the Economic Buyer (budget authority)',
+        'Confirm or develop a Champion — who is selling internally?',
+        'Document Decision Criteria (technical + business requirements)',
+        'Map buying process — procurement, legal, security review',
+        'Understand competitive landscape — who else are they evaluating?',
+      ],
+      nerdioTasks: [
+        'Tailor value framework: CIO = risk + cost; IT Admin = simplification; MSP = margin',
+        'Share customer proof points aligned to their vertical and size',
+        isMSP ? 'Introduce Partnerd program — tier benefits, margin protection, co-sell' : 'Highlight Scott Manchester (former Microsoft VP) as Nerdio CPTO',
+        'Address "Azure-native" objection: Nerdio adds 100+ features Microsoft doesn\'t provide',
+        'Arm Champion with internal selling materials and ROI talking points',
+      ],
+      partnerTasks: [
+        'Partner introduces Nerdio to their existing relationships in the account',
+        'Joint qualification — partner validates our MEDPIC findings with their account intel',
+        'Align on pricing strategy and partner margin expectations',
+        'Partner facilitates warm intro to Economic Buyer if not yet engaged',
+      ],
+      nerdioTip: 'Your Champion is everything. Arm them with the four-pillar story: Automation, Cost Optimization, Security, Visibility. Give them stats that make them look smart internally.',
+      status: 'not-started', notes: '',
+    },
+    {
+      id: 'demo', title: 'Technical Validation & Demo',
+      weeksBefore: isE ? 16 : isF ? 2.5 : 6, medpicFocus: ['D','M'],
+      medpicTasks: [
+        'Conduct tailored demo aligned to documented Decision Criteria',
+        'Present metrics / ROI projection tied to their current spend',
+        'Address technical requirements and integration questions',
+        'Validate fit within existing architecture (Entra ID, Conditional Access)',
+        'Identify and address technical blockers early',
+      ],
+      nerdioTasks: [
+        product === 'nme' ? 'Demo NME: auto-scaling, golden image management, auto-heal, rapid deployment' : 'Demo NMM: multi-tenant dashboard, M365 management, cost estimator, remote support',
+        useCase === 'cost' ? 'Focus on TCO Analysis tool — compare AVD vs W365 costs in their environment' : 'Show deployment wizard — AVD environment in under an hour',
+        'Demonstrate auto-scaling with real savings projections for their workload',
+        isMig ? 'Show migration tooling — Citrix/VMware to AVD path, parallel running' : 'Show Intune Insights — device compliance, patching, app usage at a glance',
+        'Reference: LexisNexis 75% decrease in support needs, satisfaction 35 to 90+',
+      ],
+      partnerTasks: [
+        'Partner SE joins demo to validate technical fit within their managed environment',
+        'Partner provides customer environment details to tailor the demo',
+        'Joint demo positions partner as delivery/implementation arm',
+        'Partner collects technical feedback post-demo and feeds back to Nerdio team',
+      ],
+      nerdioTip: 'Make the admin\'s jaw drop. Show tasks that take hours happening in clicks. Auto-heal is a crowd-pleaser. Always end with cost savings visualization.',
+      status: 'not-started', notes: '',
+    },
+    {
+      id: 'trial', title: 'Proof of Value / Trial',
+      weeksBefore: isE ? 12 : isF ? 2 : 4, medpicFocus: ['M','D'],
+      medpicTasks: [
+        'Launch free 30-day trial in customer\'s own Azure subscription',
+        'Define success criteria and measurable outcomes',
+        'Schedule weekly check-ins during trial',
+        'Capture before/after metrics — cost, time, admin effort',
+        'Get written validation of technical fit from evaluator',
+      ],
+      nerdioTasks: [
+        'Deploy via Azure Marketplace — runs as App Service in THEIR subscription',
+        'Set up auto-scaling on real workloads — let savings speak for themselves',
+        'Configure Intune baselines with CIS Benchmark-aligned policies',
+        'Show real-time dashboard — "this is what you\'ve been missing"',
+        isMSP ? 'Demonstrate multi-tenant management — all clients from one portal' : 'Show governance — RBAC, approval workflows, audit logging',
+      ],
+      partnerTasks: [
+        'Partner provides deployment support and troubleshooting during trial',
+        'Partner gathers trial feedback and surfaces issues early',
+        'Joint weekly syncs: Nerdio + partner + customer during POV period',
+        'Partner documents trial results for their own internal case study',
+      ],
+      nerdioTip: 'The trial is your closer. Deploy in their own Azure sub so they see real savings on real workloads. Capture before/after Azure spend screenshots for the EB meeting.',
+      status: 'not-started', notes: '',
+    },
+    {
+      id: 'proposal', title: 'Proposal & Business Case',
+      weeksBefore: isE ? 8 : isF ? 1.5 : 3, medpicFocus: ['E','M','P'],
+      medpicTasks: [
+        'Present formal proposal to Economic Buyer with ROI analysis',
+        'Include trial results — actual savings and efficiency metrics',
+        'Map remaining Decision Process steps (legal, procurement, security)',
+        'Confirm budget allocation and fiscal year timing',
+        'Address remaining objections or competitive comparisons',
+      ],
+      nerdioTasks: [
+        'Build ROI story: trial savings extrapolated to full deployment (55% avg savings)',
+        'Frame per-user/per-month pricing vs. total cost of legacy alternative',
+        'Highlight Azure Marketplace billing — simplifies procurement',
+        product === 'nme' ? 'Position NME as strategic platform — AVD + W365 + Intune' : 'Show total margin impact — NMM automation protects margins',
+        'Social proof: $1B+ valuation, General Atlantic, Microsoft Partner of Year finalist',
+      ],
+      partnerTasks: [
+        'Partner prepares joint proposal with their services wrapped around Nerdio',
+        'Align on final pricing — partner margin, Nerdio licensing, Azure consumption',
+        'Partner validates proposal with their account team before EB presentation',
+        'Joint presentation to Economic Buyer — partner handles relationship, Nerdio handles product',
+      ],
+      nerdioTip: 'Lead the EB presentation with their own trial data. "You spent $X. With Nerdio, that would have been $Y." Sage saved $1M+ annually. The question isn\'t whether Nerdio pays for itself — it\'s how fast.',
+      status: 'not-started', notes: '',
+    },
+    {
+      id: 'negotiation', title: 'Negotiation & Legal',
+      weeksBefore: isE ? 4 : isF ? 1 : 2, medpicFocus: ['P','E'],
+      medpicTasks: [
+        'Navigate procurement — MSA, DPA, security questionnaire',
+        'Address legal/compliance requirements (SOC 2, data residency)',
+        'Finalize pricing and commercial terms',
+        'Confirm deployment timeline and go-live plan',
+        'Secure final verbal commitment from Economic Buyer',
+      ],
+      nerdioTasks: [
+        'Deployment model: Azure App Service in their subscription — data never leaves',
+        'Security review: Entra ID, Conditional Access, Defender, CIS Benchmarks',
+        'Azure Marketplace simplifies procurement — bill through Azure agreement',
+        'Offer deployment support — Nerdio engineering for go-live',
+        isMSP ? 'Finalize Partnerd tier and benefits' : 'Propose phased rollout: pilot → department → enterprise-wide',
+      ],
+      partnerTasks: [
+        'Partner handles procurement process through their existing vendor agreement',
+        'Partner legal team reviews and processes contracts on customer\'s behalf',
+        'Coordinate three-way commercial terms: customer ↔ partner ↔ Nerdio',
+        'Partner confirms deployment resources and go-live timeline',
+      ],
+      nerdioTip: 'Security review is where deals stall. Pre-empt: Nerdio deploys in THEIR Azure subscription. Data never touches our infrastructure. "It\'s your cloud, we just make it better."',
+      status: 'not-started', notes: '',
+    },
+    {
+      id: 'close', title: 'Close & Handoff',
+      weeksBefore: 0, medpicFocus: ['M','C'],
+      medpicTasks: [
+        'Execute contract / confirm Azure Marketplace subscription',
+        'Confirm deployment plan and timeline',
+        'Transition from sales to customer success / onboarding',
+        'Schedule 30/60/90 day check-ins post-deployment',
+        'Document win — metrics, process, lessons learned',
+      ],
+      nerdioTasks: [
+        'Smooth handoff to Nerdio customer success and engineering',
+        'Confirm auto-scaling configured for Day 1 savings',
+        'Set up monitoring dashboard for IT team visibility',
+        'Plan expansion: additional use cases (W365, Intune) for cross-sell',
+        'Ask Champion for reference / case study — fuel the proof engine',
+      ],
+      partnerTasks: [
+        'Partner leads deployment and onboarding services',
+        'Partner establishes ongoing managed services relationship',
+        'Joint QBR cadence set: Nerdio + partner + customer',
+        'Partner identifies expansion opportunities across their client base',
+      ],
+      nerdioTip: 'Close is the start of the expansion play. AVD + W365 + Intune = natural upsell paths. Set the 90-day check-in to discuss "what\'s next" and capture case study metrics.',
+      status: 'not-started', notes: '',
+    },
+  ];
+}
+
+// ============================================================
+// COACHING ALERTS
+// ============================================================
+function getCoachingAlerts(sectionScores) {
+  const alerts = [];
+  const names = { M:'Metrics', E:'Economic Buyer', D:'Decision Criteria', P:'Decision Process', I:'Pain', C:'Champion' };
+  const tips = {
+    M: 'Quantify the customer\'s current spend and target savings — without numbers, the business case falls flat.',
+    E: 'You need a named Economic Buyer with budget authority. "The IT team" is not an EB.',
+    D: 'Document the decision criteria and shape them in Nerdio\'s favor — auto-scaling, Azure-native deployment, CIS benchmarks.',
+    P: 'Map every step from here to signature. Unknown process = unknown close date.',
+    I: 'Get the customer to articulate their pain in their own words. Assumed pain doesn\'t drive urgency.',
+    C: 'A real Champion takes action on your behalf. If they haven\'t set up meetings or shared materials, they\'re a Coach, not a Champion.',
+  };
+  ['M','E','D','P','I','C'].forEach(l => {
+    if (sectionScores[l] && sectionScores[l].pct < 40) {
+      alerts.push({ letter: l, name: names[l], tip: tips[l] });
+    }
+  });
+  return alerts;
+}
+
+// ============================================================
+// TIMELINE RENDER
+// ============================================================
+function refresh() {
+  const closeDate = document.getElementById('closeDate').value;
+  if (!closeDate) {
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('timelineArea').style.display = 'none';
+    return;
+  }
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('timelineArea').style.display = 'block';
+
+  const complexity = getComplexity();
+  const useCase = document.getElementById('useCase').value;
+  const product = document.getElementById('product').value;
+  const close = new Date(closeDate + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  phases = getPhases(complexity, useCase, product);
+  phases.forEach(phase => {
+    const d = new Date(close);
+    d.setDate(d.getDate() - (phase.weeksBefore * 7));
+    phase.date = phase.weeksBefore === 0 ? close : d;
+    phase.dateStr = phase.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const diff = Math.ceil((phase.date - today) / 86400000);
+    phase.timing = diff < 0 ? 'overdue' : diff <= 7 ? 'current' : 'upcoming';
+    // Restore persisted notes and status
+    if (phaseNotes[phase.id]) phase.notes = phaseNotes[phase.id];
+    if (phaseStatuses[phase.id]) phase.status = phaseStatuses[phase.id];
+  });
+
+  const daysToClose = Math.ceil((close - today) / 86400000);
+  const { totalPct, sectionScores } = (() => {
+    const letters = ['M','E','D','P','I','C'];
+    let tp = 0, tm = 0; const ss = {};
+    letters.forEach(l => { const s = scoreSection(l); ss[l] = s; tp += s.pts; tm += s.max; });
+    return { totalPct: tm > 0 ? Math.round((tp/tm)*100) : 0, sectionScores: ss };
+  })();
+
+  const totalTasks = phases.reduce((s,p) => s + p.medpicTasks.length + p.nerdioTasks.length + (partnerOn ? p.partnerTasks.length : 0), 0);
+  const completedTasks = Object.values(taskChecks).filter(v => v).length;
+  const completionPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const scoreClass = totalPct < 40 ? 'low' : totalPct < 70 ? 'mid' : 'high';
+  const scoreLabel = totalPct < 40 ? 'Needs Work' : totalPct < 70 ? 'Developing' : totalPct >= 85 ? 'Deal Ready' : 'Strong';
+
+  const alerts = getCoachingAlerts(sectionScores);
+  let alertHTML = '';
+  if (alerts.length > 0) {
+    alertHTML = `<div class="coaching-alert"><h4>&#9888; Qualification Gaps — Action Required</h4><ul>${alerts.map(a => `<li><strong>${a.letter}: ${a.name}</strong> — ${a.tip}</li>`).join('')}</ul></div>`;
+  }
+
+  let statsHTML = `
+    <div class="stats-bar">
+      <div class="stat-card ${daysToClose <= 14 ? 'warning' : 'highlight'}">
+        <div class="stat-label">Days to Close</div>
+        <div class="stat-value">${daysToClose}</div>
+        <div class="stat-sub">${close.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+      </div>
+      <div class="stat-card score-card">
+        <div class="stat-label">Deal Score</div>
+        <div class="stat-value ${scoreClass}">${totalPct}%</div>
+        <div class="stat-sub">${scoreLabel}</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label">Task Completion</div>
+        <div class="stat-value">${completionPct}%</div>
+        <div class="stat-sub">${completedTasks} of ${totalTasks} tasks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Phases</div>
+        <div class="stat-value">${phases.length}</div>
+        <div class="stat-sub">${getComplexity().charAt(0).toUpperCase() + getComplexity().slice(1)}${partnerOn ? ' + Partner' : ''}</div>
+      </div>
+    </div>
+  `;
+
+  let phasesHTML = phases.map(phase => {
+    const wk = phase.weeksBefore === 0 ? 'CLOSE' : `W-${phase.weeksBefore}`;
+    const tc = phase.timing;
+    const wkCls = tc === 'overdue' ? 'overdue' : tc === 'current' ? 'current' : '';
+    const statusOpts = ['not-started','in-progress','done','at-risk'];
+    const statusLabels = {'not-started':'Not Started','in-progress':'In Progress','done':'Done','at-risk':'At Risk'};
+    const badges = phase.medpicFocus.map(l => `<span class="medpic-letter" style="margin-right:3px;">${l}</span>`).join('');
+
+    const mkTasks = (tasks, prefix) => tasks.map((t,i) => {
+      const k = `${phase.id}-${prefix}-${i}`;
+      const ch = taskChecks[k] || false;
+      return `<div class="task-item"><div class="task-check ${ch?'checked':''}" onclick="toggleTask('${k}')"></div><div class="task-text ${ch?'done':''}">${t}</div></div>`;
+    }).join('');
+
+    const colCount = partnerOn ? 3 : 2;
+    const gridStyle = partnerOn ? 'grid-template-columns: 1fr 1fr 1fr' : 'grid-template-columns: 1fr 1fr';
+
+    return `
+      <div class="timeline-phase ${tc}">
+        <div class="phase-header" onclick="togglePhase('${phase.id}')">
+          <div class="phase-header-left">
+            <div class="phase-week ${wkCls}">${wk}</div>
+            <div><div class="phase-title">${phase.title} ${badges}</div><div class="phase-date">Target: ${phase.dateStr}</div></div>
+          </div>
+          <div class="phase-header-right">
+            <select class="status-select" onclick="event.stopPropagation()" onchange="updatePhaseStatus('${phase.id}',this.value)">
+              ${statusOpts.map(s => `<option value="${s}" ${phase.status===s?'selected':''}>${statusLabels[s]}</option>`).join('')}
+            </select>
+            <div class="phase-toggle" id="toggle-${phase.id}">&#9660;</div>
+          </div>
+        </div>
+        <div class="phase-body" id="body-${phase.id}">
+          <div class="phase-columns" style="${gridStyle}">
+            <div class="phase-col"><h4 class="medpic-h">MEDPIC Activities</h4>${mkTasks(phase.medpicTasks,'medpic')}</div>
+            <div class="phase-col"><h4 class="nerdio-h">Nerdio Positioning</h4>${mkTasks(phase.nerdioTasks,'nerdio')}
+              <div class="nerdio-tip"><div class="nerdio-tip-header">Nerdio Sales Tip</div><p>${phase.nerdioTip}</p></div>
+            </div>
+            ${partnerOn ? `<div class="phase-col"><h4 class="partner-h">Partner Activities</h4>${mkTasks(phase.partnerTasks,'partner')}</div>` : ''}
+          </div>
+          <div class="phase-notes"><label>Notes</label><textarea placeholder="Add deal notes..." oninput="updateNotes('${phase.id}',this.value)">${phase.notes||''}</textarea></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('timelineArea').innerHTML = alertHTML + statsHTML + '<div class="timeline">' + phasesHTML + '</div>';
+
+  // On first load, auto-open current/overdue phases; after that, restore user's open/close state
+  if (initialLoad) {
+    phases.forEach(p => {
+      if (p.timing === 'current' || p.timing === 'overdue') { openPhases.add(p.id); }
+    });
+    initialLoad = false;
+  }
+  openPhases.forEach(id => {
+    document.getElementById(`body-${id}`)?.classList.add('open');
+    document.getElementById(`toggle-${id}`)?.classList.add('open');
+  });
+}
+
+function togglePhase(id) {
+  if (openPhases.has(id)) { openPhases.delete(id); } else { openPhases.add(id); }
+  document.getElementById(`body-${id}`)?.classList.toggle('open');
+  document.getElementById(`toggle-${id}`)?.classList.toggle('open');
+}
+function toggleTask(key) { taskChecks[key] = !taskChecks[key]; refresh(); autoSave(); }
+function updatePhaseStatus(id, val) { phaseStatuses[id] = val; refresh(); autoSave(); }
+function updateNotes(id, val) { phaseNotes[id] = val; autoSave(); }
+
+function resetAll() {
+  if (!confirm('Reset current deal? This clears the form but does not delete saved deals.')) return;
+  newDeal();
+}
+
+// ============================================================
+// EXCEL EXPORT (fixed)
+// ============================================================
+function exportToExcel() {
+  try {
+    if (typeof XLSX === 'undefined') { alert('Excel library not loaded. Check your internet connection and reload.'); return; }
+
+    // Make sure phases are generated
+    const closeDate = document.getElementById('closeDate').value;
+    if (!closeDate) { alert('Set a close date before exporting.'); return; }
+    const complexity = getComplexity();
+    const useCase = document.getElementById('useCase').value;
+    const product = document.getElementById('product').value;
+    const exportPhases = getPhases(complexity, useCase, product);
+    const close = new Date(closeDate + 'T00:00:00');
+    exportPhases.forEach(phase => {
+      const d = new Date(close); d.setDate(d.getDate() - (phase.weeksBefore * 7));
+      phase.date = phase.weeksBefore === 0 ? close : d;
+      phase.dateStr = phase.date.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+      if (phaseNotes[phase.id]) phase.notes = phaseNotes[phase.id];
+      if (phaseStatuses[phase.id]) phase.status = phaseStatuses[phase.id];
+    });
+
+    const dealName = document.getElementById('dealName').value || 'Nerdio Deal';
+    const wb = XLSX.utils.book_new();
+
+    // ---- Sheet 1: Reverse Timeline ----
+    const td = [];
+    td.push(['NERDIO DEAL REVERSE TIMELINE']);
+    td.push(['Deal:', dealName, '', 'Close:', closeDate, '', 'Complexity:', complexity, '', 'Product:', product.toUpperCase()]);
+    td.push([]);
+    td.push(['Phase', 'Target Date', 'Weeks Before', 'Status', 'MEDPIC Focus', 'Task Type', 'Task', 'Complete?', 'Notes']);
+
+    exportPhases.forEach(p => {
+      const mf = p.medpicFocus.join(', ');
+      let firstRow = true;
+      p.medpicTasks.forEach((t, i) => {
+        const k = p.id + '-medpic-' + i;
+        td.push([
+          firstRow ? p.title : '', firstRow ? p.dateStr : '',
+          firstRow ? (p.weeksBefore === 0 ? 'CLOSE' : 'W-' + p.weeksBefore) : '',
+          firstRow ? (p.status || 'not-started') : '', firstRow ? mf : '',
+          'MEDPIC', t, taskChecks[k] ? 'Yes' : 'No', firstRow ? (p.notes || '') : ''
+        ]);
+        firstRow = false;
+      });
+      p.nerdioTasks.forEach((t, i) => {
+        const k = p.id + '-nerdio-' + i;
+        td.push(['', '', '', '', '', 'Nerdio Positioning', t, taskChecks[k] ? 'Yes' : 'No', '']);
+      });
+      if (partnerOn && p.partnerTasks) {
+        p.partnerTasks.forEach((t, i) => {
+          const k = p.id + '-partner-' + i;
+          td.push(['', '', '', '', '', 'Partner', t, taskChecks[k] ? 'Yes' : 'No', '']);
+        });
+      }
+      td.push(['', '', '', '', '', 'Sales Tip', p.nerdioTip, '', '']);
+      td.push([]);
+    });
+
+    const ws1 = XLSX.utils.aoa_to_sheet(td);
+    ws1['!cols'] = [{wch:32},{wch:16},{wch:16},{wch:14},{wch:14},{wch:20},{wch:80},{wch:10},{wch:40}];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Reverse Timeline');
+
+    // ---- Sheet 2: MEDPIC Qualification ----
+    const mq = [];
+    mq.push(['MEDPIC QUALIFICATION DETAIL']);
+    mq.push(['Deal:', dealName, '', 'Date:', new Date().toLocaleDateString()]);
+    mq.push([]);
+    mq.push(['Section', 'Field', 'Value']);
+
+    const fieldLabels = {
+      m_currentSpend:'Current Spend', m_savingsTarget:'Savings Target', m_adminHours:'Admin Hours',
+      m_successMetrics:'Success Metrics', m_userCount:'Users/Endpoints', m_confidence:'Confidence',
+      e_name:'EB Name', e_met:'EB Engagement', e_priorities:'EB Priorities',
+      e_budget:'Budget Status', e_fiscal:'Fiscal Year End', e_confidence:'Confidence',
+      d_techReqs:'Tech Requirements', d_bizReqs:'Business Requirements',
+      d_competition:'Competition', d_influenced:'Criteria Influenced', d_confidence:'Confidence',
+      p_steps:'Process Steps', p_stakeholders:'Stakeholders',
+      p_compellingEvent:'Compelling Event', p_blockers:'Blockers', p_confidence:'Confidence',
+      i_primaryPain:'Primary Pain', i_costOfNothing:'Cost of Nothing',
+      i_acknowledged:'Pain Acknowledged', i_confidence:'Confidence',
+      c_name:'Champion Name', c_motivation:'Motivation', c_access:'EB Access',
+      c_actions:'Actions Taken', c_test:'Champion Test', c_confidence:'Confidence',
+    };
+    const sectionMap = {m:'Metrics',e:'Economic Buyer',d:'Decision Criteria',p:'Decision Process',i:'Identify Pain',c:'Champion'};
+    const confLabels = {1:'Low',2:'Medium',3:'High'};
+
+    Object.keys(fieldLabels).forEach(f => {
+      const section = sectionMap[f.charAt(0)] || '';
+      let val;
+      if (f.endsWith('_confidence')) { val = confLabels[medpicData[f]] || 'Not Set'; }
+      else { val = getFieldVal(f) || 'Not Set'; }
+      mq.push([section, fieldLabels[f], val]);
+    });
+    mq.push([]);
+    mq.push(['SECTION SCORES']);
+    const sNames = {M:'Metrics',E:'Economic Buyer',D:'Decision Criteria',P:'Decision Process',I:'Identify Pain',C:'Champion'};
+    ['M','E','D','P','I','C'].forEach(l => {
+      const s = scoreSection(l);
+      mq.push([sNames[l], 'Score', s.pct + '%']);
+    });
+
+    const ws2 = XLSX.utils.aoa_to_sheet(mq);
+    ws2['!cols'] = [{wch:22},{wch:24},{wch:70}];
+    XLSX.utils.book_append_sheet(wb, ws2, 'MEDPIC Qualification');
+
+    // ---- Sheet 3: Partner ----
+    if (partnerOn) {
+      const pp = [];
+      pp.push(['PARTNER DETAILS']);
+      pp.push(['Partner Name', document.getElementById('partnerName').value || 'TBD']);
+      pp.push(['Partner Type', document.getElementById('partnerType').value]);
+      pp.push(['Partnerd Tier', document.getElementById('partnerTier').value]);
+      pp.push(['Partner Rep', document.getElementById('partnerRep').value || 'TBD']);
+      pp.push(['Engagement Level', confLabels[medpicData['partnerEngagement']] || 'Not Set']);
+      const ws3 = XLSX.utils.aoa_to_sheet(pp);
+      ws3['!cols'] = [{wch:20},{wch:40}];
+      XLSX.utils.book_append_sheet(wb, ws3, 'Partner');
+    }
+
+    // ---- Sheet 4: Nerdio Positioning ----
+    const np = [
+      ['NERDIO POSITIONING QUICK REFERENCE'],[],['Category','Content'],
+      ['Core Position','Management and automation layer for AVD, Windows 365, and Intune'],
+      ['Key Stat: Cost','Auto-scaling delivers 55% average Azure compute savings (up to 80%)'],
+      ['Key Stat: Scale','3M+ desktops, 15,000+ customers in 50+ countries'],
+      ['Key Stat: Validation','$1B+ valuation, $500M Series C from General Atlantic'],
+      ['Key Stat: Microsoft','Partner of the Year finalist; CPTO is former Microsoft VP'],[],
+      ['DISCOVERY QUESTIONS'],
+      ['Cost','How confident are you that you are not overpaying for Azure compute?'],
+      ['Complexity','How many consoles does your team use to manage endpoints?'],
+      ['Migration','Where are you in rethinking your VDI strategy?'],
+      ['Scale','How long to spin up a new AVD environment today?'],
+      ['Visibility','What is the compliance status of every endpoint right now?'],[],
+      ['OBJECTION HANDLING'],
+      ['Native Azure','Manual work compounds. Customers discover 55% overspend.'],
+      ['Citrix lock-in','Transition path. Run parallel, migrate incrementally. Grant Thornton saved $20K/month.'],
+      ['Cost of another layer','Auto-scaling alone saves 55%. Pays for itself month one.'],
+      ['Security','Deploys in YOUR Azure subscription. Data never leaves your environment.'],
+    ];
+    const ws4 = XLSX.utils.aoa_to_sheet(np);
+    ws4['!cols'] = [{wch:22},{wch:90}];
+    XLSX.utils.book_append_sheet(wb, ws4, 'Nerdio Positioning');
+
+    // ---- Sheet 5: Deal State (for re-import) ----
+    const stateJson = JSON.stringify(collectState());
+    const stateSheet = XLSX.utils.aoa_to_sheet([
+      ['NERDIO_DEAL_STATE_V1'],
+      [stateJson]
+    ]);
+    XLSX.utils.book_append_sheet(wb, stateSheet, '_DealState');
+
+    const fileName = (dealName.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_') || 'Deal') + '_Timeline.xlsx';
+    XLSX.writeFile(wb, fileName);
+  } catch (err) {
+    console.error('Export error:', err);
+    alert('Export failed: ' + err.message);
+  }
+}
+
+// ============================================================
+// EXCEL IMPORT
+// ============================================================
+function importFromExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be re-imported
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      if (typeof XLSX === 'undefined') { alert('Excel library not loaded.'); return; }
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array' });
+
+      // Check for embedded state sheet first (full fidelity restore)
+      if (wb.SheetNames.includes('_DealState')) {
+        const stateWs = wb.Sheets['_DealState'];
+        const stateRows = XLSX.utils.sheet_to_json(stateWs, { header: 1 });
+        if (stateRows.length >= 2 && stateRows[0][0] === 'NERDIO_DEAL_STATE_V1') {
+          const stateObj = JSON.parse(stateRows[1][0]);
+          currentDealId = null;
+          applyState(stateObj);
+          alert('Deal imported successfully: ' + (stateObj.dealName || 'Untitled'));
+          return;
+        }
+      }
+
+      // Fallback: parse from human-readable sheets
+      const tlSheet = wb.Sheets['Reverse Timeline'];
+      if (!tlSheet) { alert('Could not find "Reverse Timeline" sheet in this file.'); return; }
+      const rows = XLSX.utils.sheet_to_json(tlSheet, { header: 1 });
+
+      // Parse header row for deal info
+      let dealName = '', closeDate = '', complexity = 'standard', product = 'nme';
+      if (rows.length >= 2) {
+        const r = rows[1];
+        for (let i = 0; i < r.length; i++) {
+          const v = String(r[i] || '');
+          if (v.startsWith('Deal:')) dealName = v.replace('Deal:','').trim();
+          if (v === 'Deal:' && r[i+1]) dealName = String(r[i+1]).trim();
+          if (v.startsWith('Close:')) closeDate = v.replace('Close:','').trim();
+          if (v === 'Close:' && r[i+1]) closeDate = String(r[i+1]).trim();
+          if (v.startsWith('Complexity:')) complexity = v.replace('Complexity:','').trim();
+          if (v === 'Complexity:' && r[i+1]) complexity = String(r[i+1]).trim();
+          if (v.startsWith('Product:')) product = v.replace('Product:','').trim().toLowerCase();
+          if (v === 'Product:' && r[i+1]) product = String(r[i+1]).trim().toLowerCase();
+        }
+      }
+
+      // Parse task completion states
+      const importedChecks = {};
+      const importedStatuses = {};
+      const importedNotes = {};
+      const phaseIdMap = {'Discovery & Qualification':'discovery', 'Deep Qualification & Champion Building':'qualification',
+        'Technical Validation & Demo':'demo', 'Proof of Value / Trial':'trial',
+        'Proposal & Business Case':'proposal', 'Negotiation & Legal':'negotiation', 'Close & Handoff':'close'};
+      let currentPhase = '';
+      let medpicIdx = 0, nerdioIdx = 0, partnerIdx = 0;
+
+      for (let i = 4; i < rows.length; i++) {
+        const r = rows[i];
+        if (!r || r.length === 0) { medpicIdx = 0; nerdioIdx = 0; partnerIdx = 0; continue; }
+        const phaseName = String(r[0] || '').trim();
+        const taskType = String(r[5] || '').trim();
+        const complete = String(r[7] || '').trim().toLowerCase();
+        const notes = String(r[8] || '').trim();
+        const status = String(r[3] || '').trim();
+
+        if (phaseName && phaseIdMap[phaseName]) {
+          currentPhase = phaseIdMap[phaseName];
+          medpicIdx = 0; nerdioIdx = 0; partnerIdx = 0;
+          if (status) importedStatuses[currentPhase] = status;
+          if (notes) importedNotes[currentPhase] = notes;
+        }
+
+        if (currentPhase && taskType === 'MEDPIC') {
+          if (complete === 'yes') importedChecks[currentPhase + '-medpic-' + medpicIdx] = true;
+          medpicIdx++;
+        } else if (currentPhase && taskType === 'Nerdio Positioning') {
+          if (complete === 'yes') importedChecks[currentPhase + '-nerdio-' + nerdioIdx] = true;
+          nerdioIdx++;
+        } else if (currentPhase && taskType === 'Partner') {
+          if (complete === 'yes') importedChecks[currentPhase + '-partner-' + partnerIdx] = true;
+          partnerIdx++;
+        }
+      }
+
+      // Parse MEDPIC sheet if present
+      const importedFormFields = {};
+      const importedMedpic = {};
+      const mqSheet = wb.Sheets['MEDPIC Qualification'];
+      if (mqSheet) {
+        const mqRows = XLSX.utils.sheet_to_json(mqSheet, { header: 1 });
+        const fieldMap = {
+          'Current Spend':'m_currentSpend', 'Savings Target':'m_savingsTarget', 'Admin Hours':'m_adminHours',
+          'Success Metrics':'m_successMetrics', 'Users/Endpoints':'m_userCount',
+          'EB Name':'e_name', 'EB Engagement':'e_met', 'EB Priorities':'e_priorities',
+          'Budget Status':'e_budget', 'Fiscal Year End':'e_fiscal',
+          'Tech Requirements':'d_techReqs', 'Business Requirements':'d_bizReqs',
+          'Competition':'d_competition', 'Criteria Influenced':'d_influenced',
+          'Process Steps':'p_steps', 'Stakeholders':'p_stakeholders',
+          'Compelling Event':'p_compellingEvent', 'Blockers':'p_blockers',
+          'Primary Pain':'i_primaryPain', 'Cost of Nothing':'i_costOfNothing',
+          'Pain Acknowledged':'i_acknowledged',
+          'Champion Name':'c_name', 'Motivation':'c_motivation', 'EB Access':'c_access',
+          'Actions Taken':'c_actions', 'Champion Test':'c_test',
+        };
+        const confMap = {'Low':1,'Medium':2,'High':3};
+        for (let i = 0; i < mqRows.length; i++) {
+          const r = mqRows[i];
+          const fieldLabel = String(r[1] || '').trim();
+          const val = String(r[2] || '').trim();
+          if (fieldLabel === 'Confidence' && val !== 'Not Set') {
+            // Figure out which section based on r[0]
+            const sec = String(r[0]||'').trim().charAt(0).toLowerCase();
+            const confField = sec + '_confidence';
+            if (confMap[val]) importedMedpic[confField] = confMap[val];
+          } else if (fieldMap[fieldLabel] && val !== 'Not Set') {
+            importedFormFields[fieldMap[fieldLabel]] = val;
+          }
+        }
+      }
+
+      // Apply imported state
+      currentDealId = null;
+      const state = {
+        dealName, closeDate, complexity, useCase: 'avd', product,
+        dealSize: '', partnerOn: false, partnerName: '', partnerType: 'reseller',
+        partnerTier: 'none', partnerRep: '',
+        medpicData: importedMedpic, formFields: importedFormFields,
+        taskChecks: importedChecks, phaseNotes: importedNotes, phaseStatuses: importedStatuses,
+      };
+      applyState(state);
+      alert('Deal imported: ' + (dealName || 'Untitled') + '\n\nTask states and MEDPIC data have been restored.');
+    } catch (err) {
+      console.error('Import error:', err);
+      alert('Import failed: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  const dd = new Date(); dd.setDate(dd.getDate()+90);
+  document.getElementById('closeDate').value = dd.toISOString().split('T')[0];
+  renderSavedDeals();
+
+  // Check URL params for deep-link from dashboard
+  const urlParams = new URLSearchParams(window.location.search);
+  const loadId = urlParams.get('load');
+  const deals = getSavedDeals();
+
+  if (loadId && deals[loadId]) {
+    loadDeal(loadId);
+  } else {
+    // Auto-load most recent deal if one exists
+    const ids = Object.keys(deals).sort((a,b) => (deals[b].savedAt||'').localeCompare(deals[a].savedAt||''));
+    if (ids.length > 0) {
+      loadDeal(ids[0]);
+    } else {
+      scoreAll();
+    }
+  }
+});
+</script>
+</body>
+</html>

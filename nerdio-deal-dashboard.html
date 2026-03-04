@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerdio Deal Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --navy:#042838; --teal:#1E9DB8; --white:#FFFFFF; --green:#CDFF4E;
+    --purple:#A795C7; --navy-light:#0a3a50; --gray-100:#f0f4f7;
+    --gray-200:#dce4ea; --gray-300:#b8c7d1; --gray-500:#6b8294;
+    --red:#e74c3c; --orange:#f39c12; --green-status:#27ae60;
+  }
+  body { font-family:'Poppins',sans-serif; background:var(--gray-100); color:var(--navy); min-height:100vh; }
+
+  /* Header */
+  .header {
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);
+    padding:20px 32px; display:flex; align-items:center; justify-content:space-between;
+    box-shadow:0 4px 20px rgba(4,40,56,0.3);
+  }
+  .header-left { display:flex; align-items:center; gap:14px; }
+  .nerdio-logo { display:flex; align-items:center; }
+  .nerdio-logo svg { width:48px; height:auto; }
+  .header h1 { color:var(--white); font-size:20px; font-weight:600; }
+  .header .subtitle { color:var(--teal); font-size:12px; font-weight:400; letter-spacing:0.5px; }
+  .btn { font-family:'Poppins',sans-serif; padding:9px 20px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; text-decoration:none; }
+  .btn-primary { background:var(--teal); color:var(--white); }
+  .btn-primary:hover { background:#17869e; }
+  .btn-accent { background:var(--green); color:var(--navy); }
+
+  /* Summary Cards */
+  .summary-strip { display:flex; gap:14px; padding:24px 32px 0; flex-wrap:wrap; }
+  .summary-card {
+    flex:1; min-width:160px; background:var(--white); border-radius:12px; padding:18px 20px;
+    border:1px solid var(--gray-200);
+  }
+  .summary-card .sc-label { font-size:10px; font-weight:600; color:var(--gray-500); text-transform:uppercase; letter-spacing:0.8px; }
+  .summary-card .sc-value { font-size:28px; font-weight:700; margin-top:4px; }
+  .summary-card .sc-sub { font-size:11px; color:var(--gray-500); margin-top:2px; }
+  .sc-teal { border-left:4px solid var(--teal); }
+  .sc-green { border-left:4px solid var(--green-status); }
+  .sc-orange { border-left:4px solid var(--orange); }
+  .sc-purple { border-left:4px solid var(--purple); }
+  .sc-red { border-left:4px solid var(--red); }
+
+  /* Main content */
+  .main-content { padding:24px 32px; }
+
+  /* Tabs */
+  .view-tabs { display:flex; gap:4px; margin-bottom:20px; }
+  .view-tab {
+    padding:8px 20px; border-radius:8px; font-size:13px; font-weight:600;
+    cursor:pointer; background:var(--white); border:1.5px solid var(--gray-200);
+    color:var(--gray-500); transition:all 0.15s;
+  }
+  .view-tab:hover { border-color:var(--teal); color:var(--teal); }
+  .view-tab.active { background:var(--navy); color:var(--white); border-color:var(--navy); }
+
+  /* Deal Table */
+  .deal-table { width:100%; background:var(--white); border-radius:12px; border:1px solid var(--gray-200); overflow:hidden; }
+  .deal-table table { width:100%; border-collapse:collapse; }
+  .deal-table th {
+    text-align:left; padding:12px 16px; font-size:10px; font-weight:700;
+    color:var(--gray-500); text-transform:uppercase; letter-spacing:0.8px;
+    background:var(--gray-100); border-bottom:2px solid var(--gray-200);
+  }
+  .deal-table td {
+    padding:14px 16px; font-size:13px; border-bottom:1px solid var(--gray-100);
+    vertical-align:top;
+  }
+  .deal-table tr:last-child td { border-bottom:none; }
+  .deal-table tr:hover td { background:rgba(30,157,184,0.02); }
+  .deal-table .deal-name-cell { font-weight:600; }
+  .deal-table .deal-name-cell a { color:var(--navy); text-decoration:none; }
+  .deal-table .deal-name-cell a:hover { color:var(--teal); text-decoration:underline; }
+
+  /* Score badge */
+  .score-badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .score-badge.low { background:rgba(231,76,60,0.1); color:var(--red); }
+  .score-badge.mid { background:rgba(243,156,18,0.1); color:var(--orange); }
+  .score-badge.high { background:rgba(39,174,96,0.1); color:var(--green-status); }
+
+  /* Status badge */
+  .status-pill { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; }
+  .status-pill.active { background:rgba(30,157,184,0.1); color:var(--teal); }
+  .status-pill.at-risk { background:rgba(231,76,60,0.1); color:var(--red); }
+  .status-pill.on-track { background:rgba(39,174,96,0.1); color:var(--green-status); }
+  .status-pill.stalled { background:rgba(243,156,18,0.1); color:var(--orange); }
+
+  /* Partner badge */
+  .partner-badge { font-size:11px; }
+  .partner-badge.yes { color:var(--purple); font-weight:600; }
+  .partner-badge.no { color:var(--gray-300); }
+
+  /* Progress bar */
+  .progress-bar { width:100%; height:6px; background:var(--gray-100); border-radius:3px; overflow:hidden; margin-top:4px; }
+  .progress-fill { height:100%; border-radius:3px; transition:width 0.3s; }
+  .progress-fill.low { background:var(--red); }
+  .progress-fill.mid { background:var(--orange); }
+  .progress-fill.high { background:var(--green-status); }
+  .progress-text { font-size:11px; color:var(--gray-500); }
+
+  /* Change log */
+  .change-summary { font-size:11px; color:var(--gray-500); max-width:280px; }
+  .change-summary .change-item { margin-bottom:2px; }
+  .change-time { font-size:10px; color:var(--gray-300); }
+
+  /* Activity Feed View */
+  .activity-feed { background:var(--white); border-radius:12px; border:1px solid var(--gray-200); }
+  .activity-item {
+    padding:14px 20px; border-bottom:1px solid var(--gray-100);
+    display:flex; gap:14px; align-items:flex-start;
+  }
+  .activity-item:last-child { border-bottom:none; }
+  .activity-dot { width:10px; height:10px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+  .activity-dot.score-up { background:var(--green-status); }
+  .activity-dot.score-down { background:var(--red); }
+  .activity-dot.update { background:var(--teal); }
+  .activity-dot.new { background:var(--purple); }
+  .activity-content { flex:1; }
+  .activity-deal { font-size:13px; font-weight:600; }
+  .activity-changes { font-size:12px; color:var(--gray-500); margin-top:2px; }
+  .activity-time { font-size:11px; color:var(--gray-300); margin-top:3px; }
+
+  /* Empty State */
+  .empty-dash { text-align:center; padding:80px 40px; color:var(--gray-500); }
+  .empty-dash h3 { font-size:18px; font-weight:600; color:var(--navy); margin-bottom:8px; }
+  .empty-dash p { font-size:14px; max-width:420px; margin:0 auto 20px; }
+
+  /* Responsive */
+  @media (max-width:900px) {
+    .summary-strip { flex-direction:column; }
+    .deal-table { overflow-x:auto; }
+    .deal-table table { min-width:900px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="nerdio-logo">
+      <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="58" cy="48" r="32" fill="none" stroke="#1E9DB8" stroke-width="10"/>
+        <path d="M 138 18 A 32 32 0 1 0 158 28" fill="none" stroke="#1E9DB8" stroke-width="10" stroke-linecap="round"/>
+        <line x1="148" y1="10" x2="148" y2="38" stroke="#1E9DB8" stroke-width="10" stroke-linecap="round"/>
+        <path d="M 90 48 Q 100 32 116 48" fill="none" stroke="#1E9DB8" stroke-width="10" stroke-linecap="round"/>
+        <text x="100" y="108" text-anchor="middle" fill="#FFFFFF" font-family="Poppins,sans-serif" font-size="32" font-weight="600" letter-spacing="2">nerdio</text>
+      </svg>
+    </div>
+    <div>
+      <h1>Deal Pipeline Dashboard</h1>
+      <div class="subtitle">ALL OPPORTUNITIES &bull; MEDPIC SCORES &bull; CHANGE TRACKING</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <a href="nerdio-reverse-timeline.html" class="btn btn-primary" style="text-decoration:none;">&#8592; Timeline Builder</a>
+  </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="summary-strip" id="summaryStrip"></div>
+
+<!-- Main -->
+<div class="main-content">
+  <div class="view-tabs">
+    <div class="view-tab active" onclick="switchView('table',this)">Pipeline Table</div>
+    <div class="view-tab" onclick="switchView('activity',this)">Activity Feed</div>
+  </div>
+
+  <div id="tableView"></div>
+  <div id="activityView" style="display:none;"></div>
+</div>
+
+<script>
+function getSavedDeals() {
+  try { return JSON.parse(localStorage.getItem('nerdio_deals') || '{}'); } catch { return {}; }
+}
+
+function calcQuickScore(d) {
+  let pts=0, max=0;
+  const md = d.medpicData||{}, ff = d.formFields||{};
+  const allFields = ['m_currentSpend','m_savingsTarget','m_adminHours','m_successMetrics','m_userCount',
+    'e_name','e_met','e_priorities','e_budget','e_fiscal',
+    'd_techReqs','d_bizReqs','d_competition','d_influenced',
+    'p_steps','p_stakeholders','p_compellingEvent','p_blockers',
+    'i_primaryPain','i_costOfNothing','i_acknowledged',
+    'c_name','c_motivation','c_access','c_actions','c_test'];
+  const confFields = ['m_confidence','e_confidence','d_confidence','p_confidence','i_confidence','c_confidence'];
+  const pillarFields = ['i_pillar_auto','i_pillar_cost','i_pillar_sec','i_pillar_vis'];
+  allFields.forEach(f => { max+=9; const v=ff[f]||''; if(v.length>0) pts+=(v.length>20?9:v.length>5?6:3); });
+  confFields.forEach(f => { max+=9; pts+=(md[f]||0)*3; });
+  pillarFields.forEach(f => { max+=3; if(md[f]) pts+=3; });
+  return max>0 ? Math.round((pts/max)*100) : 0;
+}
+
+function getTaskProgress(d) {
+  const checks = d.taskChecks || {};
+  const total = Object.keys(checks).length > 0 ? 70 : 70; // approximate total tasks
+  let completed = 0;
+  Object.values(checks).forEach(v => { if(v) completed++; });
+  return { completed, total: Math.max(total, completed), pct: total > 0 ? Math.round((completed/70)*100) : 0 };
+}
+
+function getDealStatus(d) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const close = d.closeDate ? new Date(d.closeDate+'T00:00:00') : null;
+  const daysToClose = close ? Math.ceil((close - today) / 86400000) : null;
+  const score = calcQuickScore(d);
+  const statuses = d.phaseStatuses || {};
+  const hasAtRisk = Object.values(statuses).some(s => s === 'at-risk');
+
+  if (hasAtRisk) return { label: 'At Risk', cls: 'at-risk' };
+  if (daysToClose !== null && daysToClose < 0) return { label: 'Overdue', cls: 'at-risk' };
+  if (daysToClose !== null && daysToClose <= 14 && score < 50) return { label: 'At Risk', cls: 'at-risk' };
+  if (score < 30) return { label: 'Early Stage', cls: 'stalled' };
+  if (score >= 70) return { label: 'On Track', cls: 'on-track' };
+  return { label: 'Active', cls: 'active' };
+}
+
+function getPhaseProgress(d) {
+  const statuses = d.phaseStatuses || {};
+  const phaseOrder = ['discovery','qualification','demo','trial','proposal','negotiation','close'];
+  const phaseLabels = {discovery:'Discovery',qualification:'Qualification',demo:'Demo',trial:'Trial',proposal:'Proposal',negotiation:'Negotiation',close:'Close'};
+  let currentPhase = 'Discovery';
+  for (let i = phaseOrder.length - 1; i >= 0; i--) {
+    if (statuses[phaseOrder[i]] === 'done' || statuses[phaseOrder[i]] === 'in-progress') {
+      currentPhase = phaseLabels[phaseOrder[i]];
+      if (statuses[phaseOrder[i]] === 'done' && i < phaseOrder.length - 1) {
+        currentPhase = phaseLabels[phaseOrder[i+1]];
+      }
+      break;
+    }
+  }
+  const doneCount = phaseOrder.filter(p => statuses[p] === 'done').length;
+  return { currentPhase, doneCount, total: 7, pct: Math.round((doneCount/7)*100) };
+}
+
+function timeAgo(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  const now = new Date();
+  const mins = Math.floor((now - d) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return days + 'd ago';
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+
+function formatDate(str) {
+  if (!str) return '—';
+  const d = new Date(str + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function switchView(view, el) {
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
+  document.getElementById('activityView').style.display = view === 'activity' ? 'block' : 'none';
+}
+
+function openDeal(id) {
+  // Navigate to timeline builder and tell it which deal to load
+  window.location.href = 'nerdio-reverse-timeline.html?load=' + encodeURIComponent(id);
+}
+
+function renderDashboard() {
+  const deals = getSavedDeals();
+  const ids = Object.keys(deals);
+
+  if (ids.length === 0) {
+    document.getElementById('summaryStrip').innerHTML = '';
+    document.getElementById('tableView').innerHTML = `
+      <div class="empty-dash">
+        <h3>No deals yet</h3>
+        <p>Create and save deals in the Timeline Builder to see them here.</p>
+        <a href="nerdio-reverse-timeline.html" class="btn btn-primary" style="text-decoration:none;">Open Timeline Builder</a>
+      </div>`;
+    return;
+  }
+
+  // Sort by last updated
+  const sorted = ids.map(id => ({ id, ...deals[id] })).sort((a,b) => (b.savedAt||'').localeCompare(a.savedAt||''));
+
+  // Summary stats
+  const totalDeals = sorted.length;
+  const withPartner = sorted.filter(d => d.partnerOn).length;
+  const avgScore = Math.round(sorted.reduce((s,d) => s + calcQuickScore(d), 0) / totalDeals);
+  const atRisk = sorted.filter(d => getDealStatus(d).cls === 'at-risk').length;
+  const totalValue = sorted.reduce((s,d) => {
+    const v = (d.dealSize||'').replace(/[^0-9.]/g,'');
+    return s + (parseFloat(v) || 0);
+  }, 0);
+  const scoreCls = avgScore<40?'low':avgScore<70?'mid':'high';
+
+  document.getElementById('summaryStrip').innerHTML = `
+    <div class="summary-card sc-teal"><div class="sc-label">Total Deals</div><div class="sc-value">${totalDeals}</div><div class="sc-sub">${withPartner} with partners</div></div>
+    <div class="summary-card sc-purple"><div class="sc-label">Avg Deal Score</div><div class="sc-value" style="color:${avgScore<40?'var(--red)':avgScore<70?'var(--orange)':'var(--green-status)'}">${avgScore}%</div><div class="sc-sub">${avgScore>=70?'Strong pipeline':'Needs attention'}</div></div>
+    <div class="summary-card sc-green"><div class="sc-label">Pipeline Value</div><div class="sc-value">$${totalValue >= 1000 ? Math.round(totalValue/1000)+'K' : totalValue.toLocaleString()}</div><div class="sc-sub">${totalDeals} opportunities</div></div>
+    <div class="summary-card ${atRisk>0?'sc-red':'sc-green'}"><div class="sc-label">At Risk</div><div class="sc-value">${atRisk}</div><div class="sc-sub">${atRisk===0?'All deals healthy':atRisk+' need attention'}</div></div>
+  `;
+
+  // Table
+  let tableHTML = `<div class="deal-table"><table>
+    <thead><tr>
+      <th>Deal Name</th>
+      <th>Partner</th>
+      <th>Value</th>
+      <th>Score</th>
+      <th>Status</th>
+      <th>Current Phase</th>
+      <th>Progress</th>
+      <th>Close Date</th>
+      <th>Last Updated</th>
+      <th>Recent Changes</th>
+    </tr></thead><tbody>`;
+
+  sorted.forEach(d => {
+    const score = calcQuickScore(d);
+    const scoreCls = score<40?'low':score<70?'mid':'high';
+    const status = getDealStatus(d);
+    const phase = getPhaseProgress(d);
+    const prog = getTaskProgress(d);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const close = d.closeDate ? new Date(d.closeDate+'T00:00:00') : null;
+    const daysToClose = close ? Math.ceil((close - today) / 86400000) : null;
+
+    // Change summary — last entry from history
+    const history = d.changeHistory || [];
+    const lastChange = history.length > 0 ? history[history.length - 1] : null;
+    const changeHTML = lastChange
+      ? `<div class="change-summary">${lastChange.changes.slice(0,3).map(c => `<div class="change-item">&#8226; ${c}</div>`).join('')}<div class="change-time">${timeAgo(lastChange.timestamp)}</div></div>`
+      : `<div class="change-summary"><div class="change-time">${d.savedAt ? timeAgo(d.savedAt) : '—'}</div></div>`;
+
+    tableHTML += `<tr>
+      <td class="deal-name-cell"><a href="javascript:openDeal('${d.id}')">${d.dealName||'Untitled'}</a><br><span style="font-size:10px;color:var(--gray-500);">${d.product ? d.product.toUpperCase() : 'NME'} &bull; ${(d.useCase||'avd').replace(/_/g,' ')}</span></td>
+      <td>${d.partnerOn ? `<span class="partner-badge yes">${d.partnerName||'Yes'}</span>` : '<span class="partner-badge no">None</span>'}</td>
+      <td style="font-weight:600;">${d.dealSize||'—'}</td>
+      <td><span class="score-badge ${scoreCls}">${score}%</span></td>
+      <td><span class="status-pill ${status.cls}">${status.label}</span></td>
+      <td style="font-size:12px;">${phase.currentPhase}<br><span style="font-size:10px;color:var(--gray-500);">${phase.doneCount}/${phase.total} phases done</span></td>
+      <td>
+        <div class="progress-text">${prog.completed} tasks done</div>
+        <div class="progress-bar"><div class="progress-fill ${prog.pct<30?'low':prog.pct<60?'mid':'high'}" style="width:${Math.min(prog.pct,100)}%"></div></div>
+      </td>
+      <td style="font-size:12px;">${formatDate(d.closeDate)}${daysToClose !== null ? `<br><span style="font-size:10px;color:${daysToClose<0?'var(--red)':daysToClose<=14?'var(--orange)':'var(--gray-500)'};">${daysToClose<0?Math.abs(daysToClose)+'d overdue':daysToClose+'d left'}</span>` : ''}</td>
+      <td style="font-size:12px;">${d.savedAt ? timeAgo(d.savedAt) : '—'}</td>
+      <td>${changeHTML}</td>
+    </tr>`;
+  });
+
+  tableHTML += '</tbody></table></div>';
+  document.getElementById('tableView').innerHTML = tableHTML;
+
+  // Activity Feed
+  const allActivity = [];
+  sorted.forEach(d => {
+    const history = d.changeHistory || [];
+    history.forEach(h => {
+      allActivity.push({
+        dealName: d.dealName || 'Untitled',
+        dealId: d.id,
+        timestamp: h.timestamp,
+        changes: h.changes,
+      });
+    });
+    // If no history, add one entry
+    if (history.length === 0 && d.savedAt) {
+      allActivity.push({
+        dealName: d.dealName || 'Untitled',
+        dealId: d.id,
+        timestamp: d.savedAt,
+        changes: ['Deal created'],
+      });
+    }
+  });
+  allActivity.sort((a,b) => (b.timestamp||'').localeCompare(a.timestamp||''));
+
+  if (allActivity.length === 0) {
+    document.getElementById('activityView').innerHTML = '<div class="empty-dash"><h3>No activity yet</h3><p>Changes to deals will appear here as a timeline.</p></div>';
+    return;
+  }
+
+  let feedHTML = '<div class="activity-feed">';
+  allActivity.slice(0, 100).forEach(a => {
+    const isNew = a.changes.includes('Initial save') || a.changes.includes('Deal created');
+    const hasScoreUp = a.changes.some(c => c.includes('Score') && c.includes('→'));
+    const dotCls = isNew ? 'new' : hasScoreUp ? 'score-up' : 'update';
+    feedHTML += `<div class="activity-item">
+      <div class="activity-dot ${dotCls}"></div>
+      <div class="activity-content">
+        <div class="activity-deal"><a href="javascript:openDeal('${a.dealId}')" style="color:var(--navy);text-decoration:none;">${a.dealName}</a></div>
+        <div class="activity-changes">${a.changes.join(' &bull; ')}</div>
+        <div class="activity-time">${a.timestamp ? new Date(a.timestamp).toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : ''}</div>
+      </div>
+    </div>`;
+  });
+  feedHTML += '</div>';
+  document.getElementById('activityView').innerHTML = feedHTML;
+}
+
+// Boot
+window.addEventListener('DOMContentLoaded', renderDashboard);
+// Refresh if page becomes visible (e.g. user switches back from timeline builder)
+document.addEventListener('visibilitychange', () => { if (!document.hidden) renderDashboard(); });
+</script>
+</body>
+</html>
