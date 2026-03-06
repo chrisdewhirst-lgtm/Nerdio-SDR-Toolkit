@@ -245,6 +245,22 @@ body { font-family: 'Poppins', sans-serif; background: var(--body); color: var(-
 </style>
 </head>
 <body>
+<script>
+// Auth Guard — v2 session required
+(function(){
+  const session=JSON.parse(localStorage.getItem('nerdio_v2_session')||'null');
+  if(!session){window.location.href='index.html';return;}
+  const users=JSON.parse(localStorage.getItem('nerdio_v2_users')||'[]');
+  const user=users.find(u=>u.username===session.username&&u.status==='active');
+  if(!user){localStorage.removeItem('nerdio_v2_session');window.location.href='index.html';return;}
+  window._nerdioUser=session;
+  if(session.role==='manager'){
+    const viewAs=JSON.parse(sessionStorage.getItem('nerdio_v2_viewAs')||'null');
+    if(viewAs){window._nerdioViewAs=viewAs;}
+  }
+})();
+</script>
+
 <a href="index.html" class="home-btn" title="Command Centre">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
 </a>
@@ -634,6 +650,51 @@ function initializeDataSources() {
   ACCOUNTS.forEach(a => {
     if (!a._source) a._source = 'prototype';
   });
+
+  // ─── V2 TERRITORY DATA INTEGRATION ─────────────────────────────────────────
+  try {
+    const session = JSON.parse(localStorage.getItem('nerdio_v2_session') || 'null');
+    if(session) {
+      let uid = session.username;
+      if(session.role === 'manager'){
+        const viewAs = JSON.parse(sessionStorage.getItem('nerdio_v2_viewAs') || 'null');
+        if(viewAs) uid = viewAs.username;
+      }
+      const sdrData = JSON.parse(localStorage.getItem('nerdio_sdr_territory_' + uid) || '[]');
+      const aeData = JSON.parse(localStorage.getItem('nerdio_ae_territory_' + uid) || '[]');
+      const combined = [].concat(sdrData, aeData);
+      if(combined.length > 0) {
+        const priorityMap = {high:1,critical:1,medium:2,low:3};
+        const territoryAccounts = combined.map(function(acc){
+          const p = (acc.priority||'medium').toLowerCase();
+          return {
+            tier: priorityMap[p] || 2,
+            name: acc.name || 'Unknown Account',
+            sector: acc.vertical || acc.industry || 'Not specified',
+            sub: (acc.size ? acc.size + ' employees' : '') + (acc.revenue ? ' · ' + acc.revenue : ''),
+            overall: p==='high'||p==='critical' ? 80 : p==='medium' ? 60 : 40,
+            urgency: p==='high'||p==='critical' ? 8 : p==='medium' ? 5 : 3,
+            seats: 5, fit: 5, compliance: 5,
+            priority: acc.priority || 'medium',
+            vdi: [],
+            triggers: [],
+            hot: [],
+            why: acc.notes || 'Uploaded from territory data. Add intelligence notes to enrich.',
+            opener: '',
+            contacts: [],
+            arEstimate: acc.revenue || '—',
+            _source: 'territory',
+            _status: acc.status || '',
+            _lastActivity: acc.lastActivity || ''
+          };
+        });
+        ACCOUNTS.length = 0;
+        territoryAccounts.forEach(a => ACCOUNTS.push(a));
+      }
+    }
+  } catch(e) { console.warn('Territory data load error:', e); }
+  // ─── END V2 INTEGRATION ────────────────────────────────────────────────────
+
   loadImportedData();
   // Merge imported data into ACCTS
   rebuildAccountsList();
@@ -641,13 +702,13 @@ function initializeDataSources() {
 
 // Rebuild accounts list with imported data
 function rebuildAccountsList() {
-  // Start with prototype accounts
-  const protoAccounts = ACCOUNTS.filter(a => a._source === 'prototype');
+  // Start with prototype + territory accounts (territory replaces prototype when present)
+  const baseAccounts = ACCOUNTS.filter(a => a._source === 'prototype' || a._source === 'territory');
   // Add imported accounts
   const importedAccounts = importedDataSources.flatMap(ds => ds.accounts || []);
   // Merge and reassign
   ACCTS.length = 0;
-  ACCTS.push(...protoAccounts, ...importedAccounts);
+  ACCTS.push(...baseAccounts, ...importedAccounts);
   updateDataSourcesList();
 }
 
@@ -656,15 +717,31 @@ function updateDataSourcesList() {
   const list = document.getElementById('dataSourcesList');
   if (!list) return;
 
-  let html = `<div class="ds-item">
-    <div class="ds-item-info">
-      <span class="ds-item-name">🧪 Prototype Data (Built-in)</span>
-      <span class="ds-item-meta" id="protoCount">${ACCOUNTS.filter(a => a._source === 'prototype').length} accounts · Always available</span>
-    </div>
-    <div class="ds-item-actions">
-      <button class="btn-small" onclick="toggleDataVisibility('proto')">👁️ Show</button>
-    </div>
-  </div>`;
+  const territoryCount = ACCOUNTS.filter(a => a._source === 'territory').length;
+  const protoCount = ACCOUNTS.filter(a => a._source === 'prototype').length;
+  let html = '';
+  if(territoryCount > 0) {
+    html += `<div class="ds-item">
+      <div class="ds-item-info">
+        <span class="ds-item-name">📍 My Territory Data (Uploaded)</span>
+        <span class="ds-item-meta">${territoryCount} accounts · From your portal upload</span>
+      </div>
+      <div class="ds-item-actions">
+        <button class="btn-small" onclick="toggleDataVisibility('proto')">👁️ Show</button>
+      </div>
+    </div>`;
+  }
+  if(protoCount > 0) {
+    html += `<div class="ds-item">
+      <div class="ds-item-info">
+        <span class="ds-item-name">🧪 Prototype Data (Built-in)</span>
+        <span class="ds-item-meta" id="protoCount">${protoCount} accounts · Always available</span>
+      </div>
+      <div class="ds-item-actions">
+        <button class="btn-small" onclick="toggleDataVisibility('proto')">👁️ Show</button>
+      </div>
+    </div>`;
+  }
 
   importedDataSources.forEach((ds, idx) => {
     const srcType = ds._sourceType === 'xlsx' ? '📊' : ds._sourceType === 'csv' ? '📄' : ds._sourceType === 'md' ? '📝' : '🔌';

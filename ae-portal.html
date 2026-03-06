@@ -355,6 +355,29 @@ body {
     </div>
   </div>
 
+  <!-- Data Management Bar -->
+  <div id="dataManageBar" style="display:none;background:rgba(30,157,184,0.04);border:1px solid rgba(30,157,184,0.12);border-radius:14px;padding:14px 20px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <div>
+      <span style="font-size:13px;font-weight:600;color:var(--teal);">&#128196; Account Data</span>
+      <span id="aeDataCount" style="font-size:11px;color:rgba(255,255,255,0.4);margin-left:8px;"></span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="document.getElementById('fileInputRefresh').click()"
+        style="padding:7px 16px;border-radius:8px;border:1px solid rgba(30,157,184,0.3);
+        background:rgba(30,157,184,0.1);color:var(--teal);font-size:12px;font-weight:600;
+        font-family:'Poppins';cursor:pointer;">
+        &#128260; Refresh / Re-upload Data
+      </button>
+      <input type="file" id="fileInputRefresh" accept=".csv,.xlsx,.xls" style="display:none;" onchange="handleReupload(event)">
+      <button onclick="clearTerritoryData()"
+        style="padding:7px 16px;border-radius:8px;border:1px solid rgba(239,68,68,0.2);
+        background:rgba(239,68,68,0.05);color:rgba(239,68,68,0.5);font-size:12px;font-weight:600;
+        font-family:'Poppins';cursor:pointer;">
+        &#128465; Clear All
+      </button>
+    </div>
+  </div>
+
   <!-- Getting Started -->
   <div class="getting-started" id="gettingStarted" style="display:none;">
     <h3>&#128640; AE Quick Start</h3>
@@ -395,7 +418,7 @@ body {
         <span class="section-badge badge-deals">Close Deals</span>
       </div>
       <div class="tool-grid">
-        <a class="tool-card" href="../nerdio-deal-dashboard.html">
+        <a class="tool-card" href="nerdio-deal-dashboard.html">
           <div class="tool-icon">&#128202;</div>
           <div class="tool-info">
             <h4>Deal Pipeline Dashboard</h4>
@@ -403,7 +426,7 @@ body {
             <span class="tool-tag tag-core">Core</span>
           </div>
         </a>
-        <a class="tool-card" href="../nerdio-reverse-timeline.html">
+        <a class="tool-card" href="nerdio-reverse-timeline.html">
           <div class="tool-icon">&#9203;</div>
           <div class="tool-info">
             <h4>Deal Reverse Timeline</h4>
@@ -411,7 +434,7 @@ body {
             <span class="tool-tag tag-core">Core</span>
           </div>
         </a>
-        <a class="tool-card" href="../nerdio-roi-calculator.html">
+        <a class="tool-card" href="nerdio-roi-calculator.html">
           <div class="tool-icon">&#128176;</div>
           <div class="tool-info">
             <h4>ROI Calculator</h4>
@@ -419,7 +442,7 @@ body {
             <span class="tool-tag tag-core">Core</span>
           </div>
         </a>
-        <a class="tool-card" href="../nerdio-discovery-engine.html">
+        <a class="tool-card" href="nerdio-discovery-engine.html">
           <div class="tool-icon">&#128269;</div>
           <div class="tool-info">
             <h4>Discovery Question Engine</h4>
@@ -427,7 +450,7 @@ body {
             <span class="tool-tag tag-core">Core</span>
           </div>
         </a>
-        <a class="tool-card" href="../nerdio-battlecards.html">
+        <a class="tool-card" href="nerdio-battlecards.html">
           <div class="tool-icon">&#9876;</div>
           <div class="tool-info">
             <h4>Competitive Battlecards</h4>
@@ -445,7 +468,7 @@ body {
         <span class="section-badge badge-accounts">Know Accounts</span>
       </div>
       <div class="tool-grid">
-        <a class="tool-card" href="../nerdio-journeys.html">
+        <a class="tool-card" href="nerdio-journeys.html">
           <div class="tool-icon">&#128508;</div>
           <div class="tool-info">
             <h4>Journey Map & Maturity</h4>
@@ -453,7 +476,7 @@ body {
             <span class="tool-tag tag-intel">Intelligence</span>
           </div>
         </a>
-        <a class="tool-card" href="../nerdio_crm_4.html">
+        <a class="tool-card" href="nerdio_crm_4.html">
           <div class="tool-icon">&#127919;</div>
           <div class="tool-info">
             <h4>Account Intelligence CRM</h4>
@@ -461,7 +484,7 @@ body {
             <span class="tool-tag tag-intel">Intelligence</span>
           </div>
         </a>
-        <a class="tool-card" href="../nerdio-whiteboard.html">
+        <a class="tool-card" href="nerdio-whiteboard.html">
           <div class="tool-icon">&#128203;</div>
           <div class="tool-info">
             <h4>Estate Discovery Whiteboard</h4>
@@ -469,7 +492,7 @@ body {
             <span class="tool-tag tag-core">Core</span>
           </div>
         </a>
-        <a class="tool-card" href="../nerdio-whiteboard-users.html">
+        <a class="tool-card" href="nerdio-whiteboard-users.html">
           <div class="tool-icon">&#128101;</div>
           <div class="tool-info">
             <h4>User & Ops Whiteboard</h4>
@@ -477,7 +500,7 @@ body {
             <span class="tool-tag tag-core">Core</span>
           </div>
         </a>
-        <a class="tool-card" href="../nerdio-account-intelligence.html">
+        <a class="tool-card" href="nerdio-account-intelligence.html">
           <div class="tool-icon">&#127468;&#127463;</div>
           <div class="tool-info">
             <h4>Account Intelligence UKI</h4>
@@ -485,7 +508,7 @@ body {
             <span class="tool-tag tag-intel">Intelligence</span>
           </div>
         </a>
-        <a class="tool-card" href="../nerdio-licensing-navigator.html">
+        <a class="tool-card" href="nerdio-licensing-navigator.html">
           <div class="tool-icon">&#128273;</div>
           <div class="tool-info">
             <h4>Licensing Navigator</h4>
@@ -586,6 +609,34 @@ function handleFileUpload(e) {
   }
 }
 
+function handleReupload(e) {
+  if(!e.target.files.length) return;
+  const file = e.target.files[0];
+  const count = territory.length;
+  if(count > 0 && !confirm('This will replace your current ' + count + ' accounts with the new file. Continue?')) {
+    e.target.value = '';
+    return;
+  }
+  // Re-use the existing upload handler
+  handleFileUpload(e);
+  updateStats();
+  updateDataCount();
+}
+
+function clearTerritoryData() {
+  if(territory.length === 0) { alert('No account data to clear.'); return; }
+  if(!confirm('Are you sure you want to clear all ' + territory.length + ' accounts? This cannot be undone.')) return;
+  territory = [];
+  localStorage.setItem(KEYS.territory, JSON.stringify(territory));
+  updateStats();
+  updateDataCount();
+}
+
+function updateDataCount() {
+  const el = document.getElementById('aeDataCount');
+  if(el) el.textContent = territory.length > 0 ? territory.length + ' accounts loaded' : 'No data uploaded';
+}
+
 function toggleVertical(chip) {
   chip.classList.toggle('selected');
   verticals = Array.from(document.querySelectorAll('.vert-chip.selected')).map(c=>c.textContent);
@@ -606,10 +657,12 @@ function skipSetup() {
 function showPortal() {
   document.getElementById('setupSection').classList.remove('active');
   document.getElementById('statsBar').style.display = 'grid';
+  document.getElementById('dataManageBar').style.display = 'flex';
   document.getElementById('gettingStarted').style.display = 'block';
   document.getElementById('toolsLayout').style.display = 'grid';
   document.getElementById('enablementLink').style.display = 'block';
   updateStats();
+  updateDataCount();
 }
 
 function updateStats() {

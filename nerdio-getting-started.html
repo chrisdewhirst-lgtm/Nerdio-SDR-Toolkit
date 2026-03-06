@@ -133,6 +133,22 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
 </style>
 </head>
 <body>
+<script>
+// Auth Guard — v2 session required
+(function(){
+  const session=JSON.parse(localStorage.getItem('nerdio_v2_session')||'null');
+  if(!session){window.location.href='index.html';return;}
+  const users=JSON.parse(localStorage.getItem('nerdio_v2_users')||'[]');
+  const user=users.find(u=>u.username===session.username&&u.status==='active');
+  if(!user){localStorage.removeItem('nerdio_v2_session');window.location.href='index.html';return;}
+  window._nerdioUser=session;
+  if(session.role==='manager'){
+    const viewAs=JSON.parse(sessionStorage.getItem('nerdio_v2_viewAs')||'null');
+    if(viewAs){window._nerdioViewAs=viewAs;}
+  }
+})();
+</script>
+
 
 <a href="index.html" class="home-btn" title="Command Centre">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
@@ -212,6 +228,18 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
         <div class="rec-tip"><strong>Pro tip:</strong> Use the Research Playbook and Triggers tabs to understand what makes an account "ready" before you start outreach.</div>
         <a class="rec-link" href="nerdio_sdr_pipeline_engine.html">Open SDR Engine →</a>
       </div>
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-icon" style="background:rgba(30,157,184,0.15)">🔍</div>
+          <div class="rec-info">
+            <div class="rec-name">Account Intelligence — UKI FY26</div>
+            <div class="rec-role">Relationship intelligence</div>
+          </div>
+        </div>
+        <div class="rec-why">Searchable account database with Microsoft team contacts, signal tracking, and strategic notes. Track engagement signals as they happen and keep a single source of truth for each account's positioning and relationship context.</div>
+        <div class="rec-tip"><strong>Pro tip:</strong> Add signals as you hear them — a passing comment about Citrix costs or a LinkedIn post about cloud strategy. These build your account story over time and make your outreach razor-sharp.</div>
+        <a class="rec-link" href="nerdio-account-intelligence.html">Open Account Intelligence UKI →</a>
+      </div>
     </div>
   </div>
 
@@ -246,6 +274,18 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
         <div class="rec-why">The Customer Journeys tab lets you compare up to 3 journeys side-by-side — both AS-IS migration paths (from Citrix, VMware, on-prem, native Azure) and TO-BE destinations (AVD, Windows 365, Hybrid, Intune). This gives you the full strategic picture of where a customer is today and where Nerdio takes them.</div>
         <div class="rec-tip"><strong>Pro tip:</strong> Select one AS-IS journey and one TO-BE destination to see how they map together. This becomes your narrative for the customer conversation.</div>
         <a class="rec-link" href="nerdio-journeys.html">Open Journey Models →</a>
+      </div>
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-icon" style="background:rgba(205,255,78,0.1)">🤝</div>
+          <div class="rec-info">
+            <div class="rec-name">Microsoft Strategic Positioning</div>
+            <div class="rec-role">Co-sell intelligence</div>
+          </div>
+        </div>
+        <div class="rec-why">Stakeholder-specific messaging for Microsoft field teams and co-sell motions. Understand how Microsoft sees Nerdio, what their priorities are, and how to position joint value propositions that get Microsoft excited to co-sell with you.</div>
+        <div class="rec-tip"><strong>Pro tip:</strong> Before any Microsoft co-sell meeting, review the stakeholder tabs to match your messaging to the specific Microsoft role you're engaging — an ATU rep cares about different things than a CSA or partner manager.</div>
+        <a class="rec-link" href="nerdio-microsoft-positioning.html">Open Microsoft Positioning →</a>
       </div>
     </div>
   </div>
@@ -282,6 +322,18 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
         <div class="rec-tip"><strong>Pro tip:</strong> These are templates — personalise them with specific account details from the Account Intelligence tool before sending.</div>
         <a class="rec-link" href="nerdio-outreach.html">Open Outreach Sequences →</a>
       </div>
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-icon" style="background:rgba(167,149,199,0.15)">🏖️</div>
+          <div class="rec-info">
+            <div class="rec-name">Holiday Positioning Engine</div>
+            <div class="rec-role">Creative campaigns</div>
+          </div>
+        </div>
+        <div class="rec-why">Story-driven positioning tool for seasonal campaigns and creative outreach. When standard emails aren't cutting through, this gives you a fresh angle — framing Nerdio value through an engaging holiday metaphor that stands out in crowded inboxes.</div>
+        <div class="rec-tip"><strong>Pro tip:</strong> Use this for seasonal campaigns (end of financial year, summer, new year) or post-event follow-ups when you want to be memorable rather than just another vendor email.</div>
+        <a class="rec-link" href="nerdio-holiday-positioning.html">Open Holiday Positioning →</a>
+      </div>
     </div>
   </div>
 
@@ -317,6 +369,18 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
         <div class="rec-tip"><strong>Pro tip:</strong> Run the assessment collaboratively with the customer during the meeting. It positions you as a strategic advisor, not just a vendor, and gives you a natural framework for the conversation.</div>
         <a class="rec-link" href="nerdio-journeys.html">Open Journey Models →</a>
       </div>
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-icon" style="background:rgba(30,157,184,0.15)">🖊️</div>
+          <div class="rec-info">
+            <div class="rec-name">Discovery Whiteboards</div>
+            <div class="rec-role">Workshop tool</div>
+          </div>
+        </div>
+        <div class="rec-why">Two interactive whiteboards for discovery workshops — the <a href="nerdio-whiteboard.html" style="color:var(--teal)">Estate Whiteboard</a> maps infrastructure, challenges, and projects, while the <a href="nerdio-whiteboard-users.html" style="color:var(--teal)">User &amp; Ops Whiteboard</a> captures users, devices, locations, and operational posture. Both have "Show Me Value" engines that auto-generate Nerdio recommendations linked to what the customer has told you.</div>
+        <div class="rec-tip"><strong>Pro tip:</strong> Use the Estate Whiteboard to open a workshop, then the User &amp; Ops board to go deeper. Hit "Show Me Value" at the end — it produces a ready-made value story anchored to their specific environment.</div>
+        <a class="rec-link" href="nerdio-whiteboard.html">Open Estate Whiteboard →</a>
+      </div>
     </div>
   </div>
 
@@ -351,6 +415,18 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
         <div class="rec-why">The Maturity Model maps the customer's journey from Level 1 (Manual/Legacy) to Level 5 (Autonomous). Use this to frame the business case not just as a cost saving, but as a transformation story — "here's where you are, here's where you need to be, and here's the path."</div>
         <div class="rec-tip"><strong>Pro tip:</strong> Executives respond to maturity models. It shifts the conversation from "buy our product" to "accelerate your transformation."</div>
         <a class="rec-link" href="nerdio-journeys.html">Open Journey Models →</a>
+      </div>
+      <div class="rec-card">
+        <div class="rec-card-top">
+          <div class="rec-icon" style="background:rgba(205,255,78,0.1)">📋</div>
+          <div class="rec-info">
+            <div class="rec-name">Microsoft Licensing Navigator</div>
+            <div class="rec-role">Licensing intelligence</div>
+          </div>
+        </div>
+        <div class="rec-why">When building the business case, licensing is often the sticking point. This tool maps M365 bundles to AVD/W365 eligibility, models per-user costs with add-ons like Copilot, and shows where Nerdio sits in the licensing picture — helping you navigate complex Microsoft EA conversations with confidence.</div>
+        <div class="rec-tip"><strong>Pro tip:</strong> Use the bundle comparison to show customers what they already have (and what they're missing). Often they're already licensed for AVD but don't know it — Nerdio unlocks that hidden value.</div>
+        <a class="rec-link" href="nerdio-licensing-navigator.html">Open Licensing Navigator →</a>
       </div>
     </div>
   </div>
@@ -525,6 +601,18 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
       </div>
     </a>
 
+    <a class="explore-card" href="nerdio-whiteboard-users.html">
+      <div class="explore-card-icon">👥</div>
+      <div class="explore-card-name">User &amp; Operations Discovery</div>
+      <div class="explore-card-when">Use when: capturing user profiles, devices, locations, apps, and operational posture</div>
+      <div class="explore-card-desc">Map the environment from a people perspective — user types, endpoints, connectivity, security posture, and how IT manages everything. Includes Show Me Value engine and dual mode for internal prep vs customer workshops.</div>
+      <div class="explore-stages">
+        <span class="explore-stage">User Personas</span>
+        <span class="explore-stage green">Ops Posture</span>
+        <span class="explore-stage purple">Show Me Value</span>
+      </div>
+    </a>
+
     <a class="explore-card" href="nerdio-licensing-navigator.html">
       <div class="explore-card-icon">📋</div>
       <div class="explore-card-name">Microsoft Licensing Navigator</div>
@@ -661,6 +749,42 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
       <div class="qs-body">
         <p>When a deal progresses to business case stage, open the <a href="nerdio-roi-calculator.html">ROI Calculator</a>. Model the customer's expected savings across four dimensions: Azure compute (auto-scaling), operational efficiency, license consolidation, and risk reduction.</p>
         <p>Lead with the compute savings — Nerdio's patented auto-scaling delivers 55% average savings. The calculator produces an exportable summary you can share with the economic buyer.</p>
+      </div>
+    </div>
+
+    <div class="qs-item">
+      <div class="qs-header" onclick="toggleQS(this)">
+        <div class="qs-num">8</div>
+        <div class="qs-label">Learn Microsoft licensing with the Licensing Navigator</div>
+        <div class="qs-arrow">▼</div>
+      </div>
+      <div class="qs-body">
+        <p>Open the <a href="nerdio-licensing-navigator.html">Microsoft Licensing Navigator</a> and familiarise yourself with the M365 bundle tiers. Understand which bundles include AVD rights, which qualify for Windows 365, and where Copilot fits. This is essential knowledge for every customer conversation — licensing questions come up constantly.</p>
+        <p>Key insight: Many customers are already licensed for AVD through their M365 E3/E5 agreements but don't realise it. Nerdio unlocks that hidden value.</p>
+      </div>
+    </div>
+
+    <div class="qs-item">
+      <div class="qs-header" onclick="toggleQS(this)">
+        <div class="qs-num">9</div>
+        <div class="qs-label">Prepare for Microsoft co-sell conversations</div>
+        <div class="qs-arrow">▼</div>
+      </div>
+      <div class="qs-body">
+        <p>Open the <a href="nerdio-microsoft-positioning.html">Microsoft Strategic Positioning</a> tool and study the stakeholder-specific messaging. Before any Microsoft co-sell meeting, review the tab for the specific Microsoft role you're engaging — ATU reps, CSAs, partner managers, and Azure specialists all have different priorities.</p>
+        <p>Also review the <a href="nerdio-account-intelligence.html">Account Intelligence UKI</a> tool for any Microsoft contacts already mapped to your target accounts.</p>
+      </div>
+    </div>
+
+    <div class="qs-item">
+      <div class="qs-header" onclick="toggleQS(this)">
+        <div class="qs-num">10</div>
+        <div class="qs-label">Run a discovery workshop with the Whiteboards</div>
+        <div class="qs-arrow">▼</div>
+      </div>
+      <div class="qs-body">
+        <p>When you book a discovery workshop, use the <a href="nerdio-whiteboard.html">Estate Discovery Whiteboard</a> to map the customer's infrastructure, challenges, and projects. Follow up with the <a href="nerdio-whiteboard-users.html">User &amp; Ops Whiteboard</a> to capture user types, devices, locations, and operational posture.</p>
+        <p>When the board is populated, click "Show Me Value" — the engine analyses everything on the board and auto-generates Nerdio recommendations linked directly to what the customer has told you. It's a powerful way to close a workshop with clear next steps.</p>
       </div>
     </div>
 
