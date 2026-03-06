@@ -206,7 +206,7 @@ body {
 </head>
 <body>
 <script>
-// Auth Guard — redirect to login if no valid session
+// Auth Guard — Manager role only
 (function(){
   function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h;}return'h_'+Math.abs(h).toString(36);}
   const session=JSON.parse(localStorage.getItem('nerdio_v2_session')||'null');
@@ -214,6 +214,8 @@ body {
   const users=JSON.parse(localStorage.getItem('nerdio_v2_users')||'[]');
   const user=users.find(u=>u.username===session.username&&u.status==='active');
   if(!user){localStorage.removeItem('nerdio_v2_session');window.location.href='index.html';return;}
+  // Role check: only Manager can access Manager portal
+  if(session.role!=='manager'){window.location.href='index.html';return;}
   window._nerdioUser=session;
 })();
 </script>
@@ -267,6 +269,7 @@ body {
   <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('overview')">&#128202; Overview</button>
+    <button class="tab-btn" onclick="switchTab('territory')">&#127758; Team Territory</button>
     <button class="tab-btn" onclick="switchTab('coaching')">&#127891; Coaching</button>
     <button class="tab-btn" onclick="switchTab('tools')">&#128736; Tools</button>
     <button class="tab-btn" onclick="switchTab('reports')">&#128203; Reports</button>
@@ -373,6 +376,70 @@ body {
         </div>
         <span style="padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;background:rgba(245,158,11,0.1);color:var(--orange);">45%</span>
       </div>
+    </div>
+  </div>
+
+  <!-- Team Territory Tab -->
+  <div class="tab-content" id="tab-territory">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+      <h3 style="font-size:16px;font-weight:600;">Team Territory Data</h3>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <select id="teamFilter" onchange="renderTeamTerritory()" style="padding:8px 14px;border-radius:8px;
+          border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);
+          color:var(--white);font-family:'Poppins';font-size:12px;cursor:pointer;">
+          <option value="all">All Team Members</option>
+        </select>
+        <select id="roleFilter" onchange="renderTeamTerritory()" style="padding:8px 14px;border-radius:8px;
+          border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);
+          color:var(--white);font-family:'Poppins';font-size:12px;cursor:pointer;">
+          <option value="all">All Roles</option>
+          <option value="sdr">SDRs Only</option>
+          <option value="ae">AEs Only</option>
+        </select>
+        <input type="text" id="teamTerritorySearch" placeholder="Search accounts..." oninput="renderTeamTerritory()"
+          style="padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
+          background:rgba(255,255,255,0.04);color:var(--white);font-family:'Poppins';font-size:12px;width:200px;">
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+      <div class="stat-card">
+        <div class="stat-val teal" id="ttTotalAccounts">0</div>
+        <div class="stat-label">Total Accounts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val green" id="ttTotalUsers">0</div>
+        <div class="stat-label">Reps with Data</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val purple" id="ttSDRAccounts">0</div>
+        <div class="stat-label">SDR Accounts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val teal" id="ttAEAccounts">0</div>
+        <div class="stat-label">AE Accounts</div>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="pipeline-table" id="teamTerritoryTable">
+        <thead>
+          <tr>
+            <th>Owner</th>
+            <th>Role</th>
+            <th>Account</th>
+            <th>Vertical</th>
+            <th>Priority</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="teamTerritoryBody">
+          <tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">
+            Loading team territory data...
+          </td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -555,33 +622,168 @@ function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   event.target.classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
+  if(name === 'territory') renderTeamTerritory();
 }
 
+// ===== TEAM TERRITORY AGGREGATION =====
+// Scans localStorage for all per-user territory data and aggregates it
+function getTeamTerritoryData() {
+  const users = JSON.parse(localStorage.getItem('nerdio_v2_users') || '[]');
+  const teamData = [];
+
+  users.forEach(user => {
+    if(user.role === 'manager') return; // Managers don't have territory data
+
+    // Check for SDR territory data
+    const sdrKey = 'nerdio_sdr_territory_' + user.username;
+    const sdrData = JSON.parse(localStorage.getItem(sdrKey) || '[]');
+    sdrData.forEach(account => {
+      teamData.push({
+        ...account,
+        owner: user.name,
+        ownerUsername: user.username,
+        ownerRole: user.role
+      });
+    });
+
+    // Check for AE territory data
+    const aeKey = 'nerdio_ae_territory_' + user.username;
+    const aeData = JSON.parse(localStorage.getItem(aeKey) || '[]');
+    aeData.forEach(account => {
+      teamData.push({
+        ...account,
+        owner: user.name,
+        ownerUsername: user.username,
+        ownerRole: user.role
+      });
+    });
+  });
+
+  return teamData;
+}
+
+function populateTeamFilter() {
+  const users = JSON.parse(localStorage.getItem('nerdio_v2_users') || '[]');
+  const select = document.getElementById('teamFilter');
+  // Keep the "All" option, rebuild the rest
+  select.innerHTML = '<option value="all">All Team Members</option>';
+  users.forEach(user => {
+    if(user.role === 'manager') return;
+    const opt = document.createElement('option');
+    opt.value = user.username;
+    opt.textContent = user.name + ' (' + user.role.toUpperCase() + ')';
+    select.appendChild(opt);
+  });
+}
+
+function renderTeamTerritory() {
+  const allData = getTeamTerritoryData();
+  const userFilter = document.getElementById('teamFilter').value;
+  const roleFilter = document.getElementById('roleFilter').value;
+  const searchQuery = (document.getElementById('teamTerritorySearch').value || '').toLowerCase();
+
+  let filtered = allData;
+  if(userFilter !== 'all') filtered = filtered.filter(a => a.ownerUsername === userFilter);
+  if(roleFilter !== 'all') filtered = filtered.filter(a => a.ownerRole === roleFilter);
+  if(searchQuery) filtered = filtered.filter(a =>
+    (a.name||'').toLowerCase().includes(searchQuery) ||
+    (a.vertical||'').toLowerCase().includes(searchQuery) ||
+    (a.owner||'').toLowerCase().includes(searchQuery) ||
+    (a.notes||'').toLowerCase().includes(searchQuery)
+  );
+
+  // Update summary stats
+  const uniqueOwners = new Set(allData.map(a => a.ownerUsername));
+  const sdrAccounts = allData.filter(a => a.ownerRole === 'sdr').length;
+  const aeAccounts = allData.filter(a => a.ownerRole === 'ae').length;
+  document.getElementById('ttTotalAccounts').textContent = allData.length;
+  document.getElementById('ttTotalUsers').textContent = uniqueOwners.size;
+  document.getElementById('ttSDRAccounts').textContent = sdrAccounts;
+  document.getElementById('ttAEAccounts').textContent = aeAccounts;
+
+  // Also update the main stats bar with real data
+  if(allData.length > 0) {
+    document.getElementById('statTeamSize').textContent = uniqueOwners.size;
+  }
+
+  const tbody = document.getElementById('teamTerritoryBody');
+  if(filtered.length === 0) {
+    const msg = allData.length === 0
+      ? 'No team members have uploaded territory data yet.'
+      : 'No accounts match your filters.';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">'+msg+'</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(a => {
+    const roleBadge = a.ownerRole === 'sdr'
+      ? '<span class="role-badge-sm sdr">SDR</span>'
+      : '<span class="role-badge-sm ae">AE</span>';
+    const priClass = (a.priority||'').toLowerCase().includes('high') ? 'high' :
+                     (a.priority||'').toLowerCase().includes('low') ? 'low' : 'medium';
+    return `<tr>
+      <td><strong>${a.owner}</strong></td>
+      <td>${roleBadge}</td>
+      <td>${a.name}${a.size ? ' <span style="color:rgba(255,255,255,0.3);font-size:11px;">('+a.size+')</span>' : ''}</td>
+      <td>${a.vertical || '—'}</td>
+      <td><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;
+        background:${priClass==='high'?'rgba(239,68,68,0.15)':priClass==='low'?'rgba(255,255,255,0.08)':'rgba(245,158,11,0.15)'};
+        color:${priClass==='high'?'var(--red)':priClass==='low'?'rgba(255,255,255,0.4)':'var(--orange)'};">${a.priority||'Medium'}</span></td>
+      <td>${a.status || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Add role badge styles that were missing
+(function(){
+  const style = document.createElement('style');
+  style.textContent = `
+    .role-badge-sm { display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;text-transform:uppercase; }
+    .role-badge-sm.sdr { background:rgba(205,255,78,0.15);color:var(--green); }
+    .role-badge-sm.ae { background:rgba(30,157,184,0.15);color:var(--teal); }
+  `;
+  document.head.appendChild(style);
+})();
+
+// Init — populate filter and load data
+document.addEventListener('DOMContentLoaded', () => {
+  populateTeamFilter();
+  // Pre-render so data is ready when tab is clicked
+  renderTeamTerritory();
+});
+
 function exportReport() {
-  // Generate a simple text report
+  const allData = getTeamTerritoryData();
+  const users = JSON.parse(localStorage.getItem('nerdio_v2_users') || '[]');
+  const activeUsers = users.filter(u => u.role !== 'manager' && u.status === 'active');
+
+  // Build per-user summaries
+  const userSummaries = activeUsers.map(u => {
+    const sdrData = JSON.parse(localStorage.getItem('nerdio_sdr_territory_' + u.username) || '[]');
+    const aeData = JSON.parse(localStorage.getItem('nerdio_ae_territory_' + u.username) || '[]');
+    const total = sdrData.length + aeData.length;
+    return `  ${u.name} (${u.role.toUpperCase()}): ${total} accounts`;
+  }).join('\n');
+
   const reportData = `NERDIO SALES COMMAND CENTRE — MANAGER REPORT
 Generated: ${new Date().toLocaleDateString()}
 ${'='.repeat(50)}
 
+TEAM OVERVIEW
+Active Reps: ${activeUsers.length}
+Total Accounts Across Team: ${allData.length}
+SDR Accounts: ${allData.filter(a=>a.ownerRole==='sdr').length}
+AE Accounts: ${allData.filter(a=>a.ownerRole==='ae').length}
+
+PER-REP BREAKDOWN
+${userSummaries || '  No reps have uploaded data yet'}
+
 PIPELINE SUMMARY
-Total Pipeline: $1,200,000
-Weighted Forecast: $480,000
-Active Deals: 24
-Avg Deal Size: $50,000
-Win Rate (QTD): 32%
+Total Pipeline: $${Math.round(allData.length * 25000 / 1000)}k (estimated)
+Active Deals: ${allData.filter(a=>(a.status||'').toLowerCase().includes('active')).length || Math.floor(allData.length * 0.6)}
 
-TEAM PERFORMANCE
-On Track: 2/5 reps
-Needs Attention: 2/5 reps
-At Risk: 1/5 reps
-Meetings Booked: 42
-Discovery Sessions: 18
-
-DEAL HEALTH
-Closing This Month: 3
-Stalled: 4
-Slipping: 2
-New This Month: 6
+${'='.repeat(50)}
+Report exported from Nerdio Sales Command Centre v2
 `;
   const blob = new Blob([reportData], {type:'text/plain'});
   const a = document.createElement('a');

@@ -407,32 +407,114 @@ function showApp() {
   document.getElementById('displayName').textContent = session.name;
   document.getElementById('displayRole').textContent = session.role.toUpperCase();
 
-  // Show admin link only for managers (closest to admin)
-  // Actually, admin is separate — show the link subtly for all
   document.getElementById('adminLink').style.display = 'block';
 
-  // Highlight the user's role card and dim others (but still allow access)
+  // Role-based card visibility
+  const roleAccess = {
+    sdr: ['sdr'],
+    ae: ['sdr', 'ae'],
+    manager: ['sdr', 'ae', 'manager']
+  };
+  const allowed = roleAccess[session.role] || [];
+
   const cards = document.querySelectorAll('.role-card');
+  let visibleCount = 0;
   cards.forEach(card => {
     const cardRole = card.getAttribute('data-role');
-    if(cardRole === session.role) {
-      card.style.order = '-1';
-      card.style.borderColor = 'rgba(30,157,184,0.3)';
+    if(allowed.includes(cardRole)) {
+      card.style.display = 'flex';
+      visibleCount++;
+      if(cardRole === session.role) {
+        card.style.order = '-1';
+        card.style.borderColor = 'rgba(30,157,184,0.3)';
+      }
+    } else {
+      card.style.display = 'none';
     }
   });
 
-  // Auto-redirect if user clicks a role they're not assigned to
-  cards.forEach(card => {
-    card.addEventListener('click', function(e) {
-      const cardRole = this.getAttribute('data-role');
-      if(cardRole !== session.role) {
-        e.preventDefault();
-        if(confirm('Your assigned role is ' + session.role.toUpperCase() + '. Are you sure you want to access the ' + cardRole.toUpperCase() + ' portal?')) {
-          window.location.href = this.getAttribute('href');
+  // Adjust grid for fewer cards
+  const roleGrid = document.getElementById('roleCards');
+  if(visibleCount === 1) {
+    roleGrid.style.gridTemplateColumns = '1fr';
+    roleGrid.style.maxWidth = '380px';
+  } else if(visibleCount === 2) {
+    roleGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+    roleGrid.style.maxWidth = '700px';
+  }
+
+  // Manager user switcher - intercept SDR/AE card clicks
+  if(session.role === 'manager') {
+    cards.forEach(card => {
+      card.addEventListener('click', function(e) {
+        const cardRole = this.getAttribute('data-role');
+        if(cardRole === 'sdr' || cardRole === 'ae') {
+          e.preventDefault();
+          showUserPicker(cardRole, this.getAttribute('href'));
         }
-      }
+        // manager card goes straight through
+      });
     });
+  }
+}
+
+function showUserPicker(targetRole, targetUrl) {
+  const users = getUsers().filter(u => u.role === targetRole && u.status === 'active');
+
+  // Remove existing picker if any
+  const existing = document.getElementById('userPickerOverlay');
+  if(existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'userPickerOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(4,40,56,0.92);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);';
+
+  const roleLabel = targetRole === 'sdr' ? 'SDR' : 'AE';
+  const roleColor = targetRole === 'sdr' ? '#CDFF4E' : '#1E9DB8';
+
+  let userListHtml = '';
+  if(users.length === 0) {
+    userListHtml = '<div style="padding:24px;text-align:center;color:rgba(255,255,255,0.4);font-size:14px;">No active ' + roleLabel + ' users found.</div>';
+  } else {
+    users.forEach(u => {
+      userListHtml += '<div class="picker-user" onclick="selectViewAs(\'' + u.username + '\',\'' + u.name.replace(/'/g, "\\'") + '\',\'' + targetRole + '\',\'' + targetUrl + '\')" style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px;" onmouseover="this.style.background=\'rgba(255,255,255,0.06)\'" onmouseout="this.style.background=\'transparent\'">';
+      userListHtml += '<div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:' + roleColor + ';">' + u.name.charAt(0).toUpperCase() + '</div>';
+      userListHtml += '<div><div style="font-size:14px;font-weight:600;">' + u.name + '</div><div style="font-size:11px;color:rgba(255,255,255,0.4);">@' + u.username + '</div></div>';
+      userListHtml += '</div>';
+    });
+  }
+
+  // Also add "View as myself" option for the manager's own view
+  userListHtml += '<div onclick="selectViewAs(null,null,null,\'' + targetUrl + '\')" style="padding:14px 20px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px;border-top:1px solid rgba(255,255,255,0.1);" onmouseover="this.style.background=\'rgba(167,149,199,0.1)\'" onmouseout="this.style.background=\'transparent\'">';
+  userListHtml += '<div style="width:36px;height:36px;border-radius:10px;background:rgba(167,149,199,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;">&#128202;</div>';
+  userListHtml += '<div><div style="font-size:14px;font-weight:600;color:#A795C7;">View as Manager (Overview)</div><div style="font-size:11px;color:rgba(255,255,255,0.4);">See portal without specific user context</div></div>';
+  userListHtml += '</div>';
+
+  overlay.innerHTML = '<div style="background:rgba(13,47,66,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:20px;width:100%;max-width:440px;max-height:70vh;overflow:hidden;display:flex;flex-direction:column;">' +
+    '<div style="padding:24px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.08);">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+    '<h3 style="font-size:18px;font-weight:700;font-family:Poppins,sans-serif;">Select ' + roleLabel + ' to View</h3>' +
+    '<button onclick="document.getElementById(\'userPickerOverlay\').remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:4px 8px;">✕</button>' +
+    '</div>' +
+    '<p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;font-family:Poppins,sans-serif;">Choose a team member to view the ' + roleLabel + ' portal as their perspective.</p>' +
+    '</div>' +
+    '<div style="overflow-y:auto;font-family:Poppins,sans-serif;">' + userListHtml + '</div>' +
+    '</div>';
+
+  overlay.addEventListener('click', function(e) {
+    if(e.target === overlay) overlay.remove();
   });
+
+  document.body.appendChild(overlay);
+}
+
+function selectViewAs(username, name, role, targetUrl) {
+  if(username) {
+    sessionStorage.setItem('nerdio_v2_viewAs', JSON.stringify({username: username, name: name, role: role}));
+  } else {
+    sessionStorage.removeItem('nerdio_v2_viewAs');
+  }
+  window.location.href = targetUrl;
 }
 
 // Init — check for existing session
