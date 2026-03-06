@@ -200,6 +200,7 @@ body {
   .setup-grid { grid-template-columns: 1fr; }
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <script>
@@ -244,8 +245,8 @@ body {
         <p>CSV or JSON from Salesforce, HubSpot, or a spreadsheet</p>
         <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
           <div style="font-size:28px;margin-bottom:6px;">&#128196;</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);">Drop file here or click to browse</div>
-          <input type="file" id="fileInput" accept=".csv,.json" style="display:none;" onchange="handleFileUpload(event)">
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);">Drop CSV or Excel (.xlsx) here or click to browse</div>
+          <input type="file" id="fileInput" accept=".csv,.json,.xlsx,.xls" style="display:none;" onchange="handleFileUpload(event)">
         </div>
         <div id="uploadStatus" style="margin-top:8px;font-size:12px;color:var(--teal);display:none;"></div>
       </div>
@@ -473,33 +474,59 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleFileUpload(e) {
   if(!e.target.files.length) return;
   const file = e.target.files[0];
+  const isExcel = file.name.match(/\.xlsx?$/i);
   const reader = new FileReader();
   reader.onload = function(ev) {
     try {
-      const lines = ev.target.result.split('\n').filter(l => l.trim());
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
-      const data = [];
-      for(let i=1;i<lines.length;i++) {
-        const vals = lines[i].split(',').map(v => v.trim().replace(/"/g,''));
-        const row = {};
-        headers.forEach((h,idx) => row[h] = vals[idx] || '');
-        data.push({
-          id: 'acc_'+Date.now()+'_'+i,
-          name: row['account']||row['account name']||row['company']||row['name']||vals[0]||'Unknown',
-          vertical: row['vertical']||row['industry']||'',
-          priority: row['priority']||row['tier']||'medium',
-          status: row['status']||'Active',
-          dealValue: row['deal value']||row['value']||row['amount']||'',
-          stage: row['stage']||row['deal stage']||''
-        });
+      let rows = [];
+      if(isExcel) {
+        // Parse Excel with SheetJS
+        const data = new Uint8Array(ev.target.result);
+        const workbook = XLSX.read(data, {type:'array'});
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        rows = XLSX.utils.sheet_to_json(firstSheet, {defval:''});
+      } else {
+        // Parse CSV
+        const lines = ev.target.result.split('\n').filter(l => l.trim());
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+        for(let i=1;i<lines.length;i++) {
+          const vals = lines[i].split(',').map(v => v.trim().replace(/"/g,''));
+          const row = {};
+          headers.forEach((h,idx) => row[h] = vals[idx] || '');
+          rows.push(row);
+        }
       }
+
+      if(rows.length === 0) { alert('No data rows found'); return; }
+
+      // Normalise keys to lowercase
+      const normalised = rows.map(r => {
+        const nr = {};
+        Object.keys(r).forEach(k => nr[k.trim().toLowerCase()] = String(r[k] || ''));
+        return nr;
+      });
+
+      const data = normalised.map((row, i) => ({
+        id: 'acc_'+Date.now()+'_'+i,
+        name: row['account']||row['account name']||row['account_name']||row['company']||row['company name']||row['name']||Object.values(row)[0]||'Unknown',
+        vertical: row['vertical']||row['industry']||row['sector']||row['segment']||'',
+        priority: row['priority']||row['tier']||row['rating']||'medium',
+        status: row['status']||row['stage']||'Active',
+        dealValue: row['deal value']||row['deal_value']||row['value']||row['amount']||row['opportunity value']||'',
+        stage: row['stage']||row['deal stage']||row['deal_stage']||row['opportunity stage']||''
+      }));
+
       territory = data;
       localStorage.setItem('nerdio_ae_territory', JSON.stringify(territory));
       document.getElementById('uploadStatus').style.display = 'block';
-      document.getElementById('uploadStatus').textContent = '✓ '+data.length+' accounts loaded';
+      document.getElementById('uploadStatus').textContent = '✓ '+data.length+' accounts loaded from '+file.name;
     } catch(err) { alert('Parse error: '+err.message); }
   };
-  reader.readAsText(file);
+  if(isExcel) {
+    reader.readAsArrayBuffer(file);
+  } else {
+    reader.readAsText(file);
+  }
 }
 
 function toggleVertical(chip) {

@@ -287,6 +287,7 @@ body {
   .tool-grid { grid-template-columns: 1fr; }
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <script>
@@ -332,8 +333,8 @@ body {
         <p>CSV from Salesforce, HubSpot, or your own spreadsheet</p>
         <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
           <div class="upload-icon">&#128196;</div>
-          <div class="upload-text">Drop CSV here or click to browse</div>
-          <input type="file" id="fileInput" accept=".csv,.json,.xlsx" onchange="handleFileUpload(event)">
+          <div class="upload-text">Drop CSV or Excel (.xlsx) here or click to browse</div>
+          <input type="file" id="fileInput" accept=".csv,.json,.xlsx,.xls" onchange="handleFileUpload(event)">
         </div>
         <div id="uploadStatus" style="margin-top:8px;font-size:12px;color:var(--green);display:none;"></div>
       </div>
@@ -507,7 +508,7 @@ body {
           font-family:'Poppins';cursor:pointer;">
           &#128196; Upload CSV
         </button>
-        <input type="file" id="fileInput2" accept=".csv" style="display:none;" onchange="handleFileUpload(event)">
+        <input type="file" id="fileInput2" accept=".csv,.xlsx,.xls" style="display:none;" onchange="handleFileUpload(event)">
         <button onclick="addManualAccount()"
           style="padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);
           background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;
@@ -589,46 +590,70 @@ function handleFileUpload(e) {
 }
 
 function processFile(file) {
+  const isExcel = file.name.match(/\.xlsx?$/i);
   const reader = new FileReader();
   reader.onload = function(e) {
-    const text = e.target.result;
     try {
-      // Try CSV parse
-      const lines = text.split('\n').filter(l => l.trim());
-      if(lines.length < 2) { alert('File appears empty'); return; }
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
-      const data = [];
-      for(let i = 1; i < lines.length; i++) {
-        const vals = lines[i].split(',').map(v => v.trim().replace(/"/g,''));
-        const row = {};
-        headers.forEach((h,idx) => row[h] = vals[idx] || '');
-        // Map common fields
-        const account = {
-          id: 'acc_' + Date.now() + '_' + i,
-          name: row['account'] || row['account name'] || row['company'] || row['name'] || vals[0] || 'Unknown',
-          vertical: row['vertical'] || row['industry'] || row['sector'] || '',
-          priority: row['priority'] || row['tier'] || 'medium',
-          status: row['status'] || 'New',
-          lastActivity: row['last activity'] || row['last_activity'] || 'Just uploaded',
-          size: row['size'] || row['employees'] || row['employee count'] || '',
-          revenue: row['revenue'] || row['arr'] || '',
-          notes: row['notes'] || ''
-        };
-        data.push(account);
+      let rows = [];
+      if(isExcel) {
+        // Parse Excel with SheetJS
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type:'array'});
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        rows = XLSX.utils.sheet_to_json(firstSheet, {defval:''});
+      } else {
+        // Parse CSV
+        const text = e.target.result;
+        const lines = text.split('\n').filter(l => l.trim());
+        if(lines.length < 2) { alert('File appears empty'); return; }
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+        for(let i = 1; i < lines.length; i++) {
+          const vals = lines[i].split(',').map(v => v.trim().replace(/"/g,''));
+          const row = {};
+          headers.forEach((h,idx) => row[h] = vals[idx] || '');
+          rows.push(row);
+        }
       }
+
+      if(rows.length === 0) { alert('No data rows found in file'); return; }
+
+      // Normalise keys to lowercase for matching
+      const normalised = rows.map(r => {
+        const nr = {};
+        Object.keys(r).forEach(k => nr[k.trim().toLowerCase()] = String(r[k] || ''));
+        return nr;
+      });
+
+      // Map to account objects
+      const data = normalised.map((row, i) => ({
+        id: 'acc_' + Date.now() + '_' + i,
+        name: row['account'] || row['account name'] || row['company'] || row['name'] || row['account_name'] || row['company name'] || Object.values(row)[0] || 'Unknown',
+        vertical: row['vertical'] || row['industry'] || row['sector'] || row['segment'] || '',
+        priority: row['priority'] || row['tier'] || row['rating'] || 'medium',
+        status: row['status'] || row['stage'] || 'New',
+        lastActivity: row['last activity'] || row['last_activity'] || row['lastactivity'] || 'Just uploaded',
+        size: row['size'] || row['employees'] || row['employee count'] || row['employee_count'] || row['headcount'] || '',
+        revenue: row['revenue'] || row['arr'] || row['annual revenue'] || row['annual_revenue'] || '',
+        notes: row['notes'] || row['comments'] || row['description'] || ''
+      }));
+
       territory = data;
       localStorage.setItem('nerdio_sdr_territory', JSON.stringify(territory));
       document.getElementById('uploadStatus').style.display = 'block';
       document.getElementById('uploadStatus').textContent = '✓ ' + data.length + ' accounts loaded from ' + file.name;
-      document.getElementById('step1Num').textContent = '✓';
-      document.getElementById('step1Num').classList.add('done');
+      const s1 = document.getElementById('step1Num');
+      if(s1) { s1.textContent = '✓'; s1.classList.add('done'); }
       renderTerritory();
       addActivity('Uploaded ' + data.length + ' accounts from ' + file.name);
     } catch(err) {
       alert('Error parsing file: ' + err.message);
     }
   };
-  reader.readAsText(file);
+  if(isExcel) {
+    reader.readAsArrayBuffer(file);
+  } else {
+    reader.readAsText(file);
+  }
 }
 
 function toggleVertical(chip) {
