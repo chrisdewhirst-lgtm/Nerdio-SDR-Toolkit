@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enablement Hub — Nerdio Sales Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #042838;
+  --navy-light: #0a3a50;
+  --teal: #1E9DB8;
+  --white: #FFFFFF;
+  --green: #CDFF4E;
+  --purple: #A795C7;
+  --purple-dim: rgba(167,149,199,0.15);
+  --gray-500: #6b7280;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* Background */
+.bg-pattern {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(167,149,199,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(30,157,184,0.05) 0%, transparent 50%);
+}
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(4,40,56,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-left .hub-badge {
+  background: var(--purple-dim);
+  color: var(--purple);
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  padding: 4px 12px; border-radius: 6px;
+}
+.topbar-left h2 { font-size: 16px; font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-right a {
+  color: rgba(255,255,255,0.5); text-decoration: none; font-size: 12px;
+  padding: 6px 12px; border-radius: 8px; transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.topbar-right a:hover { color: var(--white); border-color: rgba(255,255,255,0.15); }
+.role-link { font-weight: 500; }
+.role-link.sdr { color: var(--green) !important; }
+.role-link.ae { color: var(--teal) !important; }
+.role-link.mgr { color: var(--purple) !important; }
+
+.main {
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto; padding: 36px 24px;
+}
+
+/* Header */
+.page-header {
+  text-align: center; margin-bottom: 40px;
+}
+.page-header h1 {
+  font-size: 32px; font-weight: 800; margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--purple), var(--teal));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.page-header p {
+  font-size: 15px; color: rgba(255,255,255,0.5); max-width: 520px; margin: 0 auto;
+}
+
+/* Category Sections */
+.category {
+  margin-bottom: 36px;
+}
+.category-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.category-header h2 { font-size: 18px; font-weight: 700; }
+.category-header .cat-icon { font-size: 22px; }
+.category-count {
+  background: rgba(255,255,255,0.06);
+  padding: 2px 10px; border-radius: 10px;
+  font-size: 11px; color: rgba(255,255,255,0.4);
+}
+
+/* Cards */
+.card-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;
+}
+.enable-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px; padding: 28px;
+  cursor: pointer; transition: all 0.35s;
+  text-decoration: none; color: var(--white);
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+.enable-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--purple), var(--teal));
+  opacity: 0; transition: opacity 0.3s;
+}
+.enable-card:hover {
+  border-color: var(--purple);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(167,149,199,0.1);
+}
+.enable-card:hover::after { opacity: 1; }
+
+.enable-card .card-icon { font-size: 32px; margin-bottom: 14px; }
+.enable-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.enable-card .card-desc {
+  font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; flex: 1;
+}
+.enable-card .card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.card-tags span {
+  padding: 3px 10px; border-radius: 6px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tag-competitive { background: rgba(239,68,68,0.1); color: #ef4444; }
+.tag-positioning { background: rgba(167,149,199,0.1); color: var(--purple); }
+.tag-licensing { background: rgba(30,157,184,0.1); color: var(--teal); }
+.tag-creative { background: rgba(205,255,78,0.1); color: var(--green); }
+.tag-microsoft { background: rgba(30,157,184,0.1); color: var(--teal); }
+
+.card-arrow {
+  color: rgba(255,255,255,0.3); font-size: 18px; transition: all 0.3s;
+}
+.enable-card:hover .card-arrow { color: var(--purple); transform: translateX(4px); }
+
+/* Quick Reference Cards */
+.ref-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;
+}
+.ref-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 18px;
+  text-align: center;
+}
+.ref-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--purple); }
+.ref-card p { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+
+/* Nerdio Pillars */
+.pillars-bar {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 36px;
+}
+.pillar {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 16px; text-align: center;
+  transition: all 0.3s;
+}
+.pillar:hover { border-color: var(--teal); }
+.pillar .pillar-icon { font-size: 24px; margin-bottom: 6px; }
+.pillar h4 { font-size: 12px; font-weight: 600; color: var(--teal); }
+.pillar p { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+.home-btn {
+  position: fixed; bottom: 20px; left: 20px;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--navy); border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white); text-decoration: none; font-size: 18px;
+  z-index: 9999; transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.home-btn:hover { background: var(--purple); border-color: var(--purple); }
+
+@media (max-width: 768px) {
+  .card-grid { grid-template-columns: 1fr; }
+  .pillars-bar { grid-template-columns: repeat(2, 1fr); }
+  .page-header h1 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+<script>
+// Auth Guard — redirect to login if no valid session
+(function(){
+  function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h;}return'h_'+Math.abs(h).toString(36);}
+  const session=JSON.parse(localStorage.getItem('nerdio_v2_session')||'null');
+  if(!session){window.location.href='index.html';return;}
+  const users=JSON.parse(localStorage.getItem('nerdio_v2_users')||'[]');
+  const user=users.find(u=>u.username===session.username&&u.status==='active');
+  if(!user){localStorage.removeItem('nerdio_v2_session');window.location.href='index.html';return;}
+  window._nerdioUser=session;
+})();
+</script>
+
+<div class="bg-pattern"></div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="hub-badge">&#128218; All Roles</span>
+    <h2>Positioning & Enablement Hub</h2>
+  </div>
+  <div class="topbar-right">
+    <span style="font-size:11px;color:rgba(255,255,255,0.3);" id="userGreeting"></span>
+    <a href="sdr-portal.html" class="role-link sdr">&#9889; SDR</a>
+    <a href="ae-portal.html" class="role-link ae">&#127919; AE</a>
+    <a href="manager-portal.html" class="role-link mgr">&#128202; Manager</a>
+    <a href="index.html">Home</a>
+    <a href="#" onclick="localStorage.removeItem('nerdio_v2_session');location.href='index.html';return false;" style="color:rgba(239,68,68,0.5);">Sign Out</a>
+  </div>
+</div>
+<script>
+  if(window._nerdioUser){document.getElementById('userGreeting').textContent=window._nerdioUser.name;}
+</script>
+
+<div class="main">
+  <div class="page-header">
+    <h1>Positioning & Enablement</h1>
+    <p>Shared knowledge base for all roles. Competitive intelligence, Microsoft co-sell positioning, licensing guidance, and creative outreach hooks.</p>
+  </div>
+
+  <!-- Nerdio Four Pillars -->
+  <div class="pillars-bar">
+    <div class="pillar">
+      <div class="pillar-icon">&#9881;</div>
+      <h4>Automation</h4>
+      <p>Eliminate manual tasks</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">&#128176;</div>
+      <h4>Cost Optimisation</h4>
+      <p>Reduce Azure spend</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">&#128274;</div>
+      <h4>Security & Compliance</h4>
+      <p>Enterprise-grade controls</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">&#128065;</div>
+      <h4>Visibility</h4>
+      <p>Single pane of glass</p>
+    </div>
+  </div>
+
+  <!-- Competitive Intelligence -->
+  <div class="category">
+    <div class="category-header">
+      <span class="cat-icon">&#9876;</span>
+      <h2>Competitive Intelligence</h2>
+      <span class="category-count">1 tool</span>
+    </div>
+    <div class="card-grid">
+      <a class="enable-card" href="../nerdio-battlecards.html">
+        <div class="card-icon">&#9876;</div>
+        <h3>Competitive Battlecards</h3>
+        <div class="card-desc">
+          Head-to-head competitive comparisons against Citrix, VMware/Omnissa, native Azure, and more. Includes objection handling, trap-setting discovery questions, win stories, and quick-reference talk tracks.
+        </div>
+        <div class="card-footer">
+          <div class="card-tags">
+            <span class="tag-competitive">Competitive</span>
+            <span class="tag-positioning">Talk Tracks</span>
+          </div>
+          <span class="card-arrow">&#8594;</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Microsoft Co-Sell -->
+  <div class="category">
+    <div class="category-header">
+      <span class="cat-icon">&#127759;</span>
+      <h2>Microsoft Co-Sell Positioning</h2>
+      <span class="category-count">1 tool</span>
+    </div>
+    <div class="card-grid">
+      <a class="enable-card" href="../nerdio-microsoft-positioning.html">
+        <div class="card-icon">&#127759;</div>
+        <h3>Microsoft Strategic Positioning</h3>
+        <div class="card-desc">
+          Stakeholder-specific co-sell messaging for Microsoft field teams. Tailored positioning for ATU, STU, CSA, and partner managers. Includes conversation starters, value alignment, and joint opportunity frameworks.
+        </div>
+        <div class="card-footer">
+          <div class="card-tags">
+            <span class="tag-microsoft">Microsoft</span>
+            <span class="tag-positioning">Co-Sell</span>
+          </div>
+          <span class="card-arrow">&#8594;</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Licensing & Technical -->
+  <div class="category">
+    <div class="category-header">
+      <span class="cat-icon">&#128273;</span>
+      <h2>Licensing & Technical</h2>
+      <span class="category-count">1 tool</span>
+    </div>
+    <div class="card-grid">
+      <a class="enable-card" href="../nerdio-licensing-navigator.html">
+        <div class="card-icon">&#128273;</div>
+        <h3>Microsoft Licensing Navigator</h3>
+        <div class="card-desc">
+          M365 bundle comparison tool, AVD vs Windows 365 eligibility checker, and per-user cost modelling. Understand which Microsoft licenses unlock Nerdio capabilities and build licensing-aware proposals.
+        </div>
+        <div class="card-footer">
+          <div class="card-tags">
+            <span class="tag-licensing">Licensing</span>
+            <span class="tag-microsoft">Microsoft</span>
+          </div>
+          <span class="card-arrow">&#8594;</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Creative Outreach -->
+  <div class="category">
+    <div class="category-header">
+      <span class="cat-icon">&#127912;</span>
+      <h2>Creative Outreach & Hooks</h2>
+      <span class="category-count">1 tool</span>
+    </div>
+    <div class="card-grid">
+      <a class="enable-card" href="../nerdio-holiday-positioning.html">
+        <div class="card-icon">&#127912;</div>
+        <h3>Holiday Positioning Engine</h3>
+        <div class="card-desc">
+          Story-driven creative positioning tool that generates holiday and seasonal-themed Nerdio messaging. Stand out in crowded inboxes with creative hooks tied to calendar events and cultural moments.
+        </div>
+        <div class="card-footer">
+          <div class="card-tags">
+            <span class="tag-creative">Creative</span>
+            <span class="tag-positioning">Outreach</span>
+          </div>
+          <span class="card-arrow">&#8594;</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Quick Reference -->
+  <div class="category">
+    <div class="category-header">
+      <span class="cat-icon">&#128161;</span>
+      <h2>Quick Reference</h2>
+    </div>
+    <div class="ref-grid">
+      <div class="ref-card">
+        <h4>Nerdio Elevator Pitch</h4>
+        <p>Nerdio simplifies the deployment, management, and cost optimisation of Microsoft cloud desktops — AVD and Windows 365 — through a unified platform that automates what would otherwise require deep Azure expertise.</p>
+      </div>
+      <div class="ref-card">
+        <h4>Key Differentiators</h4>
+        <p>Auto-scaling (save 40-70% on Azure), unified AVD + W365 management, no infrastructure to maintain, 200+ automations, enterprise security built in.</p>
+      </div>
+      <div class="ref-card">
+        <h4>Ideal Customer Profile</h4>
+        <p>500-10,000 users, Microsoft-invested (M365 E3/E5), running or planning virtual desktops, frustrated with Citrix/VMware costs and complexity.</p>
+      </div>
+      <div class="ref-card">
+        <h4>Common Pain Points</h4>
+        <p>Citrix complexity & cost, Azure spend spiralling, VDI expertise shortage, remote work challenges, security/compliance gaps, poor user experience.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<a class="home-btn" href="index.html" title="Back to Role Selection">&#8962;</a>
+</body>
+</html>

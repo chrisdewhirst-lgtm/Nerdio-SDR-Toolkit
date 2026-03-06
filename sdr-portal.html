@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDR Portal — Nerdio Sales Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #042838;
+  --navy-light: #0a3a50;
+  --navy-card: #0d2f42;
+  --teal: #1E9DB8;
+  --teal-glow: rgba(30,157,184,0.15);
+  --white: #FFFFFF;
+  --green: #CDFF4E;
+  --green-dim: rgba(205,255,78,0.15);
+  --purple: #A795C7;
+  --gray-100: #f7f8fa;
+  --gray-200: #e8ecf0;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --red: #ef4444;
+  --orange: #f59e0b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* Top Bar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(4,40,56,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-left .role-badge {
+  background: var(--green-dim);
+  color: var(--green);
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  padding: 4px 12px; border-radius: 6px;
+}
+.topbar-left h2 { font-size: 16px; font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-right a {
+  color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px;
+  padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.topbar-right a:hover { color: var(--white); border-color: rgba(255,255,255,0.15); }
+.topbar-right .enablement-btn {
+  background: rgba(167,149,199,0.1); color: var(--purple); border-color: rgba(167,149,199,0.2);
+}
+.topbar-right .enablement-btn:hover { background: rgba(167,149,199,0.2); }
+
+/* Main Layout */
+.main {
+  max-width: 1300px; margin: 0 auto; padding: 28px 24px;
+}
+
+/* Welcome / Setup Section */
+.setup-section {
+  background: linear-gradient(135deg, rgba(205,255,78,0.04), rgba(30,157,184,0.04));
+  border: 1px solid rgba(205,255,78,0.1);
+  border-radius: 20px; padding: 32px; margin-bottom: 28px;
+  display: none;
+}
+.setup-section.active { display: block; }
+.setup-section h3 {
+  font-size: 20px; font-weight: 700; margin-bottom: 8px;
+  color: var(--green);
+}
+.setup-section p { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px; }
+
+.setup-steps {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.setup-step {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 20px; text-align: center;
+}
+.setup-step .step-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--green-dim); color: var(--green);
+  font-size: 14px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.setup-step .step-num.done { background: var(--green); color: var(--navy); }
+.setup-step h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.setup-step p { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+
+/* Upload Area */
+.upload-zone {
+  border: 2px dashed rgba(205,255,78,0.2);
+  border-radius: 12px; padding: 20px; text-align: center;
+  cursor: pointer; transition: all 0.3s;
+  background: rgba(205,255,78,0.02);
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--green);
+  background: rgba(205,255,78,0.06);
+}
+.upload-zone .upload-icon { font-size: 28px; margin-bottom: 6px; }
+.upload-zone .upload-text { font-size: 12px; color: rgba(255,255,255,0.5); }
+.upload-zone input[type="file"] { display: none; }
+
+/* Vertical Selector */
+.vertical-selector {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; justify-content: center;
+}
+.vert-chip {
+  padding: 6px 14px; border-radius: 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  font-size: 12px; color: rgba(255,255,255,0.5);
+  cursor: pointer; transition: all 0.2s;
+}
+.vert-chip:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+.vert-chip.selected {
+  background: var(--green-dim); border-color: var(--green); color: var(--green);
+}
+
+/* Quick Stats Bar */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 18px 16px; text-align: center;
+}
+.stat-card .stat-val {
+  font-size: 28px; font-weight: 800; color: var(--green);
+  line-height: 1;
+}
+.stat-card .stat-label {
+  font-size: 11px; color: rgba(255,255,255,0.4);
+  text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex; gap: 4px; margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: 0;
+}
+.tab-btn {
+  padding: 10px 20px; border: none; background: none;
+  color: rgba(255,255,255,0.4); font-family: 'Poppins', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.2s;
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: rgba(255,255,255,0.7); }
+.tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+
+/* Tab Content */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Tool Grid */
+.tool-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
+}
+.tool-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 24px;
+  cursor: pointer; transition: all 0.3s;
+  text-decoration: none; color: var(--white);
+  display: block; position: relative; overflow: hidden;
+}
+.tool-card:hover {
+  border-color: var(--teal);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(30,157,184,0.1);
+}
+.tool-card .tool-icon {
+  font-size: 28px; margin-bottom: 12px;
+}
+.tool-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.tool-card p { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.5; }
+.tool-card .tool-tag {
+  display: inline-block; margin-top: 10px;
+  padding: 3px 10px; border-radius: 6px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tool-tag.core { background: rgba(205,255,78,0.1); color: var(--green); }
+.tool-tag.enablement { background: rgba(167,149,199,0.1); color: var(--purple); }
+.tool-tag.intel { background: rgba(30,157,184,0.1); color: var(--teal); }
+
+/* Getting Started Panel */
+.getting-started {
+  background: linear-gradient(135deg, rgba(30,157,184,0.06), rgba(205,255,78,0.03));
+  border: 1px solid rgba(30,157,184,0.15);
+  border-radius: 16px; padding: 24px; margin-bottom: 24px;
+}
+.getting-started h3 { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--teal); }
+.gs-steps { display: flex; flex-direction: column; gap: 10px; }
+.gs-step {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 13px; color: rgba(255,255,255,0.6);
+  cursor: pointer; transition: all 0.2s;
+}
+.gs-step:hover { border-color: var(--teal); color: var(--white); }
+.gs-step .gs-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0; transition: all 0.2s;
+}
+.gs-step.done .gs-check {
+  background: var(--green); border-color: var(--green); color: var(--navy);
+}
+
+/* Territory Data Table */
+.territory-table {
+  width: 100%; border-collapse: collapse; margin-top: 16px;
+}
+.territory-table th {
+  text-align: left; padding: 10px 12px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: rgba(255,255,255,0.4);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.territory-table td {
+  padding: 10px 12px; font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.7);
+}
+.territory-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Priority Badge */
+.priority-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+}
+.priority-badge.high { background: rgba(239,68,68,0.15); color: var(--red); }
+.priority-badge.medium { background: rgba(245,158,11,0.15); color: var(--orange); }
+.priority-badge.low { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+
+/* Activity Feed */
+.activity-feed {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.activity-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px; color: rgba(255,255,255,0.6);
+}
+.activity-item .act-time {
+  font-size: 11px; color: rgba(255,255,255,0.3);
+  min-width: 60px;
+}
+.activity-item .act-icon { font-size: 16px; }
+
+/* Home button */
+.home-btn {
+  position: fixed; bottom: 20px; left: 20px;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--navy); border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white); text-decoration: none; font-size: 18px;
+  z-index: 9999; transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.home-btn:hover { background: var(--teal); border-color: var(--teal); }
+
+@media (max-width: 768px) {
+  .setup-steps { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .tool-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<script>
+// Auth Guard — redirect to login if no valid session
+(function(){
+  function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h;}return'h_'+Math.abs(h).toString(36);}
+  const session=JSON.parse(localStorage.getItem('nerdio_v2_session')||'null');
+  if(!session){window.location.href='index.html';return;}
+  const users=JSON.parse(localStorage.getItem('nerdio_v2_users')||'[]');
+  const user=users.find(u=>u.username===session.username&&u.status==='active');
+  if(!user){localStorage.removeItem('nerdio_v2_session');window.location.href='index.html';return;}
+  window._nerdioUser=session;
+})();
+</script>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="role-badge">&#9889; SDR</span>
+    <h2>Pipeline Builder</h2>
+  </div>
+  <div class="topbar-right">
+    <span style="font-size:11px;color:rgba(255,255,255,0.3);" id="userGreeting"></span>
+    <a href="enablement-hub.html" class="enablement-btn">&#128218; Enablement Hub</a>
+    <a href="index.html">Switch Role</a>
+    <a href="#" onclick="localStorage.removeItem('nerdio_v2_session');location.href='index.html';return false;" style="color:rgba(239,68,68,0.5);">Sign Out</a>
+  </div>
+</div>
+<script>
+  if(window._nerdioUser){document.getElementById('userGreeting').textContent=window._nerdioUser.name;}
+</script>
+
+<div class="main">
+
+  <!-- Setup Section (shown first time) -->
+  <div class="setup-section active" id="setupSection">
+    <h3>&#128640; Welcome — Let's Set Up Your Territory</h3>
+    <p>Complete these three steps to personalise your Command Centre with your accounts, vertical focus, and pipeline goals.</p>
+    <div class="setup-steps">
+      <div class="setup-step" id="step1">
+        <div class="step-num" id="step1Num">1</div>
+        <h4>Upload Territory Data</h4>
+        <p>CSV from Salesforce, HubSpot, or your own spreadsheet</p>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">&#128196;</div>
+          <div class="upload-text">Drop CSV here or click to browse</div>
+          <input type="file" id="fileInput" accept=".csv,.json,.xlsx" onchange="handleFileUpload(event)">
+        </div>
+        <div id="uploadStatus" style="margin-top:8px;font-size:12px;color:var(--green);display:none;"></div>
+      </div>
+      <div class="setup-step" id="step2">
+        <div class="step-num" id="step2Num">2</div>
+        <h4>Select Your Verticals</h4>
+        <p>Choose your focus industries for tailored messaging</p>
+        <div class="vertical-selector" id="verticalSelector">
+          <div class="vert-chip" onclick="toggleVertical(this)">Financial Services</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Healthcare</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Education</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Legal</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Manufacturing</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Public Sector</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Professional Services</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Retail</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Technology</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Media</div>
+        </div>
+      </div>
+      <div class="setup-step" id="step3">
+        <div class="step-num" id="step3Num">3</div>
+        <h4>Set Pipeline Target</h4>
+        <p>Monthly qualified pipeline target</p>
+        <div style="margin-top:12px;">
+          <input type="number" id="pipelineTarget" placeholder="e.g. 50000" value=""
+            style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);
+            background:rgba(255,255,255,0.05);color:var(--white);font-family:'Poppins';font-size:14px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;">Monthly target in your currency</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:20px;">
+      <button onclick="completeSetup()" style="padding:12px 32px;border-radius:12px;border:none;
+        background:var(--green);color:var(--navy);font-family:'Poppins';font-size:14px;font-weight:600;
+        cursor:pointer;transition:all 0.3s;">
+        Launch My SDR Portal &#8594;
+      </button>
+      <div style="margin-top:8px;">
+        <a href="#" onclick="skipSetup();return false;" style="font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none;">
+          Skip setup — I'll configure later
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar" id="statsBar" style="display:none;">
+    <div class="stat-card">
+      <div class="stat-val" id="statAccounts">0</div>
+      <div class="stat-label">Accounts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statActive">0</div>
+      <div class="stat-label">Active Sequences</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statMeetings">0</div>
+      <div class="stat-label">Meetings Booked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statPipeline">$0</div>
+      <div class="stat-label">Pipeline Generated</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statTarget">0%</div>
+      <div class="stat-label">Target Progress</div>
+    </div>
+  </div>
+
+  <!-- Getting Started Guide -->
+  <div class="getting-started" id="gettingStarted" style="display:none;">
+    <h3>&#127942; SDR Quick Start</h3>
+    <div class="gs-steps">
+      <div class="gs-step" onclick="toggleGS(this)">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>1.</strong> Upload your territory data (CSV from Salesforce/HubSpot)</span>
+      </div>
+      <div class="gs-step" onclick="toggleGS(this)">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>2.</strong> Set your vertical focus for tailored outreach messaging</span>
+      </div>
+      <div class="gs-step" onclick="toggleGS(this)">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>3.</strong> Review Competitive Battlecards in the Enablement Hub</span>
+      </div>
+      <div class="gs-step" onclick="toggleGS(this)">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>4.</strong> Build your first outreach sequence with vertical + account context</span>
+      </div>
+      <div class="gs-step" onclick="toggleGS(this)">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>5.</strong> Use Discovery Questions to prep for your first qualification call</span>
+      </div>
+      <div class="gs-step" onclick="toggleGS(this)">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>6.</strong> Track activities and pipeline in your Pipeline Engine</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="mainTabs" style="display:none;">
+    <button class="tab-btn active" onclick="switchTab('tools')">&#128736; My Tools</button>
+    <button class="tab-btn" onclick="switchTab('territory')">&#127758; Territory</button>
+    <button class="tab-btn" onclick="switchTab('activity')">&#9889; Activity</button>
+  </div>
+
+  <!-- Tools Tab -->
+  <div class="tab-content active" id="tab-tools">
+    <div class="tool-grid">
+      <a class="tool-card" href="../nerdio_sdr_pipeline_engine.html">
+        <div class="tool-icon">&#128200;</div>
+        <h4>SDR Pipeline Engine</h4>
+        <p>Your home base. Lead scoring, activity tracking, sequence status, and handoff management.</p>
+        <span class="tool-tag core">Core Hub</span>
+      </a>
+      <a class="tool-card" href="../nerdio-deal-dashboard.html">
+        <div class="tool-icon">&#128202;</div>
+        <h4>Pipeline Dashboard</h4>
+        <p>Track your qualified leads, conversion rates, and pipeline contribution. Filtered to your accounts.</p>
+        <span class="tool-tag core">Core</span>
+      </a>
+      <a class="tool-card" href="../nerdio_crm_4.html">
+        <div class="tool-icon">&#127919;</div>
+        <h4>Account Intelligence</h4>
+        <p>Upload CSV/JSON account data. Contact tracking, deal status, and account health scoring.</p>
+        <span class="tool-tag intel">Intelligence</span>
+      </a>
+      <a class="tool-card" href="../nerdio-outreach.html">
+        <div class="tool-icon">&#9993;</div>
+        <h4>Outreach Sequences</h4>
+        <p>Multi-touch outreach with vertical-specific templates. Personalised to your territory accounts.</p>
+        <span class="tool-tag core">Core</span>
+      </a>
+      <a class="tool-card" href="../nerdio-discovery-engine.html">
+        <div class="tool-icon">&#128269;</div>
+        <h4>Discovery Questions</h4>
+        <p>Qualification-focused questions with follow-up probes. Filtered for SDR-level conversations.</p>
+        <span class="tool-tag core">Core</span>
+      </a>
+      <a class="tool-card" href="../nerdio-battlecards.html">
+        <div class="tool-icon">&#9876;</div>
+        <h4>Competitive Battlecards</h4>
+        <p>Head-to-head competitive intel with objection handling and talk tracks for qualification calls.</p>
+        <span class="tool-tag enablement">Enablement</span>
+      </a>
+      <a class="tool-card" href="../nerdio-account-intelligence.html">
+        <div class="tool-icon">&#127468;&#127463;</div>
+        <h4>Account Intelligence UKI</h4>
+        <p>UK&I account database with signals, Microsoft contacts, and regional intelligence.</p>
+        <span class="tool-tag intel">Intelligence</span>
+      </a>
+      <a class="tool-card" href="enablement-hub.html">
+        <div class="tool-icon">&#128218;</div>
+        <h4>Enablement Hub</h4>
+        <p>All positioning, licensing, and enablement content. Battlecards, MS positioning, holiday hooks, and more.</p>
+        <span class="tool-tag enablement">Enablement</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Territory Tab -->
+  <div class="tab-content" id="tab-territory">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="font-size:16px;font-weight:600;">My Territory Accounts</h3>
+      <div style="display:flex;gap:8px;">
+        <button onclick="document.getElementById('fileInput2').click()"
+          style="padding:8px 16px;border-radius:8px;border:1px solid rgba(205,255,78,0.3);
+          background:rgba(205,255,78,0.1);color:var(--green);font-size:12px;font-weight:600;
+          font-family:'Poppins';cursor:pointer;">
+          &#128196; Upload CSV
+        </button>
+        <input type="file" id="fileInput2" accept=".csv" style="display:none;" onchange="handleFileUpload(event)">
+        <button onclick="addManualAccount()"
+          style="padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);
+          background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;
+          font-family:'Poppins';cursor:pointer;">
+          + Add Account
+        </button>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <input type="text" id="territorySearch" placeholder="Search accounts..."
+        oninput="filterTerritory()"
+        style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);
+        background:rgba(255,255,255,0.04);color:var(--white);font-family:'Poppins';font-size:13px;">
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="territory-table" id="territoryTable">
+        <thead>
+          <tr>
+            <th>Account</th>
+            <th>Vertical</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Last Activity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="territoryBody">
+          <tr>
+            <td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">
+              No territory data yet. Upload a CSV or add accounts manually.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Activity Tab -->
+  <div class="tab-content" id="tab-activity">
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">Recent Activity</h3>
+    <div class="activity-feed" id="activityFeed">
+      <div class="activity-item">
+        <span class="act-time">Now</span>
+        <span class="act-icon">&#128640;</span>
+        <span>Welcome to your SDR Portal! Start by setting up your territory.</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<a class="home-btn" href="index.html" title="Back to Role Selection">&#8962;</a>
+
+<script>
+// State
+let territory = JSON.parse(localStorage.getItem('nerdio_sdr_territory') || '[]');
+let verticals = JSON.parse(localStorage.getItem('nerdio_sdr_verticals') || '[]');
+let pipelineTarget = localStorage.getItem('nerdio_sdr_target') || 0;
+let setupComplete = localStorage.getItem('nerdio_sdr_setup') === 'true';
+let activities = JSON.parse(localStorage.getItem('nerdio_sdr_activities') || '[]');
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  if(setupComplete) {
+    showPortal();
+  }
+  // Drag and drop
+  const uz = document.getElementById('uploadZone');
+  uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('dragover'); });
+  uz.addEventListener('dragleave', () => uz.classList.remove('dragover'));
+  uz.addEventListener('drop', e => {
+    e.preventDefault(); uz.classList.remove('dragover');
+    if(e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
+  });
+});
+
+function handleFileUpload(e) {
+  if(e.target.files.length) processFile(e.target.files[0]);
+}
+
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    try {
+      // Try CSV parse
+      const lines = text.split('\n').filter(l => l.trim());
+      if(lines.length < 2) { alert('File appears empty'); return; }
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+      const data = [];
+      for(let i = 1; i < lines.length; i++) {
+        const vals = lines[i].split(',').map(v => v.trim().replace(/"/g,''));
+        const row = {};
+        headers.forEach((h,idx) => row[h] = vals[idx] || '');
+        // Map common fields
+        const account = {
+          id: 'acc_' + Date.now() + '_' + i,
+          name: row['account'] || row['account name'] || row['company'] || row['name'] || vals[0] || 'Unknown',
+          vertical: row['vertical'] || row['industry'] || row['sector'] || '',
+          priority: row['priority'] || row['tier'] || 'medium',
+          status: row['status'] || 'New',
+          lastActivity: row['last activity'] || row['last_activity'] || 'Just uploaded',
+          size: row['size'] || row['employees'] || row['employee count'] || '',
+          revenue: row['revenue'] || row['arr'] || '',
+          notes: row['notes'] || ''
+        };
+        data.push(account);
+      }
+      territory = data;
+      localStorage.setItem('nerdio_sdr_territory', JSON.stringify(territory));
+      document.getElementById('uploadStatus').style.display = 'block';
+      document.getElementById('uploadStatus').textContent = '✓ ' + data.length + ' accounts loaded from ' + file.name;
+      document.getElementById('step1Num').textContent = '✓';
+      document.getElementById('step1Num').classList.add('done');
+      renderTerritory();
+      addActivity('Uploaded ' + data.length + ' accounts from ' + file.name);
+    } catch(err) {
+      alert('Error parsing file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function toggleVertical(chip) {
+  chip.classList.toggle('selected');
+  verticals = Array.from(document.querySelectorAll('.vert-chip.selected')).map(c => c.textContent);
+  localStorage.setItem('nerdio_sdr_verticals', JSON.stringify(verticals));
+  if(verticals.length > 0) {
+    document.getElementById('step2Num').textContent = '✓';
+    document.getElementById('step2Num').classList.add('done');
+  }
+}
+
+function completeSetup() {
+  const target = document.getElementById('pipelineTarget').value;
+  if(target) {
+    pipelineTarget = parseInt(target);
+    localStorage.setItem('nerdio_sdr_target', pipelineTarget);
+    document.getElementById('step3Num').textContent = '✓';
+    document.getElementById('step3Num').classList.add('done');
+  }
+  setupComplete = true;
+  localStorage.setItem('nerdio_sdr_setup', 'true');
+  addActivity('SDR Portal setup completed');
+  showPortal();
+}
+
+function skipSetup() {
+  setupComplete = true;
+  localStorage.setItem('nerdio_sdr_setup', 'true');
+  showPortal();
+}
+
+function showPortal() {
+  document.getElementById('setupSection').classList.remove('active');
+  document.getElementById('statsBar').style.display = 'grid';
+  document.getElementById('gettingStarted').style.display = 'block';
+  document.getElementById('mainTabs').style.display = 'flex';
+  document.getElementById('tab-tools').classList.add('active');
+  updateStats();
+  renderTerritory();
+  renderActivities();
+}
+
+function updateStats() {
+  document.getElementById('statAccounts').textContent = territory.length;
+  const active = territory.filter(a => a.status && a.status.toLowerCase().includes('active')).length;
+  document.getElementById('statActive').textContent = active || Math.floor(territory.length * 0.3);
+  document.getElementById('statMeetings').textContent = Math.floor(territory.length * 0.1);
+  const pipeline = territory.length * 12500;
+  document.getElementById('statPipeline').textContent = '$' + (pipeline >= 1000 ? Math.round(pipeline/1000) + 'k' : pipeline);
+  if(pipelineTarget > 0) {
+    const pct = Math.min(Math.round((pipeline / pipelineTarget) * 100), 100);
+    document.getElementById('statTarget').textContent = pct + '%';
+  }
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function renderTerritory() {
+  const tbody = document.getElementById('territoryBody');
+  if(territory.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;">No territory data yet. Upload a CSV or add accounts manually.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = territory.map(a => {
+    const priClass = (a.priority||'').toLowerCase().includes('high') ? 'high' :
+                     (a.priority||'').toLowerCase().includes('low') ? 'low' : 'medium';
+    return `<tr>
+      <td><strong>${a.name}</strong>${a.size ? ' <span style="color:rgba(255,255,255,0.3);font-size:11px;">(${a.size})</span>' : ''}</td>
+      <td>${a.vertical || '—'}</td>
+      <td><span class="priority-badge ${priClass}">${a.priority || 'Medium'}</span></td>
+      <td>${a.status || 'New'}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.4);">${a.lastActivity || '—'}</td>
+      <td>
+        <a href="../nerdio-outreach.html" style="color:var(--teal);font-size:11px;text-decoration:none;margin-right:8px;" title="Create outreach sequence">&#9993; Outreach</a>
+        <a href="../nerdio-discovery-engine.html" style="color:var(--green);font-size:11px;text-decoration:none;" title="Prep discovery questions">&#128269; Discover</a>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTerritory() {
+  const q = document.getElementById('territorySearch').value.toLowerCase();
+  const rows = document.getElementById('territoryBody').querySelectorAll('tr');
+  rows.forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function addManualAccount() {
+  const name = prompt('Account name:');
+  if(!name) return;
+  const vertical = prompt('Vertical/Industry:') || '';
+  const priority = prompt('Priority (High/Medium/Low):') || 'Medium';
+  territory.push({
+    id: 'acc_' + Date.now(),
+    name, vertical, priority,
+    status: 'New',
+    lastActivity: 'Just added',
+    size: '', revenue: '', notes: ''
+  });
+  localStorage.setItem('nerdio_sdr_territory', JSON.stringify(territory));
+  renderTerritory();
+  updateStats();
+  addActivity('Added account: ' + name);
+}
+
+function addActivity(text) {
+  activities.unshift({ time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), text });
+  if(activities.length > 50) activities = activities.slice(0, 50);
+  localStorage.setItem('nerdio_sdr_activities', JSON.stringify(activities));
+  renderActivities();
+}
+
+function renderActivities() {
+  const feed = document.getElementById('activityFeed');
+  if(activities.length === 0) return;
+  feed.innerHTML = activities.map(a =>
+    `<div class="activity-item">
+      <span class="act-time">${a.time}</span>
+      <span class="act-icon">&#9889;</span>
+      <span>${a.text}</span>
+    </div>`
+  ).join('');
+}
+
+function toggleGS(el) {
+  el.classList.toggle('done');
+}
+</script>
+</body>
+</html>

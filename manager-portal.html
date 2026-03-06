@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manager Portal — Nerdio Sales Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #042838;
+  --navy-light: #0a3a50;
+  --teal: #1E9DB8;
+  --white: #FFFFFF;
+  --green: #CDFF4E;
+  --purple: #A795C7;
+  --purple-dim: rgba(167,149,199,0.15);
+  --gray-500: #6b7280;
+  --red: #ef4444;
+  --orange: #f59e0b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(4,40,56,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-left .role-badge {
+  background: var(--purple-dim);
+  color: var(--purple);
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  padding: 4px 12px; border-radius: 6px;
+}
+.topbar-left h2 { font-size: 16px; font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-right a {
+  color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px;
+  padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.topbar-right a:hover { color: var(--white); border-color: rgba(255,255,255,0.15); }
+.topbar-right .enablement-btn {
+  background: rgba(167,149,199,0.1); color: var(--purple); border-color: rgba(167,149,199,0.2);
+}
+
+.main { max-width: 1300px; margin: 0 auto; padding: 28px 24px; }
+
+/* Stats Bar */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 28px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 18px 14px; text-align: center;
+}
+.stat-card .stat-val { font-size: 24px; font-weight: 800; line-height: 1; }
+.stat-card .stat-label { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+.stat-val.green { color: var(--green); }
+.stat-val.teal { color: var(--teal); }
+.stat-val.purple { color: var(--purple); }
+.stat-val.orange { color: var(--orange); }
+.stat-val.red { color: var(--red); }
+
+/* Tabs */
+.tabs {
+  display: flex; gap: 4px; margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.tab-btn {
+  padding: 10px 20px; border: none; background: none;
+  color: rgba(255,255,255,0.4); font-family: 'Poppins', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.2s;
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: rgba(255,255,255,0.7); }
+.tab-btn.active { color: var(--purple); border-bottom-color: var(--purple); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Three Column Layout */
+.tri-layout {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+}
+
+/* Section */
+.section-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.section-header h3 { font-size: 15px; font-weight: 600; }
+.section-badge {
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 6px;
+}
+
+/* Tool Cards */
+.tool-grid { display: flex; flex-direction: column; gap: 10px; }
+.tool-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 18px;
+  cursor: pointer; transition: all 0.3s;
+  text-decoration: none; color: var(--white);
+  display: block;
+}
+.tool-card:hover {
+  border-color: var(--purple);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(167,149,199,0.08);
+}
+.tool-card .tool-head {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+}
+.tool-card .tool-icon { font-size: 20px; }
+.tool-card h4 { font-size: 13px; font-weight: 600; }
+.tool-card p { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+.tool-tag {
+  display: inline-block; margin-top: 8px;
+  padding: 2px 8px; border-radius: 5px;
+  font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tag-oversight { background: rgba(167,149,199,0.1); color: var(--purple); }
+.tag-coaching { background: rgba(30,157,184,0.1); color: var(--teal); }
+.tag-intel { background: rgba(205,255,78,0.1); color: var(--green); }
+
+/* Team Pipeline Table */
+.pipeline-table {
+  width: 100%; border-collapse: collapse;
+}
+.pipeline-table th {
+  text-align: left; padding: 10px 12px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: rgba(255,255,255,0.4);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.pipeline-table td {
+  padding: 12px; font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.7);
+}
+.pipeline-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.health-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px;
+}
+.health-dot.green { background: var(--green); }
+.health-dot.orange { background: var(--orange); }
+.health-dot.red { background: var(--red); }
+
+/* Report Card */
+.report-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 20px; margin-bottom: 12px;
+}
+.report-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.report-metric {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 12px;
+}
+.report-metric:last-child { border-bottom: none; }
+.report-metric .metric-label { color: rgba(255,255,255,0.5); }
+.report-metric .metric-val { font-weight: 600; }
+
+/* Export Button */
+.export-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px;
+  border: 1px solid rgba(167,149,199,0.3);
+  background: rgba(167,149,199,0.1);
+  color: var(--purple); font-size: 12px; font-weight: 600;
+  font-family: 'Poppins'; cursor: pointer; transition: all 0.2s;
+}
+.export-btn:hover { background: rgba(167,149,199,0.2); }
+
+/* Home button */
+.home-btn {
+  position: fixed; bottom: 20px; left: 20px;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--navy); border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white); text-decoration: none; font-size: 18px;
+  z-index: 9999; transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.home-btn:hover { background: var(--purple); border-color: var(--purple); }
+
+@media (max-width: 900px) {
+  .tri-layout { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+<script>
+// Auth Guard — redirect to login if no valid session
+(function(){
+  function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h;}return'h_'+Math.abs(h).toString(36);}
+  const session=JSON.parse(localStorage.getItem('nerdio_v2_session')||'null');
+  if(!session){window.location.href='index.html';return;}
+  const users=JSON.parse(localStorage.getItem('nerdio_v2_users')||'[]');
+  const user=users.find(u=>u.username===session.username&&u.status==='active');
+  if(!user){localStorage.removeItem('nerdio_v2_session');window.location.href='index.html';return;}
+  window._nerdioUser=session;
+})();
+</script>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="role-badge">&#128202; MGR</span>
+    <h2>Team Leader</h2>
+  </div>
+  <div class="topbar-right">
+    <span style="font-size:11px;color:rgba(255,255,255,0.3);" id="userGreeting"></span>
+    <a href="enablement-hub.html" class="enablement-btn">&#128218; Enablement Hub</a>
+    <a href="index.html">Switch Role</a>
+    <a href="#" onclick="localStorage.removeItem('nerdio_v2_session');location.href='index.html';return false;" style="color:rgba(239,68,68,0.5);">Sign Out</a>
+  </div>
+</div>
+<script>
+  if(window._nerdioUser){document.getElementById('userGreeting').textContent=window._nerdioUser.name;}
+</script>
+
+<div class="main">
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-val purple" id="statTeamSize">5</div>
+      <div class="stat-label">Team Size</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val teal" id="statDeals">24</div>
+      <div class="stat-label">Active Deals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val green" id="statPipeline">$1.2M</div>
+      <div class="stat-label">Total Pipeline</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val teal" id="statForecast">$480k</div>
+      <div class="stat-label">Forecast</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val orange" id="statAtRisk">3</div>
+      <div class="stat-label">Deals at Risk</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val green" id="statTarget">78%</div>
+      <div class="stat-label">Target Progress</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('overview')">&#128202; Overview</button>
+    <button class="tab-btn" onclick="switchTab('coaching')">&#127891; Coaching</button>
+    <button class="tab-btn" onclick="switchTab('tools')">&#128736; Tools</button>
+    <button class="tab-btn" onclick="switchTab('reports')">&#128203; Reports</button>
+  </div>
+
+  <!-- Overview Tab -->
+  <div class="tab-content active" id="tab-overview">
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">Team Pipeline Overview</h3>
+    <div style="overflow-x:auto;margin-bottom:24px;">
+      <table class="pipeline-table">
+        <thead>
+          <tr>
+            <th>Rep</th>
+            <th>Role</th>
+            <th>Active Deals</th>
+            <th>Pipeline</th>
+            <th>Target %</th>
+            <th>Health</th>
+            <th>Next Action</th>
+          </tr>
+        </thead>
+        <tbody id="pipelineBody">
+          <tr>
+            <td><strong>Sarah Chen</strong></td>
+            <td>AE</td>
+            <td>6</td>
+            <td>$340k</td>
+            <td>92%</td>
+            <td><span class="health-dot green"></span>On Track</td>
+            <td style="font-size:11px;color:rgba(255,255,255,0.4);">ROI review for Acme Corp</td>
+          </tr>
+          <tr>
+            <td><strong>James Okafor</strong></td>
+            <td>AE</td>
+            <td>5</td>
+            <td>$280k</td>
+            <td>74%</td>
+            <td><span class="health-dot orange"></span>Needs Attention</td>
+            <td style="font-size:11px;color:rgba(255,255,255,0.4);">Stalled deal at TechVenture</td>
+          </tr>
+          <tr>
+            <td><strong>Priya Patel</strong></td>
+            <td>AE</td>
+            <td>4</td>
+            <td>$195k</td>
+            <td>58%</td>
+            <td><span class="health-dot red"></span>At Risk</td>
+            <td style="font-size:11px;color:rgba(255,255,255,0.4);">Missing discovery depth</td>
+          </tr>
+          <tr>
+            <td><strong>Tom Willis</strong></td>
+            <td>SDR</td>
+            <td>—</td>
+            <td>$180k gen.</td>
+            <td>110%</td>
+            <td><span class="health-dot green"></span>Exceeding</td>
+            <td style="font-size:11px;color:rgba(255,255,255,0.4);">15 meetings booked this month</td>
+          </tr>
+          <tr>
+            <td><strong>Emma Rodriguez</strong></td>
+            <td>SDR</td>
+            <td>—</td>
+            <td>$85k gen.</td>
+            <td>52%</td>
+            <td><span class="health-dot orange"></span>Below Target</td>
+            <td style="font-size:11px;color:rgba(255,255,255,0.4);">Outreach sequence review needed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Deal Timeline Portfolio View -->
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">Deals Closing This Quarter</h3>
+    <div id="dealTimeline" style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);min-width:80px;">Mar 15</div>
+        <div style="flex:1;">
+          <strong style="font-size:13px;">Acme Corp — Nerdio Enterprise</strong>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);">Sarah Chen &middot; $85k &middot; POC Complete</div>
+        </div>
+        <span style="padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;background:rgba(205,255,78,0.1);color:var(--green);">90%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);min-width:80px;">Mar 28</div>
+        <div style="flex:1;">
+          <strong style="font-size:13px;">Global Finance Ltd — AVD Migration</strong>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);">James Okafor &middot; $120k &middot; Negotiation</div>
+        </div>
+        <span style="padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;background:rgba(245,158,11,0.1);color:var(--orange);">60%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);min-width:80px;">Apr 10</div>
+        <div style="flex:1;">
+          <strong style="font-size:13px;">TechVenture Inc — W365 + Nerdio</strong>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);">James Okafor &middot; $65k &middot; Stalled</div>
+        </div>
+        <span style="padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;background:rgba(239,68,68,0.1);color:var(--red);">30%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);min-width:80px;">Apr 22</div>
+        <div style="flex:1;">
+          <strong style="font-size:13px;">MedHealth Group — Desktop Modernisation</strong>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);">Priya Patel &middot; $95k &middot; Discovery</div>
+        </div>
+        <span style="padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;background:rgba(245,158,11,0.1);color:var(--orange);">45%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coaching Tab -->
+  <div class="tab-content" id="tab-coaching">
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">Coaching & Review Tools</h3>
+    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px;">
+      Review your team's discovery whiteboards, deal timelines, ROI business cases, and journey assessments.
+    </p>
+    <div class="tri-layout">
+      <div>
+        <div class="section-header">
+          <h3>&#128203; Discovery Review</h3>
+        </div>
+        <div class="tool-grid">
+          <a class="tool-card" href="../nerdio-whiteboard.html">
+            <div class="tool-head"><span class="tool-icon">&#128203;</span><h4>Estate Whiteboards</h4></div>
+            <p>Review shared estate discovery whiteboards from your AEs. Check "Show Me Value" recommendations.</p>
+            <span class="tool-tag tag-coaching">Coaching</span>
+          </a>
+          <a class="tool-card" href="../nerdio-whiteboard-users.html">
+            <div class="tool-head"><span class="tool-icon">&#128101;</span><h4>User & Ops Whiteboards</h4></div>
+            <p>Review user mapping and operational discovery quality. Ensure AEs are capturing the full picture.</p>
+            <span class="tool-tag tag-coaching">Coaching</span>
+          </a>
+          <a class="tool-card" href="../nerdio-discovery-engine.html">
+            <div class="tool-head"><span class="tool-icon">&#128269;</span><h4>Discovery Questions</h4></div>
+            <p>Reference the question library to coach reps on what they should be asking.</p>
+            <span class="tool-tag tag-coaching">Coaching</span>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div class="section-header">
+          <h3>&#128200; Deal Review</h3>
+        </div>
+        <div class="tool-grid">
+          <a class="tool-card" href="../nerdio-reverse-timeline.html">
+            <div class="tool-head"><span class="tool-icon">&#9203;</span><h4>Deal Timelines</h4></div>
+            <p>Portfolio view of all deal timelines. Drill into individual deals to review milestones and risk.</p>
+            <span class="tool-tag tag-oversight">Oversight</span>
+          </a>
+          <a class="tool-card" href="../nerdio-roi-calculator.html">
+            <div class="tool-head"><span class="tool-icon">&#128176;</span><h4>ROI Calculator</h4></div>
+            <p>Validate AE business cases. Review assumptions, check maths, and ensure credible ROI stories.</p>
+            <span class="tool-tag tag-oversight">Oversight</span>
+          </a>
+          <a class="tool-card" href="../nerdio-journeys.html">
+            <div class="tool-head"><span class="tool-icon">&#128508;</span><h4>Journey & Maturity</h4></div>
+            <p>Review how AEs have mapped accounts to journey stages. Coach on maturity assessment accuracy.</p>
+            <span class="tool-tag tag-coaching">Coaching</span>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div class="section-header">
+          <h3>&#127758; Intelligence</h3>
+        </div>
+        <div class="tool-grid">
+          <a class="tool-card" href="../nerdio-account-intelligence.html">
+            <div class="tool-head"><span class="tool-icon">&#127468;&#127463;</span><h4>Account Intel UKI</h4></div>
+            <p>Territory intelligence for UK&I accounts. Signals, contacts, and regional context.</p>
+            <span class="tool-tag tag-intel">Intelligence</span>
+          </a>
+          <a class="tool-card" href="../nerdio-deal-dashboard.html">
+            <div class="tool-head"><span class="tool-icon">&#128202;</span><h4>Full Pipeline View</h4></div>
+            <p>Complete team pipeline dashboard. All deals across all AEs with stage analysis.</p>
+            <span class="tool-tag tag-oversight">Oversight</span>
+          </a>
+          <a class="tool-card" href="enablement-hub.html">
+            <div class="tool-head"><span class="tool-icon">&#128218;</span><h4>Enablement Hub</h4></div>
+            <p>All positioning and enablement content. Use for coaching sessions and team training.</p>
+            <span class="tool-tag tag-coaching">Coaching</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tools Tab -->
+  <div class="tab-content" id="tab-tools">
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">All Manager Tools</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+      <a class="tool-card" href="../nerdio-deal-dashboard.html">
+        <div class="tool-head"><span class="tool-icon">&#128202;</span><h4>Pipeline Dashboard</h4></div>
+        <p>Full team pipeline view with deal stages, values, and forecasting.</p>
+        <span class="tool-tag tag-oversight">Oversight</span>
+      </a>
+      <a class="tool-card" href="../nerdio-reverse-timeline.html">
+        <div class="tool-head"><span class="tool-icon">&#9203;</span><h4>Deal Reverse Timeline</h4></div>
+        <p>Portfolio view of all deal timelines plus drill-down to individual deals.</p>
+        <span class="tool-tag tag-oversight">Oversight</span>
+      </a>
+      <a class="tool-card" href="../nerdio-journeys.html">
+        <div class="tool-head"><span class="tool-icon">&#128508;</span><h4>Journey Map & Maturity</h4></div>
+        <p>Review account journey mapping and maturity assessments across your team.</p>
+        <span class="tool-tag tag-coaching">Coaching</span>
+      </a>
+      <a class="tool-card" href="../nerdio-roi-calculator.html">
+        <div class="tool-head"><span class="tool-icon">&#128176;</span><h4>ROI Calculator</h4></div>
+        <p>Review and validate business cases built by your AEs.</p>
+        <span class="tool-tag tag-oversight">Oversight</span>
+      </a>
+      <a class="tool-card" href="../nerdio-whiteboard.html">
+        <div class="tool-head"><span class="tool-icon">&#128203;</span><h4>Estate Whiteboard</h4></div>
+        <p>Review shared estate discovery whiteboards from AE meetings.</p>
+        <span class="tool-tag tag-coaching">Coaching</span>
+      </a>
+      <a class="tool-card" href="../nerdio-whiteboard-users.html">
+        <div class="tool-head"><span class="tool-icon">&#128101;</span><h4>User & Ops Whiteboard</h4></div>
+        <p>Review shared user mapping and operational discovery from AE meetings.</p>
+        <span class="tool-tag tag-coaching">Coaching</span>
+      </a>
+      <a class="tool-card" href="../nerdio-account-intelligence.html">
+        <div class="tool-head"><span class="tool-icon">&#127468;&#127463;</span><h4>Account Intelligence UKI</h4></div>
+        <p>Territory intelligence for planning and allocation.</p>
+        <span class="tool-tag tag-intel">Intelligence</span>
+      </a>
+      <a class="tool-card" href="enablement-hub.html">
+        <div class="tool-head"><span class="tool-icon">&#128218;</span><h4>Enablement Hub</h4></div>
+        <p>All positioning, competitive, and licensing content for team coaching.</p>
+        <span class="tool-tag tag-coaching">Coaching</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Reports Tab -->
+  <div class="tab-content" id="tab-reports">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 style="font-size:16px;font-weight:600;">Team Reports</h3>
+      <button class="export-btn" onclick="exportReport()">&#128196; Export Summary</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
+      <div class="report-card">
+        <h4 style="color:var(--teal);">&#128200; Pipeline Summary</h4>
+        <div class="report-metric"><span class="metric-label">Total Pipeline Value</span><span class="metric-val" style="color:var(--green);">$1,200,000</span></div>
+        <div class="report-metric"><span class="metric-label">Weighted Forecast</span><span class="metric-val" style="color:var(--teal);">$480,000</span></div>
+        <div class="report-metric"><span class="metric-label">Deals in Pipeline</span><span class="metric-val">24</span></div>
+        <div class="report-metric"><span class="metric-label">Average Deal Size</span><span class="metric-val">$50,000</span></div>
+        <div class="report-metric"><span class="metric-label">Average Sales Cycle</span><span class="metric-val">87 days</span></div>
+        <div class="report-metric"><span class="metric-label">Win Rate (QTD)</span><span class="metric-val" style="color:var(--green);">32%</span></div>
+      </div>
+      <div class="report-card">
+        <h4 style="color:var(--purple);">&#128101; Team Performance</h4>
+        <div class="report-metric"><span class="metric-label">Reps On Track</span><span class="metric-val" style="color:var(--green);">2 / 5</span></div>
+        <div class="report-metric"><span class="metric-label">Reps Needs Attention</span><span class="metric-val" style="color:var(--orange);">2 / 5</span></div>
+        <div class="report-metric"><span class="metric-label">Reps At Risk</span><span class="metric-val" style="color:var(--red);">1 / 5</span></div>
+        <div class="report-metric"><span class="metric-label">Meetings Booked (Team)</span><span class="metric-val">42</span></div>
+        <div class="report-metric"><span class="metric-label">Discovery Sessions</span><span class="metric-val">18</span></div>
+        <div class="report-metric"><span class="metric-label">ROI Business Cases</span><span class="metric-val">7</span></div>
+      </div>
+      <div class="report-card">
+        <h4 style="color:var(--green);">&#127919; Deal Health</h4>
+        <div class="report-metric"><span class="metric-label">Deals Closing This Month</span><span class="metric-val">3</span></div>
+        <div class="report-metric"><span class="metric-label">Deals Stalled (>30 days)</span><span class="metric-val" style="color:var(--red);">4</span></div>
+        <div class="report-metric"><span class="metric-label">Deals Slipping</span><span class="metric-val" style="color:var(--orange);">2</span></div>
+        <div class="report-metric"><span class="metric-label">New Deals This Month</span><span class="metric-val" style="color:var(--teal);">6</span></div>
+        <div class="report-metric"><span class="metric-label">Competitive Deals</span><span class="metric-val">8</span></div>
+        <div class="report-metric"><span class="metric-label">Top Competitor</span><span class="metric-val">Citrix</span></div>
+      </div>
+      <div class="report-card">
+        <h4 style="color:var(--orange);">&#128640; SDR Metrics</h4>
+        <div class="report-metric"><span class="metric-label">Pipeline Generated (Team)</span><span class="metric-val" style="color:var(--green);">$265,000</span></div>
+        <div class="report-metric"><span class="metric-label">Meetings Booked (SDRs)</span><span class="metric-val">24</span></div>
+        <div class="report-metric"><span class="metric-label">Outreach Sequences Active</span><span class="metric-val">12</span></div>
+        <div class="report-metric"><span class="metric-label">Avg Response Rate</span><span class="metric-val">4.2%</span></div>
+        <div class="report-metric"><span class="metric-label">Top Performing Vertical</span><span class="metric-val">Financial Svcs</span></div>
+        <div class="report-metric"><span class="metric-label">Handoff Quality Score</span><span class="metric-val" style="color:var(--teal);">8.1/10</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<a class="home-btn" href="index.html" title="Back to Role Selection">&#8962;</a>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function exportReport() {
+  // Generate a simple text report
+  const reportData = `NERDIO SALES COMMAND CENTRE — MANAGER REPORT
+Generated: ${new Date().toLocaleDateString()}
+${'='.repeat(50)}
+
+PIPELINE SUMMARY
+Total Pipeline: $1,200,000
+Weighted Forecast: $480,000
+Active Deals: 24
+Avg Deal Size: $50,000
+Win Rate (QTD): 32%
+
+TEAM PERFORMANCE
+On Track: 2/5 reps
+Needs Attention: 2/5 reps
+At Risk: 1/5 reps
+Meetings Booked: 42
+Discovery Sessions: 18
+
+DEAL HEALTH
+Closing This Month: 3
+Stalled: 4
+Slipping: 2
+New This Month: 6
+`;
+  const blob = new Blob([reportData], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'nerdio-manager-report-'+new Date().toISOString().slice(0,10)+'.txt';
+  a.click();
+}
+</script>
+</body>
+</html>

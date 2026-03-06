@@ -3,357 +3,467 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nerdio Sales Command Centre</title>
+<title>Nerdio Sales Command Centre v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --navy:#042838;--navy-light:#0a3a50;--navy-mid:#0d2f42;
-  --teal:#1E9DB8;--white:#FFFFFF;--green:#CDFF4E;--purple:#A795C7;
-  --gray-50:#f5f8fa;--gray-100:#eaf0f4;--gray-200:#dce4ea;--gray-300:#b8c7d1;--gray-500:#6b8294;
+:root {
+  --navy: #042838;
+  --navy-light: #0a3a50;
+  --teal: #1E9DB8;
+  --teal-glow: rgba(30,157,184,0.15);
+  --white: #FFFFFF;
+  --green: #CDFF4E;
+  --purple: #A795C7;
+  --gray-100: #f7f8fa;
+  --gray-200: #e8ecf0;
+  --gray-300: #d1d5db;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
 }
-body{font-family:'Poppins',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-/* ── BG PATTERN ── */
-body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;
-  background:radial-gradient(ellipse at 20% 50%,rgba(30,157,184,0.08) 0%,transparent 60%),
-             radial-gradient(ellipse at 80% 20%,rgba(167,149,199,0.06) 0%,transparent 50%),
-             radial-gradient(ellipse at 50% 90%,rgba(205,255,78,0.03) 0%,transparent 40%);
-  pointer-events:none;z-index:0}
+/* Animated background */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(30,157,184,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(167,149,199,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(205,255,78,0.03) 0%, transparent 50%);
+  animation: bgPulse 8s ease-in-out infinite alternate;
+}
+@keyframes bgPulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
 
-/* ── HEADER ── */
-.header{position:relative;z-index:2;padding:48px 48px 0;max-width:1300px;margin:0 auto}
-.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
-.logo-area{display:flex;align-items:center;gap:16px}
-.brand-line{height:1px;background:linear-gradient(90deg,rgba(30,157,184,0.4),transparent);margin-bottom:48px}
+.container {
+  position: relative; z-index: 1;
+  max-width: 1200px; margin: 0 auto; padding: 40px 24px;
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
 
-/* ── HERO ── */
-.hero{position:relative;z-index:2;max-width:1300px;margin:0 auto;padding:0 48px 48px}
-.hero h1{font-size:42px;font-weight:800;letter-spacing:-1px;line-height:1.15;margin-bottom:12px}
-.hero h1 span{background:linear-gradient(135deg,var(--teal),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:16px;color:var(--gray-300);max-width:600px;line-height:1.7;margin-bottom:8px}
-.hero-stats{display:flex;gap:32px;margin-top:24px}
-.hero-stat{text-align:center}
-.hero-stat-num{font-size:28px;font-weight:800;color:var(--teal);display:block;font-family:'Poppins',sans-serif}
-.hero-stat-label{font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:1px}
+/* Header */
+.header {
+  text-align: center; margin-bottom: 60px;
+}
+.header .badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--teal), var(--purple));
+  color: var(--white);
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;
+  padding: 6px 20px; border-radius: 20px; margin-bottom: 20px;
+}
+.header h1 {
+  font-size: 42px; font-weight: 800; line-height: 1.15; margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--white) 0%, var(--teal) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.header p {
+  font-size: 17px; color: rgba(255,255,255,0.6); font-weight: 300; max-width: 560px; margin: 0 auto;
+}
 
-/* ── CARDS GRID ── */
-.cards-section{position:relative;z-index:2;max-width:1300px;margin:0 auto;padding:0 48px 60px}
-.section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--teal);margin-bottom:20px}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+/* Role Cards */
+.roles {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+  width: 100%; max-width: 1000px; margin-bottom: 40px;
+}
+.role-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; padding: 36px 28px;
+  cursor: pointer; transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  text-decoration: none; color: var(--white);
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  position: relative; overflow: hidden;
+}
+.role-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(30,157,184,0.06) 100%);
+  opacity: 0; transition: opacity 0.35s;
+}
+.role-card:hover {
+  border-color: var(--teal);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(30,157,184,0.15), 0 0 0 1px rgba(30,157,184,0.3);
+}
+.role-card:hover::before { opacity: 1; }
 
-.tool-card{background:linear-gradient(145deg,rgba(10,58,80,0.6),rgba(4,40,56,0.8));
-  border:1px solid rgba(30,157,184,0.15);border-radius:16px;padding:28px 24px;
-  cursor:pointer;transition:all 0.3s ease;position:relative;overflow:hidden;
-  text-decoration:none;color:var(--white);display:flex;flex-direction:column}
-.tool-card:hover{border-color:var(--teal);transform:translateY(-4px);
-  box-shadow:0 12px 40px rgba(30,157,184,0.15),0 0 0 1px rgba(30,157,184,0.3)}
-.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--teal),var(--green));opacity:0;transition:opacity 0.3s}
-.tool-card:hover::before{opacity:1}
+.role-icon {
+  width: 80px; height: 80px; border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; margin-bottom: 20px; position: relative; z-index: 1;
+  transition: transform 0.35s;
+}
+.role-card:hover .role-icon { transform: scale(1.1); }
 
-.card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;
-  font-size:22px;margin-bottom:16px;flex-shrink:0}
-.card-title{font-size:16px;font-weight:700;margin-bottom:6px;line-height:1.3}
-.card-desc{font-size:12px;color:var(--gray-300);line-height:1.6;flex:1;margin-bottom:16px}
-.card-tags{display:flex;flex-wrap:wrap;gap:6px}
-.card-tag{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;
-  background:rgba(30,157,184,0.1);color:var(--teal);border:1px solid rgba(30,157,184,0.2)}
-.card-tag.purple{background:rgba(167,149,199,0.1);color:var(--purple);border-color:rgba(167,149,199,0.2)}
-.card-tag.green{background:rgba(205,255,78,0.1);color:var(--green);border-color:rgba(205,255,78,0.2)}
+.role-card.sdr .role-icon { background: linear-gradient(135deg, rgba(205,255,78,0.15), rgba(205,255,78,0.05)); }
+.role-card.ae .role-icon { background: linear-gradient(135deg, rgba(30,157,184,0.2), rgba(30,157,184,0.05)); }
+.role-card.mgr .role-icon { background: linear-gradient(135deg, rgba(167,149,199,0.2), rgba(167,149,199,0.05)); }
 
-.card-status{position:absolute;top:16px;right:16px;padding:3px 10px;border-radius:8px;
-  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px}
-.card-status.live{background:rgba(205,255,78,0.15);color:var(--green)}
-.card-status.new{background:rgba(30,157,184,0.15);color:var(--teal)}
+.role-title {
+  font-size: 22px; font-weight: 700; margin-bottom: 6px; position: relative; z-index: 1;
+}
+.role-subtitle {
+  font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 16px; position: relative; z-index: 1;
+}
+.role-card.sdr .role-subtitle { color: var(--green); }
+.role-card.ae .role-subtitle { color: var(--teal); }
+.role-card.mgr .role-subtitle { color: var(--purple); }
 
-/* ── COMING SOON ROW ── */
-.coming-section{position:relative;z-index:2;max-width:1300px;margin:0 auto;padding:0 48px 60px}
-.coming-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-.coming-card{background:rgba(10,58,80,0.3);border:1px dashed rgba(30,157,184,0.2);border-radius:12px;
-  padding:20px;text-align:center;opacity:0.6;transition:all 0.2s}
-.coming-card:hover{opacity:0.8;border-color:rgba(30,157,184,0.4)}
-.coming-icon{font-size:24px;margin-bottom:8px}
-.coming-title{font-size:13px;font-weight:600;color:var(--gray-300)}
-.coming-sub{font-size:10px;color:var(--gray-500);margin-top:2px}
+.role-desc {
+  font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 20px;
+  position: relative; z-index: 1;
+}
 
-/* ── FOOTER ── */
-.footer{position:relative;z-index:2;max-width:1300px;margin:0 auto;padding:20px 48px 40px;
-  border-top:1px solid rgba(30,157,184,0.1);display:flex;justify-content:space-between;align-items:center}
-.footer-left{font-size:11px;color:var(--gray-500)}
-.footer-right{display:flex;gap:16px;align-items:center}
-.footer-link{font-size:11px;color:var(--teal);text-decoration:none;font-weight:600}
-.footer-link:hover{color:var(--green)}
+.role-tools {
+  display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+  position: relative; z-index: 1;
+}
+.role-tools span {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 4px 10px; font-size: 11px;
+  color: rgba(255,255,255,0.5); white-space: nowrap;
+}
 
-/* ── RESPONSIVE ── */
-@media(max-width:768px){
-  .header,.hero,.cards-section,.coming-section,.footer{padding-left:20px;padding-right:20px}
-  .hero h1{font-size:28px}
-  .cards-grid{grid-template-columns:1fr}
-  .hero-stats{flex-wrap:wrap;gap:16px}
+.role-enter {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 20px; padding: 10px 24px; border-radius: 12px;
+  font-size: 13px; font-weight: 600;
+  position: relative; z-index: 1; transition: all 0.3s;
+}
+.role-card.sdr .role-enter { background: rgba(205,255,78,0.1); color: var(--green); }
+.role-card.ae .role-enter { background: rgba(30,157,184,0.1); color: var(--teal); }
+.role-card.mgr .role-enter { background: rgba(167,149,199,0.1); color: var(--purple); }
+
+.role-card:hover .role-enter { transform: translateX(4px); }
+
+/* Shared Enablement Link */
+.shared-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px; border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  font-size: 14px; font-weight: 500;
+  text-decoration: none; transition: all 0.3s; cursor: pointer;
+  margin-top: 12px;
+}
+.shared-link:hover {
+  border-color: rgba(255,255,255,0.25);
+  color: var(--white);
+  background: rgba(255,255,255,0.07);
+}
+
+/* V1 link */
+.v1-link {
+  position: fixed; bottom: 20px; right: 20px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 8px 16px;
+  color: rgba(255,255,255,0.4); font-size: 12px;
+  text-decoration: none; transition: all 0.3s; z-index: 100;
+}
+.v1-link:hover {
+  color: var(--teal); border-color: var(--teal);
+}
+
+/* Admin link */
+.admin-link {
+  position: fixed; bottom: 20px; left: 20px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 10px; padding: 8px 16px;
+  color: rgba(239,68,68,0.6); font-size: 12px;
+  text-decoration: none; transition: all 0.3s; z-index: 100;
+}
+.admin-link:hover {
+  color: #ef4444; border-color: #ef4444;
+}
+
+/* Login Overlay */
+.login-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+}
+.login-overlay.hidden { display: none; }
+.login-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 24px; padding: 44px 40px; width: 100%; max-width: 420px;
+  text-align: center;
+}
+.login-box .login-icon { font-size: 48px; margin-bottom: 16px; }
+.login-box h2 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+.login-box p { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 28px; }
+.login-box input {
+  width: 100%; padding: 12px 16px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  color: var(--white); font-family: 'Poppins'; font-size: 14px;
+  margin-bottom: 10px; transition: border-color 0.2s;
+}
+.login-box input:focus { outline: none; border-color: var(--teal); }
+.login-box input::placeholder { color: rgba(255,255,255,0.3); }
+.login-btn {
+  width: 100%; padding: 13px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--teal), #17899f);
+  color: var(--white);
+  font-family: 'Poppins'; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.3s; margin-top: 6px;
+}
+.login-btn:hover { filter: brightness(1.1); }
+.login-error {
+  color: #ef4444; font-size: 12px; margin-top: 10px; display: none;
+}
+.logged-in-as {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px; border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  font-size: 12px; color: rgba(255,255,255,0.5);
+  margin-bottom: 20px;
+}
+.logged-in-as .user-name { color: var(--teal); font-weight: 600; }
+.logout-link {
+  color: rgba(255,255,255,0.3); text-decoration: none; font-size: 11px;
+  margin-left: 8px; padding: 2px 8px; border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s;
+}
+.logout-link:hover { color: #ef4444; border-color: rgba(239,68,68,0.3); }
+
+/* Footer */
+.footer {
+  margin-top: 40px; text-align: center;
+  color: rgba(255,255,255,0.25); font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .roles { grid-template-columns: 1fr; max-width: 400px; }
+  .header h1 { font-size: 30px; }
 }
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-top">
-    <div class="logo-area">
-      <svg width="160" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="22" cy="26" r="15" fill="none" stroke="#1E9DB8" stroke-width="3.2"/>
-        <circle cx="58" cy="26" r="15" fill="none" stroke="#1E9DB8" stroke-width="3.2"/>
-        <path d="M37 22 Q40 15 43 22" fill="none" stroke="#1E9DB8" stroke-width="3.2" stroke-linecap="round"/>
-        <path d="M7 23 L3 17" fill="none" stroke="#1E9DB8" stroke-width="3.2" stroke-linecap="round"/>
-        <path d="M73 23 L77 17" fill="none" stroke="#1E9DB8" stroke-width="3.2" stroke-linecap="round"/>
-        <path d="M58 18 L58 23" fill="none" stroke="#1E9DB8" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M52 21 A7.5 7.5 0 1 0 64 21" fill="none" stroke="#1E9DB8" stroke-width="2.2" stroke-linecap="round"/>
-        <text x="86" y="32" fill="#FFFFFF" font-family="Poppins, sans-serif" font-size="16" font-weight="600" letter-spacing="0.5">nerdio</text>
-      </svg>
-    </div>
-    <div style="font-size:10px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:1.5px">Sales Command Centre</div>
-  </div>
-  <div class="brand-line"></div>
-</div>
-
-<div class="hero">
-  <h1>Your Nerdio<br><span>sales toolkit.</span></h1>
-  <p>Every strategic tool, journey model, and deal asset in one place. Built to accelerate pipeline, sharpen positioning, and close faster.</p>
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <span class="hero-stat-num" id="toolCount">16</span>
-      <div class="hero-stat-label">Active Tools</div>
-    </div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">6</span>
-      <div class="hero-stat-label">Journey Models</div>
-    </div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">10</span>
-      <div class="hero-stat-label">Maturity Dimensions</div>
-    </div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">7</span>
-      <div class="hero-stat-label">Deal Phases</div>
-    </div>
+<!-- Login Overlay -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-icon">&#128274;</div>
+    <h2>Sign In</h2>
+    <p>Enter your credentials to access the Nerdio Sales Command Centre.</p>
+    <input type="text" id="loginUsername" placeholder="Username" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
+    <input type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Invalid username or password. Contact your admin for access.</div>
   </div>
 </div>
 
-<div class="cards-section">
-  <div class="section-label">Tools &amp; Frameworks</div>
-  <div class="cards-grid" id="toolsGrid">
+<div class="bg-grid"></div>
+<div class="container" id="mainContainer" style="display:none;">
+  <div class="header">
+    <div class="badge">Version 2.0 — Role-Based Experience</div>
+    <h1>Nerdio Sales<br>Command Centre</h1>
+    <div class="logged-in-as" id="loggedInAs">
+      Signed in as <span class="user-name" id="displayName">—</span>
+      (<span id="displayRole">—</span>)
+      <a class="logout-link" href="#" onclick="doLogout();return false;">Sign Out</a>
+    </div>
+    <p>Select your role to access your personalised toolkit, territory data, and enablement resources.</p>
+  </div>
 
-    <a class="tool-card" href="nerdio-getting-started.html" style="border-color:rgba(205,255,78,0.3);background:linear-gradient(145deg,rgba(10,58,80,0.8),rgba(4,40,56,0.95))">
-      <div class="card-status" style="background:rgba(205,255,78,0.15);color:var(--green)">Start Here</div>
-      <div class="card-icon" style="background:rgba(205,255,78,0.12)">🧭</div>
-      <div class="card-title">Getting Started Guide</div>
-      <div class="card-desc">New to the Command Centre? This interactive walkthrough maps every tool to your sales workflow — territory prep, competitive intel, outreach, discovery, business case, and deal management. Three modes: guided, explore, or quick-start checklist.</div>
-      <div class="card-tags">
-        <span class="card-tag green">Walkthrough</span>
-        <span class="card-tag">New Rep Guide</span>
-        <span class="card-tag purple">Interactive</span>
+  <div class="roles" id="roleCards">
+    <!-- SDR -->
+    <a class="role-card sdr" href="sdr-portal.html" data-role="sdr">
+      <div class="role-icon">&#9889;</div>
+      <div class="role-subtitle">Pipeline Builder</div>
+      <div class="role-title">SDR</div>
+      <div class="role-desc">Upload your territory, set your vertical focus, and start building pipeline with intelligent outreach and qualification tools.</div>
+      <div class="role-tools">
+        <span>Pipeline Engine</span>
+        <span>Outreach</span>
+        <span>Discovery</span>
+        <span>Battlecards</span>
+        <span>CRM</span>
+        <span>+3 more</span>
       </div>
+      <div class="role-enter">Enter SDR Portal &#8594;</div>
     </a>
 
-    <a class="tool-card" href="nerdio-journeys.html">
-      <div class="card-status live">Live</div>
-      <div class="card-icon" style="background:rgba(30,157,184,0.15)">🗺️</div>
-      <div class="card-title">Journey Models &amp; Maturity Assessment</div>
-      <div class="card-desc">Six strategic journey frameworks — maturity model (5 levels), industry evolution, customer lifecycle, migration paths, partner journey, and value realization. Includes the interactive As-Is / To-Be assessment tool with radar chart, gap analysis, and prioritized Nerdio capability roadmap.</div>
-      <div class="card-tags">
-        <span class="card-tag">Maturity Model</span>
-        <span class="card-tag">Assessment Tool</span>
-        <span class="card-tag purple">Gap Analysis</span>
-        <span class="card-tag">6 Journeys</span>
+    <!-- AE -->
+    <a class="role-card ae" href="ae-portal.html" data-role="ae">
+      <div class="role-icon">&#127919;</div>
+      <div class="role-title">Account Executive</div>
+      <div class="role-subtitle">Deal Closer</div>
+      <div class="role-desc">Manage deals and accounts with equal firepower. From discovery whiteboards to ROI calculators — everything to close.</div>
+      <div class="role-tools">
+        <span>Deal Timeline</span>
+        <span>Whiteboards</span>
+        <span>ROI Calc</span>
+        <span>Journey Map</span>
+        <span>CRM</span>
+        <span>+6 more</span>
       </div>
+      <div class="role-enter">Enter AE Portal &#8594;</div>
     </a>
 
-    <a class="tool-card" href="nerdio-reverse-timeline.html">
-      <div class="card-status live">Live</div>
-      <div class="card-icon" style="background:rgba(167,149,199,0.15)">⏱️</div>
-      <div class="card-title">Deal Reverse Timeline Builder</div>
-      <div class="card-desc">7-phase sales lifecycle with MEDPIC qualification at every stage. Enter a close date and complexity level — the tool generates a reverse-engineered timeline with Nerdio positioning, partner tasks, coaching alerts, and deal scoring. Saves and tracks multiple deals.</div>
-      <div class="card-tags">
-        <span class="card-tag purple">MEDPIC</span>
-        <span class="card-tag">7 Phases</span>
-        <span class="card-tag green">Deal Scoring</span>
-        <span class="card-tag">Multi-Deal</span>
+    <!-- Manager -->
+    <a class="role-card mgr" href="manager-portal.html" data-role="manager">
+      <div class="role-icon">&#128202;</div>
+      <div class="role-title">Manager</div>
+      <div class="role-subtitle">Team Leader</div>
+      <div class="role-desc">Pipeline oversight, deal coaching, and team performance. Review discovery quality, validate business cases, and drive results.</div>
+      <div class="role-tools">
+        <span>Pipeline View</span>
+        <span>Deal Review</span>
+        <span>Coaching</span>
+        <span>ROI Review</span>
+        <span>Reports</span>
+        <span>+3 more</span>
       </div>
+      <div class="role-enter">Enter Manager Portal &#8594;</div>
     </a>
+  </div>
 
-    <a class="tool-card" href="nerdio-deal-dashboard.html">
-      <div class="card-status live">Live</div>
-      <div class="card-icon" style="background:rgba(205,255,78,0.1)">📊</div>
-      <div class="card-title">Deal Pipeline Dashboard</div>
-      <div class="card-desc">Visual deal pipeline with MEDPIC qualification scores, deal tracking, activity feeds, and summary cards. Track deal name, partner status, value, score, phase progress, and status across your entire opportunity set at a glance.</div>
-      <div class="card-tags">
-        <span class="card-tag green">Pipeline View</span>
-        <span class="card-tag">MEDPIC Scores</span>
-        <span class="card-tag">Activity Feed</span>
-      </div>
-    </a>
+  <a class="shared-link" href="enablement-hub.html">
+    &#128218; Positioning & Enablement Hub — Available to all roles
+  </a>
 
-    <a class="tool-card" href="nerdio_crm_4.html">
-      <div class="card-status live">Live</div>
-      <div class="card-icon" style="background:rgba(30,157,184,0.15)">🏢</div>
-      <div class="card-title">Account Intelligence</div>
-      <div class="card-desc">Deep account intelligence engine for Nerdio UK. Comprehensive account profiles, stakeholder mapping, heat scoring, opportunity tracking, and strategic account planning — all in one interactive workspace.</div>
-      <div class="card-tags">
-        <span class="card-tag">Account Profiles</span>
-        <span class="card-tag purple">Heat Scoring</span>
-        <span class="card-tag">Stakeholder Maps</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-battlecards.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(205,255,78,0.1)">🎯</div>
-      <div class="card-title">Competitive Battlecards</div>
-      <div class="card-desc">Side-by-side competitive intelligence for Citrix, VMware/Omnissa, and Native Azure. Expandable sections covering positioning, feature comparisons, discovery questions, objection handling, proof points, landmines to set, and ready-to-use talk tracks.</div>
-      <div class="card-tags">
-        <span class="card-tag">vs Citrix</span>
-        <span class="card-tag purple">vs VMware</span>
-        <span class="card-tag green">vs Native Azure</span>
-        <span class="card-tag">Talk Tracks</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-discovery-engine.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(167,149,199,0.15)">💬</div>
-      <div class="card-title">Discovery Question Engine</div>
-      <div class="card-desc">Meeting prep tool with 50+ persona-targeted discovery questions. Filter by stakeholder role, competitive situation, product focus, deal stage, and value pillars. Each question includes coaching notes, listen-for signals, and Nerdio capability mapping.</div>
-      <div class="card-tags">
-        <span class="card-tag purple">Persona-Based</span>
-        <span class="card-tag">Coaching Notes</span>
-        <span class="card-tag">50+ Questions</span>
-        <span class="card-tag green">Meeting Prep</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-outreach.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(30,157,184,0.15)">📧</div>
-      <div class="card-title">Outreach Sequences</div>
-      <div class="card-desc">Eight ready-to-send email sequences covering Citrix displacement, VMware migration, Azure cost optimization, new AVD deployment, Win10 EOL, MSP recruitment, post-event follow-up, and customer expansion. Editable in-place with one-click copy.</div>
-      <div class="card-tags">
-        <span class="card-tag">8 Sequences</span>
-        <span class="card-tag purple">Editable</span>
-        <span class="card-tag green">Copy & Send</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-roi-calculator.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(205,255,78,0.1)">🧮</div>
-      <div class="card-title">ROI Calculator</div>
-      <div class="card-desc">Interactive ROI modelling tool calculating Azure compute savings, operational efficiency gains, license consolidation, and risk reduction value. Shows ROI percentage, payback period, and 3/5-year projections with exportable summary.</div>
-      <div class="card-tags">
-        <span class="card-tag green">Cost Savings</span>
-        <span class="card-tag">Payback Period</span>
-        <span class="card-tag purple">Exportable</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio_sdr_pipeline_engine.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(167,149,199,0.15)">🚀</div>
-      <div class="card-title">SDR Pipeline Engine</div>
-      <div class="card-desc">Complete SDR playbook for FSI and Retail UK. Target account profiles, trigger-based outreach timing, research playbooks, personalised hooks, multi-touch email sequences, LinkedIn messaging, cold call scripts, and meeting positioning frameworks — all in one engine.</div>
-      <div class="card-tags">
-        <span class="card-tag">Email Sequences</span>
-        <span class="card-tag purple">Call Scripts</span>
-        <span class="card-tag green">LinkedIn</span>
-        <span class="card-tag">Research Playbook</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-whiteboard.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(30,157,184,0.15)">🖊️</div>
-      <div class="card-title">Estate Discovery Whiteboard</div>
-      <div class="card-desc">Interactive drag-and-drop canvas for mapping a customer's existing infrastructure, challenges, projects, and priorities. Dual mode — internal prep and customer-facing. Includes Nerdio value mapping across all four pillars with exportable summary view.</div>
-      <div class="card-tags">
-        <span class="card-tag">Drag &amp; Drop</span>
-        <span class="card-tag purple">Estate Mapping</span>
-        <span class="card-tag green">Value Mapping</span>
-        <span class="card-tag">Dual Mode</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-whiteboard-users.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(167,149,199,0.15)">👥</div>
-      <div class="card-title">User &amp; Operations Discovery</div>
-      <div class="card-desc">Map the customer environment from a people and operations perspective. Capture user profiles, devices, locations, apps, connectivity, security posture, and how they manage, support, and optimise everything — with Nerdio value overlay and exportable summary.</div>
-      <div class="card-tags">
-        <span class="card-tag">User Personas</span>
-        <span class="card-tag purple">Devices &amp; Locations</span>
-        <span class="card-tag green">Ops Posture</span>
-        <span class="card-tag">Dual Mode</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-licensing-navigator.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(205,255,78,0.1)">📋</div>
-      <div class="card-title">Microsoft Licensing Navigator</div>
-      <div class="card-desc">Interactive licensing intelligence tool mapping Microsoft 365 bundles, add-ons, and entitlements to Nerdio capabilities. Compare tiers, check AVD/W365 eligibility, model per-user costs, and identify upsell opportunities — all with Nerdio positioning at every decision point.</div>
-      <div class="card-tags">
-        <span class="card-tag green">Licensing</span>
-        <span class="card-tag">M365 Bundles</span>
-        <span class="card-tag purple">AVD/W365 Eligibility</span>
-        <span class="card-tag">Cost Modelling</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-account-intelligence.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(30,157,184,0.15)">🔍</div>
-      <div class="card-title">Account Intelligence — UKI FY26</div>
-      <div class="card-desc">Deep account intelligence engine for Nerdio UKI. Searchable account database with Microsoft team contacts, signal tracking, strategic notes, and deal context — your single source of truth for account-level positioning and relationship intelligence.</div>
-      <div class="card-tags">
-        <span class="card-tag">Account Database</span>
-        <span class="card-tag purple">Signal Tracking</span>
-        <span class="card-tag green">MS Contacts</span>
-        <span class="card-tag">Strategic Notes</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-holiday-positioning.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(167,149,199,0.15)">🏖️</div>
-      <div class="card-title">Holiday Positioning Engine</div>
-      <div class="card-desc">Creative seasonal positioning tool that frames Nerdio value through a holiday metaphor. Engaging, story-driven format for standing out in crowded inboxes — use for seasonal campaigns, event follow-ups, and creative outreach that cuts through the noise.</div>
-      <div class="card-tags">
-        <span class="card-tag purple">Creative Outreach</span>
-        <span class="card-tag">Seasonal</span>
-        <span class="card-tag green">Story-Driven</span>
-        <span class="card-tag">Campaign Ready</span>
-      </div>
-    </a>
-
-    <a class="tool-card" href="nerdio-microsoft-positioning.html">
-      <div class="card-status new">New</div>
-      <div class="card-icon" style="background:rgba(205,255,78,0.1)">🤝</div>
-      <div class="card-title">Microsoft Strategic Positioning</div>
-      <div class="card-desc">Comprehensive Microsoft co-sell positioning intelligence. Stakeholder-specific messaging for Microsoft field teams, partner motions, co-sell playbooks, and joint value propositions — aligned to Microsoft's strategic priorities and Nerdio's competitive advantages.</div>
-      <div class="card-tags">
-        <span class="card-tag green">Co-Sell</span>
-        <span class="card-tag">MS Field Teams</span>
-        <span class="card-tag purple">Stakeholder Messaging</span>
-        <span class="card-tag">Joint Value Props</span>
-      </div>
-    </a>
-
+  <div class="footer">
+    Nerdio Sales Command Centre v2 &middot; Role-Based Experience &middot; 16 Tools
   </div>
 </div>
 
-<div class="footer">
-  <div class="footer-left">Nerdio Sales Command Centre — Built for the field</div>
-  <div class="footer-right">
-    <a class="footer-link" href="https://getnerdio.com" target="_blank">getnerdio.com</a>
-  </div>
-</div>
+<a class="v1-link" href="../index.html" style="display:none;" id="v1Link">&#8592; v1 Master View</a>
+<a class="admin-link" href="admin.html" style="display:none;" id="adminLink">&#128272; Admin Panel</a>
 
+<script>
+// ===== SHARED AUTH MODULE =====
+function simpleHash(str) {
+  let hash = 0;
+  for(let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return 'h_' + Math.abs(hash).toString(36);
+}
+
+function getUsers() { return JSON.parse(localStorage.getItem('nerdio_v2_users') || '[]'); }
+function getSession() { return JSON.parse(localStorage.getItem('nerdio_v2_session') || 'null'); }
+function setSession(session) { localStorage.setItem('nerdio_v2_session', JSON.stringify(session)); }
+function clearSession() { localStorage.removeItem('nerdio_v2_session'); }
+
+function doLogin() {
+  const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+  const password = document.getElementById('loginPassword').value;
+  if(!username || !password) return;
+
+  const users = getUsers();
+  const user = users.find(u => u.username === username && u.status === 'active');
+
+  if(!user || user.passwordHash !== simpleHash(password)) {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginPassword').value = '';
+    return;
+  }
+
+  // Update last login
+  user.lastLogin = new Date().toISOString();
+  localStorage.setItem('nerdio_v2_users', JSON.stringify(users));
+
+  // Create session
+  setSession({
+    userId: user.id,
+    username: user.username,
+    name: user.name,
+    role: user.role,
+    loginTime: new Date().toISOString()
+  });
+
+  showApp();
+}
+
+function doLogout() {
+  clearSession();
+  location.reload();
+}
+
+function showApp() {
+  const session = getSession();
+  if(!session) return;
+
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('mainContainer').style.display = 'flex';
+  document.getElementById('v1Link').style.display = 'block';
+  document.getElementById('displayName').textContent = session.name;
+  document.getElementById('displayRole').textContent = session.role.toUpperCase();
+
+  // Show admin link only for managers (closest to admin)
+  // Actually, admin is separate — show the link subtly for all
+  document.getElementById('adminLink').style.display = 'block';
+
+  // Highlight the user's role card and dim others (but still allow access)
+  const cards = document.querySelectorAll('.role-card');
+  cards.forEach(card => {
+    const cardRole = card.getAttribute('data-role');
+    if(cardRole === session.role) {
+      card.style.order = '-1';
+      card.style.borderColor = 'rgba(30,157,184,0.3)';
+    }
+  });
+
+  // Auto-redirect if user clicks a role they're not assigned to
+  cards.forEach(card => {
+    card.addEventListener('click', function(e) {
+      const cardRole = this.getAttribute('data-role');
+      if(cardRole !== session.role) {
+        e.preventDefault();
+        if(confirm('Your assigned role is ' + session.role.toUpperCase() + '. Are you sure you want to access the ' + cardRole.toUpperCase() + ' portal?')) {
+          window.location.href = this.getAttribute('href');
+        }
+      }
+    });
+  });
+}
+
+// Init — check for existing session
+document.addEventListener('DOMContentLoaded', () => {
+  const session = getSession();
+  const users = getUsers();
+
+  if(session) {
+    // Validate session — make sure user still exists and is active
+    const user = users.find(u => u.username === session.username && u.status === 'active');
+    if(user) {
+      showApp();
+      return;
+    } else {
+      // User was disabled or deleted — clear session
+      clearSession();
+    }
+  }
+
+  // If no users exist at all, show a setup prompt
+  if(users.length === 0) {
+    document.getElementById('loginError').style.display = 'none';
+    const note = document.createElement('div');
+    note.style.cssText = 'margin-top:16px;padding:12px;border-radius:10px;background:rgba(30,157,184,0.08);border:1px solid rgba(30,157,184,0.2);font-size:11px;color:#1E9DB8;line-height:1.5;';
+    note.innerHTML = '<strong>No users configured yet.</strong><br>Visit the <a href="admin.html" style="color:#CDFF4E;">Admin Panel</a> to set up your master password and create user accounts.';
+    document.querySelector('.login-box').appendChild(note);
+  }
+
+  // Show login
+  document.getElementById('loginOverlay').classList.remove('hidden');
+});
+</script>
 </body>
 </html>
