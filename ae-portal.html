@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AE Portal — Nerdio Sales Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #042838;
+  --navy-light: #0a3a50;
+  --navy-card: #0d2f42;
+  --teal: #1E9DB8;
+  --teal-glow: rgba(30,157,184,0.15);
+  --white: #FFFFFF;
+  --green: #CDFF4E;
+  --green-dim: rgba(205,255,78,0.15);
+  --purple: #A795C7;
+  --gray-500: #6b7280;
+  --red: #ef4444;
+  --orange: #f59e0b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* Top Bar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(4,40,56,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-left .role-badge {
+  background: rgba(30,157,184,0.15);
+  color: var(--teal);
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  padding: 4px 12px; border-radius: 6px;
+}
+.topbar-left h2 { font-size: 16px; font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-right a {
+  color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px;
+  padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.topbar-right a:hover { color: var(--white); border-color: rgba(255,255,255,0.15); }
+.topbar-right .enablement-btn {
+  background: rgba(167,149,199,0.1); color: var(--purple); border-color: rgba(167,149,199,0.2);
+}
+.topbar-right .enablement-btn:hover { background: rgba(167,149,199,0.2); }
+
+.main { max-width: 1300px; margin: 0 auto; padding: 28px 24px; }
+
+/* Setup Section */
+.setup-section {
+  background: linear-gradient(135deg, rgba(30,157,184,0.06), rgba(167,149,199,0.04));
+  border: 1px solid rgba(30,157,184,0.15);
+  border-radius: 20px; padding: 32px; margin-bottom: 28px;
+  display: none;
+}
+.setup-section.active { display: block; }
+.setup-section h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--teal); }
+.setup-section > p { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px; }
+
+.setup-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+}
+.setup-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 20px; text-align: center;
+}
+.setup-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.setup-card p { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+
+.upload-zone {
+  border: 2px dashed rgba(30,157,184,0.25);
+  border-radius: 12px; padding: 20px; text-align: center;
+  cursor: pointer; transition: all 0.3s;
+  background: rgba(30,157,184,0.02);
+}
+.upload-zone:hover { border-color: var(--teal); background: rgba(30,157,184,0.06); }
+
+.vertical-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; justify-content: center; }
+.vert-chip {
+  padding: 6px 14px; border-radius: 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  font-size: 12px; color: rgba(255,255,255,0.5);
+  cursor: pointer; transition: all 0.2s;
+}
+.vert-chip:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+.vert-chip.selected { background: rgba(30,157,184,0.15); border-color: var(--teal); color: var(--teal); }
+
+/* Stats */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 28px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 18px 14px; text-align: center;
+}
+.stat-card .stat-val { font-size: 24px; font-weight: 800; color: var(--teal); line-height: 1; }
+.stat-card .stat-label { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+/* Two Column Layout */
+.dual-layout {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;
+}
+
+/* Section Headers */
+.section-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.section-header h3 { font-size: 16px; font-weight: 600; }
+.section-header .section-badge {
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 6px;
+}
+.badge-deals { background: rgba(30,157,184,0.1); color: var(--teal); }
+.badge-accounts { background: rgba(205,255,78,0.1); color: var(--green); }
+
+/* Tool Cards */
+.tool-grid { display: flex; flex-direction: column; gap: 12px; }
+.tool-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 20px;
+  cursor: pointer; transition: all 0.3s;
+  text-decoration: none; color: var(--white);
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.tool-card:hover {
+  border-color: var(--teal);
+  transform: translateX(4px);
+  box-shadow: 0 8px 30px rgba(30,157,184,0.08);
+}
+.tool-card .tool-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+.tool-card .tool-info { flex: 1; }
+.tool-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.tool-card p { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.5; }
+.tool-tag {
+  display: inline-block; margin-top: 8px;
+  padding: 2px 8px; border-radius: 5px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tag-core { background: rgba(30,157,184,0.1); color: var(--teal); }
+.tag-intel { background: rgba(205,255,78,0.1); color: var(--green); }
+.tag-enablement { background: rgba(167,149,199,0.1); color: var(--purple); }
+
+/* Getting Started */
+.getting-started {
+  background: linear-gradient(135deg, rgba(30,157,184,0.06), rgba(205,255,78,0.03));
+  border: 1px solid rgba(30,157,184,0.15);
+  border-radius: 16px; padding: 24px; margin-bottom: 24px;
+}
+.getting-started h3 { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--teal); }
+.gs-steps { display: flex; flex-direction: column; gap: 8px; }
+.gs-step {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 13px; color: rgba(255,255,255,0.6);
+  cursor: pointer; transition: all 0.2s;
+}
+.gs-step:hover { border-color: var(--teal); color: var(--white); }
+.gs-step .gs-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0; transition: all 0.2s;
+}
+.gs-step.done .gs-check { background: var(--teal); border-color: var(--teal); color: var(--white); }
+
+/* Home button */
+.home-btn {
+  position: fixed; bottom: 20px; left: 20px;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--navy); border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white); text-decoration: none; font-size: 18px;
+  z-index: 9999; transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.home-btn:hover { background: var(--teal); border-color: var(--teal); }
+
+@media (max-width: 768px) {
+  .dual-layout { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: repeat(3, 1fr); }
+  .setup-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<script>
+// Auth Guard — redirect to login if no valid session
+(function(){
+  function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h;}return'h_'+Math.abs(h).toString(36);}
+  const session=JSON.parse(localStorage.getItem('nerdio_v2_session')||'null');
+  if(!session){window.location.href='index.html';return;}
+  const users=JSON.parse(localStorage.getItem('nerdio_v2_users')||'[]');
+  const user=users.find(u=>u.username===session.username&&u.status==='active');
+  if(!user){localStorage.removeItem('nerdio_v2_session');window.location.href='index.html';return;}
+  window._nerdioUser=session;
+})();
+</script>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="role-badge">&#127919; AE</span>
+    <h2>Deal Closer</h2>
+  </div>
+  <div class="topbar-right">
+    <span style="font-size:11px;color:rgba(255,255,255,0.3);" id="userGreeting"></span>
+    <a href="enablement-hub.html" class="enablement-btn">&#128218; Enablement Hub</a>
+    <a href="index.html">Switch Role</a>
+    <a href="#" onclick="localStorage.removeItem('nerdio_v2_session');location.href='index.html';return false;" style="color:rgba(239,68,68,0.5);">Sign Out</a>
+  </div>
+</div>
+<script>
+  if(window._nerdioUser){document.getElementById('userGreeting').textContent=window._nerdioUser.name;}
+</script>
+
+<div class="main">
+
+  <!-- Setup Section -->
+  <div class="setup-section active" id="setupSection">
+    <h3>&#127919; Welcome — Configure Your Territory</h3>
+    <p>Upload your accounts and set your focus areas to get personalised deal intelligence and business case tools.</p>
+    <div class="setup-grid">
+      <div class="setup-card">
+        <h4>&#128196; Upload Account Data</h4>
+        <p>CSV or JSON from Salesforce, HubSpot, or a spreadsheet</p>
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+          <div style="font-size:28px;margin-bottom:6px;">&#128196;</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);">Drop file here or click to browse</div>
+          <input type="file" id="fileInput" accept=".csv,.json" style="display:none;" onchange="handleFileUpload(event)">
+        </div>
+        <div id="uploadStatus" style="margin-top:8px;font-size:12px;color:var(--teal);display:none;"></div>
+      </div>
+      <div class="setup-card">
+        <h4>&#127758; Vertical Focus</h4>
+        <p>Select your primary verticals for tailored positioning</p>
+        <div class="vertical-selector">
+          <div class="vert-chip" onclick="toggleVertical(this)">Financial Services</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Healthcare</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Education</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Legal</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Manufacturing</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Public Sector</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Professional Services</div>
+          <div class="vert-chip" onclick="toggleVertical(this)">Retail</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:20px;">
+      <button onclick="completeSetup()" style="padding:12px 32px;border-radius:12px;border:none;
+        background:var(--teal);color:var(--white);font-family:'Poppins';font-size:14px;font-weight:600;
+        cursor:pointer;transition:all 0.3s;">
+        Launch My AE Portal &#8594;
+      </button>
+      <div style="margin-top:8px;">
+        <a href="#" onclick="skipSetup();return false;" style="font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none;">
+          Skip setup — I'll configure later
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Bar (hidden until setup) -->
+  <div class="stats-bar" id="statsBar" style="display:none;">
+    <div class="stat-card">
+      <div class="stat-val" id="statAccounts">0</div>
+      <div class="stat-label">Accounts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statDeals">0</div>
+      <div class="stat-label">Active Deals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statPipeline">$0</div>
+      <div class="stat-label">Pipeline Value</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statWinRate">0%</div>
+      <div class="stat-label">Win Rate</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statAvgDeal">$0</div>
+      <div class="stat-label">Avg Deal Size</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statCycle">0d</div>
+      <div class="stat-label">Avg Cycle</div>
+    </div>
+  </div>
+
+  <!-- Getting Started -->
+  <div class="getting-started" id="gettingStarted" style="display:none;">
+    <h3>&#128640; AE Quick Start</h3>
+    <div class="gs-steps">
+      <div class="gs-step" onclick="this.classList.toggle('done')">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>1.</strong> Upload your account/territory data from CRM</span>
+      </div>
+      <div class="gs-step" onclick="this.classList.toggle('done')">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>2.</strong> Review the Journey Map to understand where your prospects sit</span>
+      </div>
+      <div class="gs-step" onclick="this.classList.toggle('done')">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>3.</strong> Use the Discovery Whiteboards in your next customer meeting</span>
+      </div>
+      <div class="gs-step" onclick="this.classList.toggle('done')">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>4.</strong> Build your first ROI business case with account-suggested values</span>
+      </div>
+      <div class="gs-step" onclick="this.classList.toggle('done')">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>5.</strong> Create a Deal Reverse Timeline for your top opportunity</span>
+      </div>
+      <div class="gs-step" onclick="this.classList.toggle('done')">
+        <div class="gs-check">&#10003;</div>
+        <span><strong>6.</strong> Study Microsoft co-sell positioning in the Enablement Hub</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dual Column: Deal Tools + Account Tools -->
+  <div class="dual-layout" id="toolsLayout" style="display:none;">
+    <!-- Deal Progression Column -->
+    <div>
+      <div class="section-header">
+        <h3>&#128200; Deal Progression</h3>
+        <span class="section-badge badge-deals">Close Deals</span>
+      </div>
+      <div class="tool-grid">
+        <a class="tool-card" href="../nerdio-deal-dashboard.html">
+          <div class="tool-icon">&#128202;</div>
+          <div class="tool-info">
+            <h4>Deal Pipeline Dashboard</h4>
+            <p>Visual pipeline tracker with stages, values, probability weighting, and key metrics. Filtered to your deals.</p>
+            <span class="tool-tag tag-core">Core</span>
+          </div>
+        </a>
+        <a class="tool-card" href="../nerdio-reverse-timeline.html">
+          <div class="tool-icon">&#9203;</div>
+          <div class="tool-info">
+            <h4>Deal Reverse Timeline</h4>
+            <p>Work backwards from close date to build milestone timelines with key activities and dependencies.</p>
+            <span class="tool-tag tag-core">Core</span>
+          </div>
+        </a>
+        <a class="tool-card" href="../nerdio-roi-calculator.html">
+          <div class="tool-icon">&#128176;</div>
+          <div class="tool-info">
+            <h4>ROI Calculator</h4>
+            <p>Build business cases with cost savings, productivity gains, and payback periods. Pre-populated from account data.</p>
+            <span class="tool-tag tag-core">Core</span>
+          </div>
+        </a>
+        <a class="tool-card" href="../nerdio-discovery-engine.html">
+          <div class="tool-icon">&#128269;</div>
+          <div class="tool-info">
+            <h4>Discovery Question Engine</h4>
+            <p>Deep discovery questions with follow-up probes, mapped to Nerdio capabilities. AE-depth defaults.</p>
+            <span class="tool-tag tag-core">Core</span>
+          </div>
+        </a>
+        <a class="tool-card" href="../nerdio-battlecards.html">
+          <div class="tool-icon">&#9876;</div>
+          <div class="tool-info">
+            <h4>Competitive Battlecards</h4>
+            <p>Head-to-head competitive comparisons with objection handling, trap-setting questions, and win stories.</p>
+            <span class="tool-tag tag-enablement">Enablement</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Account Planning Column -->
+    <div>
+      <div class="section-header">
+        <h3>&#127758; Account Planning</h3>
+        <span class="section-badge badge-accounts">Know Accounts</span>
+      </div>
+      <div class="tool-grid">
+        <a class="tool-card" href="../nerdio-journeys.html">
+          <div class="tool-icon">&#128508;</div>
+          <div class="tool-info">
+            <h4>Journey Map & Maturity</h4>
+            <p>Map accounts to journey stages and maturity levels. Auto-mapped from your uploaded account data.</p>
+            <span class="tool-tag tag-intel">Intelligence</span>
+          </div>
+        </a>
+        <a class="tool-card" href="../nerdio_crm_4.html">
+          <div class="tool-icon">&#127919;</div>
+          <div class="tool-info">
+            <h4>Account Intelligence CRM</h4>
+            <p>Full account management with contacts, activities, deal status, and health scoring. CSV + API import.</p>
+            <span class="tool-tag tag-intel">Intelligence</span>
+          </div>
+        </a>
+        <a class="tool-card" href="../nerdio-whiteboard.html">
+          <div class="tool-icon">&#128203;</div>
+          <div class="tool-info">
+            <h4>Estate Discovery Whiteboard</h4>
+            <p>Map customer IT estate in live meetings. "Show Me Value" engine links findings to Nerdio capabilities. Save & share.</p>
+            <span class="tool-tag tag-core">Core</span>
+          </div>
+        </a>
+        <a class="tool-card" href="../nerdio-whiteboard-users.html">
+          <div class="tool-icon">&#128101;</div>
+          <div class="tool-info">
+            <h4>User & Ops Whiteboard</h4>
+            <p>Map user types, departments, and operational challenges. "Show Me Value" intelligence engine. Save & share.</p>
+            <span class="tool-tag tag-core">Core</span>
+          </div>
+        </a>
+        <a class="tool-card" href="../nerdio-account-intelligence.html">
+          <div class="tool-icon">&#127468;&#127463;</div>
+          <div class="tool-info">
+            <h4>Account Intelligence UKI</h4>
+            <p>UK&I account database with signals, Microsoft contacts, and regional intelligence.</p>
+            <span class="tool-tag tag-intel">Intelligence</span>
+          </div>
+        </a>
+        <a class="tool-card" href="../nerdio-licensing-navigator.html">
+          <div class="tool-icon">&#128273;</div>
+          <div class="tool-info">
+            <h4>Licensing Navigator</h4>
+            <p>M365 bundle comparison, AVD/W365 eligibility, and per-user cost modelling. Manual input per account.</p>
+            <span class="tool-tag tag-enablement">Enablement</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enablement Quick Link -->
+  <div id="enablementLink" style="display:none;text-align:center;margin-top:12px;">
+    <a href="enablement-hub.html" style="display:inline-flex;align-items:center;gap:8px;
+      padding:12px 28px;border-radius:14px;background:rgba(167,149,199,0.08);
+      border:1px solid rgba(167,149,199,0.15);color:var(--purple);font-size:14px;
+      font-weight:500;text-decoration:none;transition:all 0.3s;">
+      &#128218; Positioning & Enablement Hub — Battlecards, MS Positioning, Holiday Hooks & more
+    </a>
+  </div>
+</div>
+
+<a class="home-btn" href="index.html" title="Back to Role Selection">&#8962;</a>
+
+<script>
+let territory = JSON.parse(localStorage.getItem('nerdio_ae_territory') || '[]');
+let verticals = JSON.parse(localStorage.getItem('nerdio_ae_verticals') || '[]');
+let setupDone = localStorage.getItem('nerdio_ae_setup') === 'true';
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(setupDone) showPortal();
+});
+
+function handleFileUpload(e) {
+  if(!e.target.files.length) return;
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const lines = ev.target.result.split('\n').filter(l => l.trim());
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+      const data = [];
+      for(let i=1;i<lines.length;i++) {
+        const vals = lines[i].split(',').map(v => v.trim().replace(/"/g,''));
+        const row = {};
+        headers.forEach((h,idx) => row[h] = vals[idx] || '');
+        data.push({
+          id: 'acc_'+Date.now()+'_'+i,
+          name: row['account']||row['account name']||row['company']||row['name']||vals[0]||'Unknown',
+          vertical: row['vertical']||row['industry']||'',
+          priority: row['priority']||row['tier']||'medium',
+          status: row['status']||'Active',
+          dealValue: row['deal value']||row['value']||row['amount']||'',
+          stage: row['stage']||row['deal stage']||''
+        });
+      }
+      territory = data;
+      localStorage.setItem('nerdio_ae_territory', JSON.stringify(territory));
+      document.getElementById('uploadStatus').style.display = 'block';
+      document.getElementById('uploadStatus').textContent = '✓ '+data.length+' accounts loaded';
+    } catch(err) { alert('Parse error: '+err.message); }
+  };
+  reader.readAsText(file);
+}
+
+function toggleVertical(chip) {
+  chip.classList.toggle('selected');
+  verticals = Array.from(document.querySelectorAll('.vert-chip.selected')).map(c=>c.textContent);
+  localStorage.setItem('nerdio_ae_verticals', JSON.stringify(verticals));
+}
+
+function completeSetup() {
+  setupDone = true;
+  localStorage.setItem('nerdio_ae_setup','true');
+  showPortal();
+}
+function skipSetup() {
+  setupDone = true;
+  localStorage.setItem('nerdio_ae_setup','true');
+  showPortal();
+}
+
+function showPortal() {
+  document.getElementById('setupSection').classList.remove('active');
+  document.getElementById('statsBar').style.display = 'grid';
+  document.getElementById('gettingStarted').style.display = 'block';
+  document.getElementById('toolsLayout').style.display = 'grid';
+  document.getElementById('enablementLink').style.display = 'block';
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('statAccounts').textContent = territory.length || '—';
+  const deals = territory.filter(a=>a.dealValue || a.stage).length;
+  document.getElementById('statDeals').textContent = deals || Math.max(Math.floor(territory.length*0.6),0);
+  const totalVal = territory.reduce((s,a)=>s+(parseInt(a.dealValue)||25000),0);
+  document.getElementById('statPipeline').textContent = '$'+(totalVal>=1000000?(totalVal/1000000).toFixed(1)+'M':totalVal>=1000?Math.round(totalVal/1000)+'k':totalVal);
+  document.getElementById('statWinRate').textContent = territory.length ? '32%' : '—';
+  const avg = territory.length ? Math.round(totalVal/Math.max(territory.length,1)) : 0;
+  document.getElementById('statAvgDeal').textContent = avg ? '$'+Math.round(avg/1000)+'k' : '—';
+  document.getElementById('statCycle').textContent = territory.length ? '87d' : '—';
+}
+</script>
+</body>
+</html>
