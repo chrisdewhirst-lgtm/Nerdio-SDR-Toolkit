@@ -690,6 +690,64 @@ function initializeDataSources() {
         });
         ACCOUNTS.length = 0;
         territoryAccounts.forEach(a => ACCOUNTS.push(a));
+        // ─── DYNAMIC UI REBUILD FOR TERRITORY DATA ───────────────────────
+        // Hide WOPR and Territory Intel tabs (not relevant to uploaded data)
+        document.querySelectorAll('.tabs-bar .tab').forEach(function(tab){
+          var oc = tab.getAttribute('onclick') || '';
+          if(oc.includes("'wopr'") || oc.includes("'territory'")) tab.style.display = 'none';
+        });
+        // Rebuild tier tabs to reflect actual data
+        var tierCounts = {};
+        territoryAccounts.forEach(function(a){ tierCounts[a.tier] = (tierCounts[a.tier]||0)+1; });
+        document.querySelectorAll('.tabs-bar .tab').forEach(function(tab){
+          var oc = tab.getAttribute('onclick') || '';
+          if(oc.includes("'all'")) tab.innerHTML = 'All Accounts <span class="tab-count">'+territoryAccounts.length+'</span>';
+          if(oc.includes("'1'")) { tab.innerHTML = 'Tier 1 — High Priority <span class="tab-count">'+(tierCounts[1]||0)+'</span>'; if(!tierCounts[1]) tab.style.display='none'; }
+          if(oc.includes("'2'")) { tab.innerHTML = 'Tier 2 — Medium <span class="tab-count">'+(tierCounts[2]||0)+'</span>'; if(!tierCounts[2]) tab.style.display='none'; }
+          if(oc.includes("'3'")) { tab.innerHTML = 'Tier 3 — Lower <span class="tab-count">'+(tierCounts[3]||0)+'</span>'; if(!tierCounts[3]) tab.style.display='none'; }
+        });
+        // Rebuild sector filter chips based on actual verticals
+        var sectors = {};
+        territoryAccounts.forEach(function(a){ if(a.sector && a.sector !== 'Not specified') sectors[a.sector] = (sectors[a.sector]||0)+1; });
+        var sectorNames = Object.keys(sectors).sort(function(a,b){ return sectors[b]-sectors[a]; });
+        var mainToolbar = document.getElementById('mainToolbar');
+        if(mainToolbar){
+          // Remove old hardcoded sector chips and their separator
+          var chips = mainToolbar.querySelectorAll('.filter-chip');
+          var seps = mainToolbar.querySelectorAll('.toolbar-sep');
+          // Remove first group of sector chips (FSI, Retail, Mixed) and signal chips
+          chips.forEach(function(c){ c.remove(); });
+          // Remove separator after search (keep first), then add dynamic chips
+          seps.forEach(function(s,i){ if(i > 0) s.remove(); });
+          // Get reference point (after search-wrap and first sep)
+          var firstSep = mainToolbar.querySelector('.toolbar-sep');
+          var insertRef = firstSep ? firstSep.nextSibling : null;
+          // Add dynamic sector chips
+          sectorNames.slice(0,6).forEach(function(sec){
+            var btn = document.createElement('button');
+            btn.className = 'filter-chip';
+            btn.textContent = sec;
+            btn.setAttribute('onclick', "toggleChip(this,'"+sec.replace(/'/g,"\\'")+"')");
+            mainToolbar.insertBefore(btn, insertRef);
+          });
+          // Add separator + utility chips
+          var sep2 = document.createElement('div'); sep2.className = 'toolbar-sep';
+          mainToolbar.insertBefore(sep2, insertRef);
+          ['noted','active'].forEach(function(f){
+            var label = f === 'noted' ? 'Has Notes' : 'Active Opps';
+            var btn = document.createElement('button');
+            btn.className = 'filter-chip';
+            btn.textContent = label;
+            btn.setAttribute('onclick', "toggleChip(this,'"+f+"')");
+            mainToolbar.insertBefore(btn, insertRef);
+          });
+          // Add separator
+          var sep3 = document.createElement('div'); sep3.className = 'toolbar-sep';
+          mainToolbar.insertBefore(sep3, insertRef);
+        }
+        // Store dynamic sector list for getVisible filtering
+        window._territorySectors = sectorNames;
+        // ─── END DYNAMIC UI REBUILD ──────────────────────────────────────
       }
     }
   } catch(e) { console.warn('Territory data load error:', e); }
@@ -3204,9 +3262,11 @@ function getSourceInfo(a) {
 function getVisible() {
   let list = [...ACCTS];
   if (activeTier !== 'all') list = list.filter(a => a.tier === parseInt(activeTier));
-  if (activeFilters.has('FSI')) list = list.filter(a => a.sector === 'FSI');
-  if (activeFilters.has('Retail')) list = list.filter(a => a.sector === 'Retail');
-  if (activeFilters.has('Mixed')) list = list.filter(a => a.sector === 'Mixed');
+  // Sector filters — works for both hardcoded (FSI/Retail/Mixed) and dynamic territory sectors
+  var sectorFilterActive = false;
+  ['FSI','Retail','Mixed'].concat(window._territorySectors || []).forEach(function(sec){
+    if(activeFilters.has(sec)){ list = list.filter(a => a.sector === sec); sectorFilterActive = true; }
+  });
   if (activeFilters.has('citrix')) list = list.filter(a => a.vdi.some(v => v.toLowerCase().includes('citrix')));
   if (activeFilters.has('vmware')) list = list.filter(a => a.vdi.some(v => v.toLowerCase().includes('vmware')));
   if (activeFilters.has('noted')) list = list.filter(a => hasNote(a));
@@ -3274,7 +3334,7 @@ function renderTable() {
     return `<div class="t-row${isActive?' active-row':''}" onclick="openDrawer(${i})">
       <div class="col-rank">${i+1}</div>
       <div class="col-name">
-        <strong><span class="tier-pip tp-${a.tier}">T${a.tier}</span>${a.name}${a._source === 'imported' ? '<span class="source-badge imported">📊 Import</span>' : a._source === 'api' ? '<span class="source-badge api">🔌 API</span>' : '<span class="source-badge proto">🧪 Proto</span>'}${hasN?'<span class="notes-indicator" title="Has notes"></span>':''}</strong>
+        <strong><span class="tier-pip tp-${a.tier}">T${a.tier}</span>${a.name}${a._source === 'territory' ? '<span class="source-badge imported" style="background:rgba(205,255,78,0.1);color:#CDFF4E">📍 Territory</span>' : a._source === 'imported' ? '<span class="source-badge imported">📊 Import</span>' : a._source === 'api' ? '<span class="source-badge api">🔌 API</span>' : '<span class="source-badge proto">🧪 Proto</span>'}${hasN?'<span class="notes-indicator" title="Has notes"></span>':''}</strong>
         <span>${a.sub.split('·')[0].trim()}</span>
       </div>
       <div><span class="sec-badge sb-${a.sector}">${a.sector}</span></div>
@@ -3468,7 +3528,7 @@ function setTier(t, btn) {
 }
 
 function toggleChip(btn, filter) {
-  const sectorFilters = ['FSI','Retail','Mixed'];
+  const sectorFilters = ['FSI','Retail','Mixed'].concat(window._territorySectors || []);
   if (sectorFilters.includes(filter)) {
     sectorFilters.forEach(f => { if (f !== filter) activeFilters.delete(f); });
     document.querySelectorAll('.filter-chip').forEach(b => {

@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerdio Sales Command Centre — User Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#042838;--navy-light:#0a3a50;--navy-lighter:#0f4d68;
+  --blue:#1E9DB8;--blue-light:#2bbad8;--blue-dark:#187f95;
+  --green:#CDFF4E;--green-dark:#a8d43e;
+  --purple:#A795C7;--purple-light:#c4b8db;
+  --white:#FFFFFF;--gray:#94a3b8;--gray-light:#cbd5e1;
+  --danger:#ef4444;--warning:#f59e0b;--success:#22c55e;
+}
+body{font-family:'Poppins',sans-serif;background:var(--navy);color:var(--white);line-height:1.7;min-height:100vh}
+a{color:var(--blue-light);text-decoration:none;transition:color .2s}
+a:hover{color:var(--green)}
+
+/* Top bar */
+.top-bar{background:rgba(0,0,0,.3);border-bottom:1px solid rgba(30,157,184,.15);padding:12px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.top-bar .logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.1rem}
+.top-bar .logo span{color:var(--blue)}
+.top-bar .badge{background:var(--green);color:var(--navy);padding:3px 12px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.top-bar nav{display:flex;gap:16px;align-items:center}
+.top-bar nav a{font-size:.85rem;opacity:.8}
+.top-bar nav a:hover{opacity:1}
+
+/* Hero */
+.hero{text-align:center;padding:80px 32px 60px;background:linear-gradient(180deg,rgba(30,157,184,.08) 0%,transparent 100%)}
+.hero h1{font-size:2.8rem;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,var(--white),var(--blue-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--gray-light);font-size:1.15rem;max-width:700px;margin:0 auto 32px}
+.hero .version{font-size:.8rem;color:var(--gray);margin-top:8px}
+
+/* Quick nav */
+.quick-nav{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.quick-nav a{background:rgba(30,157,184,.12);border:1px solid rgba(30,157,184,.25);padding:10px 20px;border-radius:10px;font-size:.85rem;font-weight:500;transition:all .2s}
+.quick-nav a:hover{background:rgba(30,157,184,.25);border-color:var(--blue);transform:translateY(-2px)}
+.quick-nav a.sdr{border-color:rgba(205,255,78,.3);color:var(--green)}
+.quick-nav a.sdr:hover{border-color:var(--green);background:rgba(205,255,78,.1)}
+.quick-nav a.ae{border-color:rgba(30,157,184,.3)}
+.quick-nav a.ae:hover{border-color:var(--blue)}
+.quick-nav a.mgr{border-color:rgba(167,149,199,.3);color:var(--purple-light)}
+.quick-nav a.mgr:hover{border-color:var(--purple);background:rgba(167,149,199,.1)}
+
+/* Main content */
+.content{max-width:960px;margin:0 auto;padding:0 32px 80px}
+
+/* Section */
+.section{margin-top:64px}
+.section-label{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+.section h2{font-size:1.8rem;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid rgba(30,157,184,.2)}
+.section h3{font-size:1.25rem;font-weight:600;margin:32px 0 12px;color:var(--blue-light)}
+.section h4{font-size:1rem;font-weight:600;margin:20px 0 8px;color:var(--gray-light)}
+.section p{color:var(--gray-light);margin-bottom:14px}
+
+/* Cards */
+.info-card{background:rgba(30,157,184,.06);border:1px solid rgba(30,157,184,.15);border-radius:14px;padding:24px 28px;margin:20px 0}
+.info-card.green{border-color:rgba(205,255,78,.2);background:rgba(205,255,78,.04)}
+.info-card.purple{border-color:rgba(167,149,199,.2);background:rgba(167,149,199,.04)}
+.info-card.warning{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.06)}
+.info-card h4{margin-top:0;font-size:1rem}
+.info-card p:last-child{margin-bottom:0}
+
+/* Steps */
+.steps{counter-reset:step;margin:20px 0}
+.step{position:relative;padding:16px 16px 16px 64px;margin:12px 0;background:rgba(255,255,255,.02);border-radius:10px;border-left:3px solid rgba(30,157,184,.3);counter-increment:step}
+.step::before{content:counter(step);position:absolute;left:16px;top:16px;width:32px;height:32px;background:var(--blue);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+.step h4{margin:0 0 6px;color:var(--white)}
+.step p{margin-bottom:0;font-size:.9rem}
+
+/* Tool grid */
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.tool-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px 20px}
+.tool-item .tool-name{font-weight:600;font-size:.95rem;margin-bottom:4px;color:var(--white)}
+.tool-item .tool-tag{font-size:.65rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:8px;display:inline-block;margin-bottom:8px}
+.tool-item .tool-tag.core{background:rgba(30,157,184,.2);color:var(--blue-light)}
+.tool-item .tool-tag.intel{background:rgba(205,255,78,.15);color:var(--green)}
+.tool-item .tool-tag.enable{background:rgba(167,149,199,.2);color:var(--purple-light)}
+.tool-item p{font-size:.82rem;color:var(--gray);margin-bottom:0}
+
+/* Role badge inline */
+.role-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.role-badge.sdr{background:rgba(205,255,78,.15);color:var(--green)}
+.role-badge.ae{background:rgba(30,157,184,.2);color:var(--blue-light)}
+.role-badge.mgr{background:rgba(167,149,199,.2);color:var(--purple-light)}
+.role-badge.all{background:rgba(255,255,255,.1);color:var(--gray-light)}
+
+/* Table */
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.88rem}
+th{text-align:left;padding:10px 14px;background:rgba(30,157,184,.1);color:var(--blue-light);font-weight:600;font-size:.78rem;letter-spacing:.5px;text-transform:uppercase;border-bottom:2px solid rgba(30,157,184,.2)}
+td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--gray-light)}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* Keyboard shortcut style */
+kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:1px 6px;font-family:inherit;font-size:.82rem}
+
+/* Tip callout */
+.tip{display:flex;gap:12px;align-items:flex-start;background:rgba(205,255,78,.05);border:1px solid rgba(205,255,78,.15);border-radius:10px;padding:16px 20px;margin:16px 0}
+.tip .icon{font-size:1.2rem;flex-shrink:0;margin-top:2px}
+.tip p{margin:0;font-size:.88rem;color:var(--gray-light)}
+
+/* FAQ */
+.faq-item{margin:16px 0}
+.faq-q{font-weight:600;color:var(--white);margin-bottom:4px;font-size:.95rem}
+.faq-a{color:var(--gray-light);font-size:.9rem;padding-left:16px;border-left:2px solid rgba(30,157,184,.2)}
+
+/* TOC */
+.toc{background:rgba(30,157,184,.06);border:1px solid rgba(30,157,184,.15);border-radius:14px;padding:28px 32px;margin:40px 0}
+.toc h3{margin:0 0 16px;font-size:1.1rem;color:var(--white)}
+.toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 32px}
+.toc a{font-size:.88rem;padding:4px 0;display:block;color:var(--gray-light)}
+.toc a:hover{color:var(--blue-light)}
+.toc a .num{color:var(--blue);font-weight:600;margin-right:6px}
+
+/* Responsive */
+@media(max-width:768px){
+  .hero h1{font-size:2rem}
+  .tool-grid{grid-template-columns:1fr}
+  .toc-grid{grid-template-columns:1fr}
+  .top-bar{padding:10px 16px}
+  .content{padding:0 16px 60px}
+  .quick-nav{flex-direction:column;align-items:center}
+}
+
+/* Back to top */
+.back-top{position:fixed;bottom:24px;right:24px;width:44px;height:44px;background:var(--blue);color:var(--white);border:none;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;opacity:0;transition:all .3s;z-index:99;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.back-top.show{opacity:1}
+.back-top:hover{background:var(--green);color:var(--navy);transform:translateY(-2px)}
+</style>
+</head>
+<body>
+
+<!-- Auth Guard -->
+<script>
+(function(){
+  var s=localStorage.getItem('nerdio_v2_session');
+  if(!s){window.location.href='index.html';return;}
+  try{var sess=JSON.parse(s);var users=JSON.parse(localStorage.getItem('nerdio_v2_users')||'[]');var u=users.find(function(x){return x.id===sess.userId&&x.status==='active';});if(!u){localStorage.removeItem('nerdio_v2_session');window.location.href='index.html';return;}window._nerdioUser=u;}catch(e){window.location.href='index.html';}
+})();
+</script>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="logo">
+    <span>Nerdio</span> Sales Command Centre
+    <div class="badge">User Guide</div>
+  </div>
+  <nav>
+    <a href="index.html">Command Centre</a>
+    <a href="enablement-hub.html">Enablement Hub</a>
+    <a href="#" onclick="var s=JSON.parse(localStorage.getItem('nerdio_v2_session')||'{}');if(s.role==='sdr')location='sdr-portal.html';else if(s.role==='ae')location='ae-portal.html';else if(s.role==='manager')location='manager-portal.html';return false;">My Portal</a>
+  </nav>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>User Guide</h1>
+  <p>Everything you need to get started, import your data, and get the most from every tool in the Sales Command Centre — tailored to your role.</p>
+  <div class="version">Nerdio Sales Command Centre v2 — Last updated March 2026</div>
+
+  <div class="quick-nav">
+    <a href="#getting-started">Getting Started</a>
+    <a href="#roles" class="sdr">SDR Guide</a>
+    <a href="#roles-ae" class="ae">AE Guide</a>
+    <a href="#roles-mgr" class="mgr">Manager Guide</a>
+    <a href="#data">Data & Uploads</a>
+    <a href="#tools">Tool Reference</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+  <!-- Table of Contents -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <div class="toc-grid">
+      <a href="#getting-started"><span class="num">1</span> Getting Started</a>
+      <a href="#tools-crm"><span class="num">7</span> CRM & Account Intel</a>
+      <a href="#first-login"><span class="num">2</span> Your First Login</a>
+      <a href="#tools-deal"><span class="num">8</span> Deal Progression</a>
+      <a href="#roles"><span class="num">3</span> SDR — Pipeline Builder</a>
+      <a href="#tools-enable"><span class="num">9</span> Enablement Tools</a>
+      <a href="#roles-ae"><span class="num">4</span> AE — Deal Closer</a>
+      <a href="#manager-viewas"><span class="num">10</span> Manager View-As</a>
+      <a href="#roles-mgr"><span class="num">5</span> Manager — Team Leader</a>
+      <a href="#admin"><span class="num">11</span> Admin & User Mgmt</a>
+      <a href="#data"><span class="num">6</span> Data Import & Upload</a>
+      <a href="#faq"><span class="num">12</span> FAQ & Troubleshooting</a>
+    </div>
+  </div>
+
+  <!-- ========== 1. GETTING STARTED ========== -->
+  <div class="section" id="getting-started">
+    <div class="section-label">Chapter 1</div>
+    <h2>Getting Started</h2>
+    <p>The Nerdio Sales Command Centre is a browser-based toolkit that gives SDRs, AEs, and Managers a unified set of sales tools — from territory management and outreach through to deal execution and coaching. Everything runs locally in your browser with data stored per-user, so your pipeline, territory, and activity are private to you.</p>
+
+    <h3>What You Need</h3>
+    <p>A modern browser (Chrome, Edge, Firefox, or Safari) is all that's required. No installation, no server, no VPN. Simply open the <kbd>index.html</kbd> file and log in. All data is stored in your browser's local storage, meaning your accounts, settings, and progress persist between sessions on the same device.</p>
+
+    <div class="info-card warning">
+      <h4>Important — Browser Data</h4>
+      <p>Because everything is stored locally, clearing your browser data or switching devices will reset your session. If you work across multiple machines, you'll need to re-upload your territory data on each one.</p>
+    </div>
+
+    <h3>System Overview</h3>
+    <p>The Command Centre has four layers that work together:</p>
+
+    <table>
+      <tr><th>Layer</th><th>Purpose</th><th>Who Uses It</th></tr>
+      <tr><td>Role Portals</td><td>Home base for each role with curated tools, stats, and territory data</td><td>SDRs, AEs, Managers</td></tr>
+      <tr><td>Enablement Hub</td><td>Shared positioning content, battlecards, licensing, and Microsoft co-sell material</td><td>Everyone</td></tr>
+      <tr><td>Individual Tools</td><td>16 specialist tools for pipeline, discovery, outreach, deal management, and ROI</td><td>Per role access</td></tr>
+      <tr><td>Admin Panel</td><td>User management — create accounts, assign roles, reset passwords</td><td>Administrators</td></tr>
+    </table>
+  </div>
+
+  <!-- ========== 2. FIRST LOGIN ========== -->
+  <div class="section" id="first-login">
+    <div class="section-label">Chapter 2</div>
+    <h2>Your First Login</h2>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Open the Command Centre</h4>
+        <p>Navigate to the <kbd>index.html</kbd> file. If this is the very first time anyone has opened the system, you'll be prompted to set an admin master password. This password protects the Admin Panel where users are created.</p>
+      </div>
+      <div class="step">
+        <h4>Get Your Credentials</h4>
+        <p>Your manager or admin will create your account via the Admin Panel and provide your username and initial password. Each account is assigned a role: <span class="role-badge sdr">SDR</span>, <span class="role-badge ae">AE</span>, or <span class="role-badge mgr">Manager</span>.</p>
+      </div>
+      <div class="step">
+        <h4>Sign In</h4>
+        <p>Enter your username and password on the login screen. On successful login, you'll see the role selection screen showing the portals available to you based on your role.</p>
+      </div>
+      <div class="step">
+        <h4>Enter Your Portal</h4>
+        <p>Click your portal card to enter your home base. SDRs will go to "Pipeline Builder", AEs to "Deal Closer", and Managers to "Team Leader". You'll also see the Enablement Hub link which is available to everyone.</p>
+      </div>
+      <div class="step">
+        <h4>Complete Setup</h4>
+        <p>Each portal has an initial setup section where you upload your territory data, select verticals, and set targets. Complete this step to personalise your tools.</p>
+      </div>
+    </div>
+
+    <h3>What Each Role Can See</h3>
+    <table>
+      <tr><th>Your Role</th><th>Portals Available</th><th>Why</th></tr>
+      <tr><td><span class="role-badge sdr">SDR</span></td><td>SDR Portal + Enablement Hub</td><td>Focused on pipeline generation — no need for deal management tools</td></tr>
+      <tr><td><span class="role-badge ae">AE</span></td><td>SDR Portal + AE Portal + Enablement Hub</td><td>AEs can view SDR pipeline data to see what's being passed to them</td></tr>
+      <tr><td><span class="role-badge mgr">Manager</span></td><td>All Portals + Enablement Hub</td><td>Full visibility across team with "View As" to see any team member's perspective</td></tr>
+    </table>
+  </div>
+
+  <!-- ========== 3. SDR GUIDE ========== -->
+  <div class="section" id="roles">
+    <div class="section-label">Chapter 3</div>
+    <h2><span class="role-badge sdr">SDR</span> Pipeline Builder</h2>
+    <p>The SDR Portal is your daily operating hub for prospecting, running outreach sequences, qualifying leads, and handing off meetings to AEs. Everything is built around your territory — the accounts you own and the pipeline you generate.</p>
+
+    <h3>Initial Setup</h3>
+    <p>When you first enter the SDR Portal, you'll see a three-step setup wizard at the top of the page:</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Upload Territory Data</h4>
+        <p>Drag and drop or click to upload a CSV or Excel file containing your accounts. The system reads columns like account name, vertical/industry, priority, status, size, and revenue. Once uploaded, this data feeds into the Account Intelligence and CRM tools automatically.</p>
+      </div>
+      <div class="step">
+        <h4>Select Your Verticals</h4>
+        <p>Click the vertical chips that match your territory focus — Financial Services, Healthcare, Education, Legal, Manufacturing, Public Sector, Professional Services, Retail, Technology, or Media. This helps personalise outreach templates and discovery questions.</p>
+      </div>
+      <div class="step">
+        <h4>Set Pipeline Target</h4>
+        <p>Enter your monthly qualified pipeline target (in currency). This powers the progress tracking on your stats bar and helps you see at a glance how close you are to target.</p>
+      </div>
+    </div>
+
+    <h3>Your Stats Bar</h3>
+    <p>Across the top of your portal, five key metrics keep you oriented: Accounts (total in territory), Active Sequences (running outreach), Meetings Booked, Pipeline Generated ($), and Target Progress (%). These update as you work with the tools.</p>
+
+    <h3>Portal Tabs</h3>
+    <p>Your portal has three tabs:</p>
+
+    <div class="info-card green">
+      <h4>My Tools (default)</h4>
+      <p>Your grid of 8 curated tools covering pipeline management, outreach, discovery, battlecards, and account intelligence. Each card shows the tool name, a brief description, and a category tag (Core, Intelligence, or Enablement).</p>
+    </div>
+
+    <div class="info-card green">
+      <h4>Territory</h4>
+      <p>Your account data management view. See all uploaded accounts in a searchable table, add accounts manually, refresh/re-upload your data, or clear everything and start fresh. You can also filter and search by name, vertical, or status.</p>
+    </div>
+
+    <div class="info-card green">
+      <h4>Activity</h4>
+      <p>A timestamped feed of your recent actions — logins, data uploads, tool usage. Useful for tracking your own workflow and reviewing what you did in previous sessions.</p>
+    </div>
+
+    <h3>SDR Tool Kit</h3>
+    <div class="tool-grid">
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">SDR Pipeline Engine</div>
+        <p>Your central pipeline hub — lead scoring, activity tracking, sequence status, and AE handoff management in one view.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">Outreach Sequences</div>
+        <p>Multi-touch, vertical-specific email and call templates personalised to your territory accounts. Select a vertical and get ready-to-send sequences.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">Discovery Questions</div>
+        <p>Qualification questions with follow-up probes, filtered for SDR-level conversations. Great for first calls and initial qualification.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">Pipeline Dashboard</div>
+        <p>Track qualified leads, conversion rates, and your pipeline contribution over time with visual charts and metrics.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag intel">Intelligence</div>
+        <div class="tool-name">Account Intelligence UKI</div>
+        <p>UK&I account database with buying signals, Microsoft contacts, and relationship maps. Feeds from your uploaded territory data.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag intel">Intelligence</div>
+        <div class="tool-name">Account Intelligence CRM</div>
+        <p>Full account management with contacts, deal status, activity tracking, and account health scoring. Also populated from your territory upload.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag enable">Enablement</div>
+        <div class="tool-name">Competitive Battlecards</div>
+        <p>Head-to-head comparisons against Citrix, VMware/Omnissa, native Azure. Objection handling and talk tracks for competitive situations.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag enable">Enablement</div>
+        <div class="tool-name">Enablement Hub</div>
+        <p>Nerdio positioning, Microsoft co-sell messaging, licensing guidance, and creative hooks — your enablement library.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <div class="icon">💡</div>
+      <p><strong>Day-to-day workflow:</strong> Start each morning in the Pipeline Engine to review your active leads and sequences. Use the Outreach tool to generate fresh templates for new accounts. Before calls, check the Discovery Questions tool for vertical-specific qualifying questions. After qualifying a lead, use the Pipeline Dashboard to update status and hand off to your AE.</p>
+    </div>
+  </div>
+
+  <!-- ========== 4. AE GUIDE ========== -->
+  <div class="section" id="roles-ae">
+    <div class="section-label">Chapter 4</div>
+    <h2><span class="role-badge ae">AE</span> Deal Closer</h2>
+    <p>The AE Portal is designed around progressing and closing deals. Your tools are organised into two tracks: Deal Progression (moving deals forward) and Account Planning (understanding and mapping your accounts deeply).</p>
+
+    <h3>Initial Setup</h3>
+    <p>The AE setup is a two-step process:</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Upload Account Data</h4>
+        <p>Upload your account list from your CRM as a CSV or Excel file. This populates the Account Intelligence and CRM tools with your real accounts rather than sample data.</p>
+      </div>
+      <div class="step">
+        <h4>Select Vertical Focus</h4>
+        <p>Choose the verticals you primarily sell into — Financial Services, Healthcare, Education, Legal, Manufacturing, Public Sector, Professional Services, or Retail. This tailors discovery questions and positioning content.</p>
+      </div>
+    </div>
+
+    <h3>Your Stats Bar</h3>
+    <p>Six key metrics track your performance: Accounts, Active Deals, Pipeline Value ($), Win Rate (%), Avg Deal Size ($), and Avg Sales Cycle (days).</p>
+
+    <h3>Account Data Management</h3>
+    <p>Below your stats bar is the Account Data management bar. This shows a count of your uploaded accounts and gives you two actions:</p>
+
+    <div class="info-card">
+      <h4>Refresh / Re-upload Data</h4>
+      <p>Replace your current account data with a fresh export from your CRM. The system will confirm before overwriting, then reload all intelligence tools with your new data.</p>
+    </div>
+    <div class="info-card">
+      <h4>Clear All</h4>
+      <p>Remove all uploaded territory data and return tools to their default state. Useful when changing territories or starting a new quarter.</p>
+    </div>
+
+    <h3>Deal Progression Tools</h3>
+    <div class="tool-grid">
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">Deal Pipeline Dashboard</div>
+        <p>Visual pipeline tracker with stages, deal values, probability scores, and key metrics. Your birds-eye view of every active deal.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">Deal Reverse Timeline</div>
+        <p>Work backwards from your target close date to set milestone deadlines. Ensures nothing slips by mapping every step from proposal to signature.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">ROI Calculator</div>
+        <p>Build customer-ready business cases with cost savings, productivity gains, and payback period calculations. Essential for executive buy-in.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">Discovery Question Engine</div>
+        <p>Deep technical and business questions with probing follow-ups, mapped directly to Nerdio capabilities. Goes deeper than SDR-level qualification.</p>
+      </div>
+    </div>
+
+    <h3>Account Planning Tools</h3>
+    <div class="tool-grid">
+      <div class="tool-item">
+        <div class="tool-tag intel">Intelligence</div>
+        <div class="tool-name">Journey Map & Maturity</div>
+        <p>Map each account to its stage in the cloud/VDI journey and assess maturity level. Helps tailor your pitch to where the customer actually is.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag intel">Intelligence</div>
+        <div class="tool-name">Account Intelligence CRM</div>
+        <p>Full account management — contacts, activities, deal status, health scoring. Populated from your uploaded territory data.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">Estate Discovery Whiteboard</div>
+        <p>Map the customer's IT estate in live meetings with an interactive whiteboard. Includes the "Show Me Value" engine that generates tailored proposals.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag core">Core</div>
+        <div class="tool-name">User & Ops Whiteboard</div>
+        <p>Map user types, departments, and operational challenges. Captures the human side of the IT estate — who's affected and how.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag intel">Intelligence</div>
+        <div class="tool-name">Account Intelligence UKI</div>
+        <p>UK&I account database with buying signals, Microsoft contacts, and relationship data from your territory upload.</p>
+      </div>
+      <div class="tool-item">
+        <div class="tool-tag enable">Enablement</div>
+        <div class="tool-name">Licensing Navigator</div>
+        <p>M365 bundle comparison, AVD vs W365 eligibility checker, and cost modelling. Essential for solution design conversations.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <div class="icon">💡</div>
+      <p><strong>Day-to-day workflow:</strong> Start each day in the Deal Pipeline Dashboard to review active deals and next actions. Before discovery calls, prep with the Discovery Question Engine and check the account's Journey Map stage. During live calls, use the Estate Whiteboard to map infrastructure. After calls, update the CRM and use the Reverse Timeline to set next steps. For proposals, run the ROI Calculator to build a business case.</p>
+    </div>
+
+    <div class="tip">
+      <div class="icon">👀</div>
+      <p><strong>SDR visibility:</strong> As an AE, you can also access the SDR Portal from the role selection screen. This lets you see what pipeline your SDRs are building, review handoff quality, and understand the prospecting activity feeding your pipeline.</p>
+    </div>
+  </div>
+
+  <!-- ========== 5. MANAGER GUIDE ========== -->
+  <div class="section" id="roles-mgr">
+    <div class="section-label">Chapter 5</div>
+    <h2><span class="role-badge mgr">Manager</span> Team Leader</h2>
+    <p>The Manager Portal gives you full visibility across your team with oversight tools, coaching views, and reporting. You can also "view as" any team member to see exactly what they see in their portal — including their uploaded territory data and tool state.</p>
+
+    <h3>Your Stats Bar</h3>
+    <p>Six team-level metrics: Team Size, Active Deals, Total Pipeline ($), Forecast ($), Deals at Risk, and Target Progress (%).</p>
+
+    <h3 id="manager-viewas">The View-As Feature</h3>
+    <p>This is one of the most powerful Manager capabilities. From the role selection screen, when you click on the SDR or AE portal card, you'll see a team member picker instead of going directly to the portal. Select a team member to view their portal exactly as they see it — with their data, their stats, and their activity.</p>
+
+    <div class="info-card purple">
+      <h4>How View-As Works</h4>
+      <p>When viewing as a team member, a banner appears at the top of their portal showing who you're viewing as and a dropdown to switch to a different team member. All data shown is that team member's actual data (territory uploads, activity, stats). This is view-only — you're seeing their perspective without modifying anything. To return to your own Manager portal, use the "Switch Role" link or navigate back to the role selection screen.</p>
+    </div>
+
+    <h3>Portal Tabs</h3>
+
+    <div class="info-card purple">
+      <h4>Overview</h4>
+      <p>Team pipeline table showing every rep's active deals, pipeline value, target progress, and health status. Below that, a "Deals Closing This Quarter" timeline with deal cards. Your at-a-glance team view.</p>
+    </div>
+
+    <div class="info-card purple">
+      <h4>Team Territory</h4>
+      <p>Aggregated view of all team members' uploaded territory data. Filter by team member, role (SDR/AE), or search for specific accounts. Summary cards show total accounts, reps with data uploaded, and SDR vs AE account breakdowns.</p>
+    </div>
+
+    <div class="info-card purple">
+      <h4>Coaching</h4>
+      <p>Three-column layout organising tools into Discovery Review (whiteboards, discovery questions), Deal Review (timelines, ROI, journey maps), and Intelligence (account intel, pipeline, enablement). Use these during 1:1s and deal reviews.</p>
+    </div>
+
+    <div class="info-card purple">
+      <h4>Tools</h4>
+      <p>Grid view of all tools available to managers, tagged as Oversight, Coaching, or Intelligence. Click any tool to open it with full access to team data.</p>
+    </div>
+
+    <div class="info-card purple">
+      <h4>Reports</h4>
+      <p>Four report cards covering Pipeline Summary, Team Performance, Deal Health, and SDR Metrics. Each card has key data points. Use the "Export Summary" button to generate a shareable report.</p>
+    </div>
+
+    <div class="tip">
+      <div class="icon">💡</div>
+      <p><strong>Day-to-day workflow:</strong> Start each morning on the Overview tab to check pipeline health and deal status. Before 1:1s, use the View-As feature to see the rep's portal and prepare coaching points. During pipeline reviews, switch to Reports for data-backed discussion. Use the Coaching tab to run structured deal reviews with your team.</p>
+    </div>
+  </div>
+
+  <!-- ========== 6. DATA IMPORT ========== -->
+  <div class="section" id="data">
+    <div class="section-label">Chapter 6</div>
+    <h2>Data Import & Upload</h2>
+    <p>Territory data is the fuel that powers the intelligence tools. Uploading your accounts from a CSV or Excel file means the Account Intelligence and CRM tools show your real accounts instead of sample data.</p>
+
+    <h3>Supported Formats</h3>
+    <table>
+      <tr><th>Format</th><th>Extensions</th><th>Notes</th></tr>
+      <tr><td>CSV</td><td>.csv</td><td>Comma-separated values. Most CRM exports support this.</td></tr>
+      <tr><td>Excel</td><td>.xlsx, .xls</td><td>Reads the first sheet. Column headers should be in row 1.</td></tr>
+    </table>
+
+    <h3>Expected Columns</h3>
+    <p>The system is flexible and will map common column names automatically. The more columns you provide, the richer your tool experience will be:</p>
+
+    <table>
+      <tr><th>Column</th><th>Required?</th><th>Example Values</th></tr>
+      <tr><td>Account Name / Name / Company</td><td>Yes</td><td>Barclays, NHS Trust, etc.</td></tr>
+      <tr><td>Vertical / Industry / Sector</td><td>Recommended</td><td>Financial Services, Healthcare</td></tr>
+      <tr><td>Priority / Tier</td><td>Recommended</td><td>High, Medium, Low or Tier 1, 2, 3</td></tr>
+      <tr><td>Status</td><td>Optional</td><td>Prospecting, Engaged, Qualified, Negotiation</td></tr>
+      <tr><td>Revenue / ARR</td><td>Optional</td><td>50000, 250000</td></tr>
+      <tr><td>Size / Employees</td><td>Optional</td><td>500, 5000, 50000</td></tr>
+      <tr><td>Notes / Comments</td><td>Optional</td><td>Free text</td></tr>
+      <tr><td>Last Activity / Last Contact</td><td>Optional</td><td>2025-01-15</td></tr>
+    </table>
+
+    <h3>How to Upload</h3>
+    <div class="steps">
+      <div class="step">
+        <h4>Prepare Your File</h4>
+        <p>Export your account list from your CRM (Salesforce, HubSpot, Dynamics, etc.) as a CSV or Excel file. Make sure the first row contains column headers.</p>
+      </div>
+      <div class="step">
+        <h4>Go to Your Portal</h4>
+        <p>SDRs: Enter the SDR Portal and look for the "Upload Territory Data" card in the setup section, or switch to the Territory tab. AEs: Enter the AE Portal and use the setup section upload area.</p>
+      </div>
+      <div class="step">
+        <h4>Upload the File</h4>
+        <p>Drag your file onto the upload area, or click to browse. The system will parse it immediately and show you a count of accounts loaded.</p>
+      </div>
+      <div class="step">
+        <h4>Verify</h4>
+        <p>Check the Territory tab (SDR) or the Account Data bar (AE) to confirm the correct number of accounts was imported. Open the Account Intelligence or CRM tool to see your accounts in action.</p>
+      </div>
+    </div>
+
+    <h3>Re-uploading & Refreshing Data</h3>
+    <p>When your territory changes or you get a fresh CRM export, you don't need to clear everything first — just use the re-upload flow:</p>
+
+    <div class="info-card">
+      <h4>Refresh / Re-upload</h4>
+      <p>Click the "Refresh / Re-upload Data" button in the Territory tab (SDR) or the Account Data bar (AE). The system will ask you to confirm before replacing your existing data. Select your new file and it will overwrite the old accounts. All tools that use territory data will update automatically.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Clear All Data</h4>
+      <p>Click "Clear All" to remove all uploaded account data and return the intelligence tools to their default sample state. You'll be asked to confirm before anything is deleted. This is useful for quarterly resets or territory changes.</p>
+    </div>
+
+    <h3>How Data Flows Through Tools</h3>
+    <p>Once uploaded, your territory data automatically appears in two key tools:</p>
+
+    <table>
+      <tr><th>Tool</th><th>What It Uses</th><th>How It Transforms</th></tr>
+      <tr><td>Account Intelligence UKI</td><td>Name, Vertical, Priority, Size, Revenue, Status, Notes</td><td>Maps to UKI format with segments, industry tags, and signal tracking</td></tr>
+      <tr><td>Account Intelligence CRM</td><td>Name, Vertical, Priority, Status, Revenue</td><td>Maps to CRM tiers (Priority → Tier), with default scoring and tracking fields</td></tr>
+    </table>
+
+    <div class="tip">
+      <div class="icon">💡</div>
+      <p><strong>Best practice:</strong> Upload a fresh CRM export at the start of each week or quarter. The more complete your data (including status, revenue, and notes), the richer the intelligence tools become. Even a simple CSV with just account names and verticals is valuable — you can always enrich it later.</p>
+    </div>
+  </div>
+
+  <!-- ========== 7-9. TOOL REFERENCE ========== -->
+  <div class="section" id="tools">
+    <div class="section-label">Chapter 7</div>
+    <h2>Complete Tool Reference</h2>
+    <p>The Command Centre includes 16 specialist tools organised into three categories. Here's what each one does, who it's for, and when to use it.</p>
+  </div>
+
+  <div class="section" id="tools-crm">
+    <h3>Intelligence & CRM Tools</h3>
+
+    <div class="info-card">
+      <h4>Account Intelligence UKI</h4>
+      <p><span class="role-badge sdr">SDR</span> <span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>A searchable database of UK&I accounts with buying signals, Microsoft relationship contacts (ATU, STU, CSA roles), and segment information. When you upload territory data, your accounts replace the default set. Use the sidebar to explore individual accounts in depth, view signals, and identify the right Microsoft co-sell contact.</p>
+      <p><strong>Best for:</strong> Account research before calls, identifying Microsoft co-sell routes, territory planning.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Account Intelligence CRM</h4>
+      <p><span class="role-badge sdr">SDR</span> <span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>Full-featured account management with tiered account views, contact tracking, activity logs, deal status, and health scoring. Shows urgency indicators, compliance flags, and personalised opening messages. Territory uploads appear alongside built-in prototype accounts.</p>
+      <p><strong>Best for:</strong> Day-to-day account management, tracking contacts and activities, deal prioritisation.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Journey Map & Maturity Model</h4>
+      <p><span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>Visual journey mapping that places each account on a maturity curve — from early exploration through to optimised deployment. Helps you understand where a customer is in their cloud/VDI journey so you can tailor conversations appropriately.</p>
+      <p><strong>Best for:</strong> Account planning, tailoring pitch approach, identifying upsell opportunities.</p>
+    </div>
+  </div>
+
+  <div class="section" id="tools-deal">
+    <h3>Deal Progression Tools</h3>
+
+    <div class="info-card">
+      <h4>SDR Pipeline Engine</h4>
+      <p><span class="role-badge sdr">SDR</span></p>
+      <p>The SDR's operational hub — lead scoring, activity tracking, sequence status dashboards, and AE handoff management. Track every lead from first touch through qualification to handoff.</p>
+      <p><strong>Best for:</strong> Morning pipeline review, sequence management, tracking handoff quality.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Deal Pipeline Dashboard</h4>
+      <p><span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>Visual pipeline tracker with stage-based views, deal values, probability percentages, and performance metrics. See every active deal's status at a glance.</p>
+      <p><strong>Best for:</strong> Pipeline reviews, forecasting, identifying deals needing attention.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Deal Reverse Timeline</h4>
+      <p><span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>Work backwards from your target close date to map every milestone and action needed. Prevents deals from stalling by making the critical path visible.</p>
+      <p><strong>Best for:</strong> Deal planning, identifying blockers, keeping deals on track to close date.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>ROI Calculator</h4>
+      <p><span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>Build customer-facing business cases with cost savings breakdowns, productivity gains, and payback period calculations. Generates professional output suitable for sharing with customer stakeholders.</p>
+      <p><strong>Best for:</strong> Business case creation, exec-level justification, overcoming budget objections.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Outreach Sequences</h4>
+      <p><span class="role-badge sdr">SDR</span></p>
+      <p>Multi-touch outreach templates personalised by vertical. Select a vertical and account, then get a complete email/call sequence with timing, subject lines, and talking points.</p>
+      <p><strong>Best for:</strong> Starting new outreach campaigns, refreshing stale sequences, vertical-specific prospecting.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Estate Discovery Whiteboard</h4>
+      <p><span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>Interactive whiteboard for mapping a customer's IT estate during live meetings. Capture servers, desktops, cloud services, and infrastructure. Includes the "Show Me Value" engine that analyses what you've mapped and generates a tailored Nerdio value proposition.</p>
+      <p><strong>Best for:</strong> Live discovery meetings, mapping complex environments, generating tailored proposals.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>User & Ops Whiteboard</h4>
+      <p><span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>Companion to the Estate Whiteboard — maps user types, departments, operational pain points, and workflows. Captures the people side of the IT estate.</p>
+      <p><strong>Best for:</strong> Understanding user personas, identifying departmental needs, building comprehensive account maps.</p>
+    </div>
+  </div>
+
+  <div class="section" id="tools-enable">
+    <h3>Enablement & Positioning Tools</h3>
+
+    <div class="info-card">
+      <h4>Discovery Question Engine</h4>
+      <p><span class="role-badge sdr">SDR</span> <span class="role-badge ae">AE</span></p>
+      <p>Deep question bank with probing follow-ups, mapped to Nerdio capabilities. The SDR version focuses on qualification-level questions, while the AE version goes deeper into technical and business requirements.</p>
+      <p><strong>Best for:</strong> Call preparation, structured discovery, ensuring comprehensive qualification.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Competitive Battlecards</h4>
+      <p><span class="role-badge sdr">SDR</span> <span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>Head-to-head comparisons against key competitors (Citrix, VMware/Omnissa, native Azure Portal, and more). Each battlecard includes positioning, trap questions, objection handling, win stories, and talk tracks.</p>
+      <p><strong>Best for:</strong> Competitive deals, handling objections, preparing for bake-offs.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Microsoft Strategic Positioning</h4>
+      <p><span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>Stakeholder-specific messaging for Microsoft co-sell engagements. Tailored content for ATU, STU, CSA, and partner managers — speak their language and align to their priorities.</p>
+      <p><strong>Best for:</strong> Preparing for Microsoft co-sell meetings, aligning messaging to MS stakeholders.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Licensing Navigator</h4>
+      <p><span class="role-badge ae">AE</span> <span class="role-badge mgr">MGR</span></p>
+      <p>M365 bundle comparison tool, AVD vs Windows 365 eligibility checker, and cost modelling. Navigate the complexity of Microsoft licensing to find the right solution for each customer.</p>
+      <p><strong>Best for:</strong> Solution design, licensing conversations, cost comparisons.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Holiday Positioning Engine</h4>
+      <p><span class="role-badge all">All</span></p>
+      <p>Creative, story-driven seasonal messaging that uses holiday themes to communicate Nerdio value propositions in memorable ways. Great for social posts, email hooks, and conversation starters.</p>
+      <p><strong>Best for:</strong> Creative outreach hooks, social media content, breaking through inbox noise.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Getting Started Guide</h4>
+      <p><span class="role-badge all">All</span></p>
+      <p>Interactive onboarding guide covering Nerdio products, value propositions, and how to position them. A reference for both new starters and experienced reps who want a refresher.</p>
+      <p><strong>Best for:</strong> Onboarding, refresher training, quick positioning reference.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Enablement Hub</h4>
+      <p><span class="role-badge all">All</span></p>
+      <p>Central library of positioning content organised around Nerdio's four pillars (Automation, Cost Optimisation, Security, Visibility). Includes elevator pitch, key differentiators, ideal customer profile, and common pain points quick-reference cards.</p>
+      <p><strong>Best for:</strong> Quick reference before calls, positioning refresh, finding the right message for each situation.</p>
+    </div>
+  </div>
+
+  <!-- ========== 10. MANAGER VIEW-AS DETAIL ========== -->
+  <div class="section">
+    <div class="section-label">Chapter 10</div>
+    <h2>Manager View-As — Deep Dive</h2>
+    <p>The View-As feature lets managers see any team member's portal exactly as that person sees it — with their uploaded data, their stats, and their tool state. This is essential for coaching, pipeline reviews, and understanding each rep's perspective.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Go to Role Selection</h4>
+        <p>From the Command Centre home screen (or click "Switch Role" from any portal), you'll see all three portal cards.</p>
+      </div>
+      <div class="step">
+        <h4>Click SDR or AE Portal</h4>
+        <p>As a Manager, instead of entering the portal directly, you'll see a team member picker showing all active users with that role.</p>
+      </div>
+      <div class="step">
+        <h4>Select a Team Member</h4>
+        <p>Click on the person you want to view as. The system stores this selection and opens their portal.</p>
+      </div>
+      <div class="step">
+        <h4>Review Their View</h4>
+        <p>You'll see a banner at the top confirming you're viewing as that person. All data, stats, and tools reflect their perspective. Use the dropdown in the banner to switch to a different team member without going back to the role selection screen.</p>
+      </div>
+      <div class="step">
+        <h4>Return to Your Portal</h4>
+        <p>Click "Switch Role" in the top bar to go back to the role selection screen and enter your own Manager Portal.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <div class="icon">💡</div>
+      <p><strong>Coaching tip:</strong> Before a 1:1, use View-As to review the rep's territory data, pipeline stats, and recent activity. This lets you come to the meeting with specific, data-backed coaching points rather than generic advice.</p>
+    </div>
+  </div>
+
+  <!-- ========== 11. ADMIN ========== -->
+  <div class="section" id="admin">
+    <div class="section-label">Chapter 11</div>
+    <h2>Admin & User Management</h2>
+    <p>The Admin Panel is where user accounts are created and managed. It's protected by a separate master password that's set on first launch.</p>
+
+    <h3>First-Time Setup</h3>
+    <p>The very first time anyone opens the Command Centre, the admin will be prompted to set a master password. This password is separate from any user login — it protects the admin panel only. Keep it secure.</p>
+
+    <h3>Creating Users</h3>
+    <div class="steps">
+      <div class="step">
+        <h4>Open the Admin Panel</h4>
+        <p>Click "Admin Panel" from the bottom of the role selection screen and enter the master password.</p>
+      </div>
+      <div class="step">
+        <h4>Fill in User Details</h4>
+        <p>Enter the person's full name, choose a username, set an initial password, and select their role (SDR, AE, or Manager).</p>
+      </div>
+      <div class="step">
+        <h4>Click "Add User"</h4>
+        <p>The account is created immediately. Share the username and password with the new user so they can log in.</p>
+      </div>
+    </div>
+
+    <h3>Managing Existing Users</h3>
+    <table>
+      <tr><th>Action</th><th>What It Does</th></tr>
+      <tr><td>Disable</td><td>Prevents the user from logging in. Their data is preserved. Can be re-enabled later.</td></tr>
+      <tr><td>Enable</td><td>Reactivates a disabled account.</td></tr>
+      <tr><td>Reset Password</td><td>Sets a new password for the user. You'll need to share it with them.</td></tr>
+      <tr><td>Delete</td><td>Permanently removes the user account. Their uploaded data in localStorage is not automatically cleared.</td></tr>
+    </table>
+
+    <h3>Changing the Admin Password</h3>
+    <p>At the bottom of the Admin Panel, there's a "Change Admin Password" section. Enter and confirm your new password to update it. This only affects the admin panel login — user passwords are separate.</p>
+  </div>
+
+  <!-- ========== 12. FAQ ========== -->
+  <div class="section" id="faq">
+    <div class="section-label">Chapter 12</div>
+    <h2>FAQ & Troubleshooting</h2>
+
+    <div class="faq-item">
+      <div class="faq-q">My uploaded data isn't showing in the Account Intelligence tool</div>
+      <div class="faq-a">Make sure you uploaded from within your portal (not the admin panel). The tools look for territory data stored under your specific username. Try opening the tool directly from your portal's tool grid — the auth guard passes your user identity to the tool.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">I cleared my browser data and lost everything</div>
+      <div class="faq-a">All Command Centre data is stored in browser localStorage. If you clear site data, cookies, or use a private/incognito window, your data won't be available. Keep a copy of your territory CSV so you can re-upload if needed.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">I can see the SDR Portal but not the AE Portal</div>
+      <div class="faq-a">Portal visibility is role-based. SDRs only see the SDR Portal. If you need access to AE tools, ask your admin to update your role in the Admin Panel.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">My CSV upload seems to import but shows 0 accounts</div>
+      <div class="faq-a">Check that your CSV has a header row with recognisable column names. The system looks for columns like "name", "account", "company" for account names. If your columns use unusual names, try renaming them to standard labels before uploading.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">As a manager, the View-As dropdown is empty</div>
+      <div class="faq-a">The picker only shows active users. If no SDRs or AEs have been created in the Admin Panel (or they're all disabled), the list will be empty. Create user accounts first via Admin.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How do I switch between roles?</div>
+      <div class="faq-a">Click "Switch Role" in the top bar of any portal to return to the role selection screen. From there, click the portal card for the role you want to enter. Managers can access all portals; AEs can access SDR and AE; SDRs can only access SDR.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I use this on my phone or tablet?</div>
+      <div class="faq-a">The tools are designed for desktop browsers. While some pages may render on mobile, the full experience — especially whiteboards and complex tools — works best on a laptop or desktop screen.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">What data formats does the Excel upload support?</div>
+      <div class="faq-a">Both .xlsx and .xls formats are supported via the SheetJS library. The system reads the first sheet and uses row 1 as column headers. Multiple sheets are not merged — only the first is used.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How do I share the Command Centre with my team?</div>
+      <div class="faq-a">Share the v2 folder with your team via a shared drive, SharePoint, or any file sharing method. Each person opens index.html in their own browser. User accounts and data are stored per-browser, so each team member has their own private workspace.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can multiple people log in with the same account?</div>
+      <div class="faq-a">Technically yes (on different devices), but each browser has its own localStorage, so they won't share uploaded data or activity history. It's better to create individual accounts for each person.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Back to top button -->
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// Back to top visibility
+window.addEventListener('scroll', function() {
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 400);
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

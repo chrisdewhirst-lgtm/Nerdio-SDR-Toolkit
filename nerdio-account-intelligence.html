@@ -304,6 +304,20 @@ const ACCOUNTS = [{"tpid":"9168260","name":"A2 HOUSING GROUP","segment":"Majors 
     // Replace ACCOUNTS contents with user data
     ACCOUNTS.length = 0;
     userAccounts.forEach(function(a){ ACCOUNTS.push(a); });
+    // Flag that territory data is loaded (for UI adaptation)
+    window._territoryLoaded = true;
+    // Build dynamic INDUSTRY_CONTEXT entries for uploaded verticals
+    var uploadedVerticals = {};
+    userAccounts.forEach(function(a){ if(a.industry && a.industry !== 'Not specified') uploadedVerticals[a.industry] = true; });
+    Object.keys(uploadedVerticals).forEach(function(v){
+      if(!INDUSTRY_CONTEXT[v]){
+        INDUSTRY_CONTEXT[v] = {
+          signals:["Citrix/VMware contract renewal evaluation","Microsoft cloud-first / M365 modernisation","Desktop virtualisation or hybrid working programme","Azure cost optimisation or auto-scaling requirement"],
+          acr_estimate:"Assess based on seat count",
+          priority:"ASSESS — review account signals"
+        };
+      }
+    });
   } catch(e){ console.warn('Territory data load error:', e); }
 })();
 
@@ -393,6 +407,28 @@ const INDUSTRY_CONTEXT = {
   "Healthcare":{signals:["NHS Digital cloud-first strategy","Clinical desktop refresh","Zero-trust programme underway","DSPT compliance requirements"],acr_estimate:"£150K–£400K",priority:"MEDIUM — strong compliance angle"},
   "Education":{signals:["Term-time seasonal scaling challenge","Campus IT modernisation","Microsoft EDU licensing review","Remote learning infrastructure"],acr_estimate:"£100K–£300K",priority:"MEDIUM — strong auto-scaling story"}
 };
+// Dynamic industry context lookup — returns context for known verticals, generates useful defaults for uploaded ones
+function getIndustryContext(industry) {
+  if (!industry) return null;
+  // Exact match first
+  if (INDUSTRY_CONTEXT[industry]) return INDUSTRY_CONTEXT[industry];
+  // Fuzzy match on known verticals
+  var il = industry.toLowerCase();
+  for (var key in INDUSTRY_CONTEXT) {
+    if (il.includes(key.toLowerCase().split(' ')[0]) || key.toLowerCase().includes(il.split(' ')[0])) return INDUSTRY_CONTEXT[key];
+  }
+  // Dynamic context for any uploaded vertical
+  return {
+    signals: [
+      "Citrix/VMware contract renewal evaluation",
+      "Microsoft cloud-first / M365 modernisation initiative",
+      "Desktop virtualisation or hybrid working programme",
+      "Azure cost optimisation or auto-scaling requirement"
+    ],
+    acr_estimate: "Assess based on seat count and infrastructure",
+    priority: "ASSESS — review account signals and engagement level"
+  };
+}
 
 // ════════════════════════════════════════════════════
 // LinkedIn name heuristics — best-guess from alias
@@ -610,15 +646,47 @@ const chipsEl       = document.getElementById('chips');
 
 document.getElementById('acct-count').textContent = ACCOUNTS.length.toLocaleString() + ' accounts';
 
-// Populate chips dynamically from first 8 accounts
-ACCOUNTS.slice(0,8).forEach(function(a){
-  var b=document.createElement('button');
-  b.className='chip';
-  var n=a.name||'';
-  b.textContent=n.length>22?n.substring(0,20)+'…':n;
-  b.setAttribute('onclick','quickSearch("'+n.replace(/"/g,'\\"')+'")');
-  chipsEl.appendChild(b);
-});
+// Populate chips dynamically
+if(window._territoryLoaded) {
+  // When territory data is loaded, show vertical/industry filter chips + top account names
+  var verticalCounts = {};
+  ACCOUNTS.forEach(function(a){ var v = a.industry || 'Other'; verticalCounts[v] = (verticalCounts[v]||0)+1; });
+  var sortedVerticals = Object.keys(verticalCounts).filter(function(v){ return v !== 'Not specified'; }).sort(function(a,b){ return verticalCounts[b]-verticalCounts[a]; });
+  // Add vertical filter chips
+  sortedVerticals.slice(0,6).forEach(function(v){
+    var b=document.createElement('button');
+    b.className='chip';
+    b.style.borderColor = industryColor(v);
+    b.style.color = industryColor(v);
+    b.textContent = v + ' ('+verticalCounts[v]+')';
+    b.setAttribute('onclick','quickSearch("'+v.replace(/"/g,'\\"')+'")');
+    chipsEl.appendChild(b);
+  });
+  // Add separator then top 4 account names
+  if(ACCOUNTS.length > 0) {
+    var sep = document.createElement('span');
+    sep.style.cssText = 'width:1px;height:20px;background:rgba(255,255,255,0.1);margin:0 4px;';
+    chipsEl.appendChild(sep);
+    ACCOUNTS.slice(0,4).forEach(function(a){
+      var b=document.createElement('button');
+      b.className='chip';
+      var n=a.name||'';
+      b.textContent=n.length>22?n.substring(0,20)+'…':n;
+      b.setAttribute('onclick','quickSearch("'+n.replace(/"/g,'\\"')+'")');
+      chipsEl.appendChild(b);
+    });
+  }
+} else {
+  // Default: show first 8 account names as chips
+  ACCOUNTS.slice(0,8).forEach(function(a){
+    var b=document.createElement('button');
+    b.className='chip';
+    var n=a.name||'';
+    b.textContent=n.length>22?n.substring(0,20)+'…':n;
+    b.setAttribute('onclick','quickSearch("'+n.replace(/"/g,'\\"')+'")');
+    chipsEl.appendChild(b);
+  });
+}
 
 // ════════════════════════════════════════════════════
 // HELPERS
@@ -627,9 +695,20 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function industryColor(ind){
   if (!ind) return '#A795C7';
   const i = ind.toLowerCase();
-  if (i.includes('financial')) return '#CDFF4E';
-  if (i.includes('retail'))    return '#1E9DB8';
-  return '#A795C7';
+  if (i.includes('financial') || i.includes('banking') || i.includes('insurance') || i.includes('capital')) return '#CDFF4E';
+  if (i.includes('retail') || i.includes('consumer')) return '#1E9DB8';
+  if (i.includes('health') || i.includes('pharma')) return '#22c55e';
+  if (i.includes('government') || i.includes('public')) return '#60a5fa';
+  if (i.includes('education')) return '#f59e0b';
+  if (i.includes('manufacturing') || i.includes('industrial')) return '#fb923c';
+  if (i.includes('tech') || i.includes('software') || i.includes('platform')) return '#38bdf8';
+  if (i.includes('media') || i.includes('telecom')) return '#c084fc';
+  if (i.includes('energy') || i.includes('oil') || i.includes('utility')) return '#facc15';
+  if (i.includes('legal') || i.includes('professional')) return '#2dd4bf';
+  if (i.includes('transport') || i.includes('automotive')) return '#f472b6';
+  // Dynamic hash-based color for any unrecognised vertical
+  var hash = 0; for(var j=0;j<i.length;j++) hash = i.charCodeAt(j) + ((hash<<5)-hash);
+  return 'hsl('+(Math.abs(hash)%360)+',65%,65%)';
 }
 function loadIntel(tpid){
   try { return JSON.parse(localStorage.getItem('nai_intel_' + tpid) || '{"notes":"","signals":[],"contacts":{}}'); }
@@ -710,7 +789,7 @@ function selectAccount(acc){
 function renderSidebar(acc){
   sidebarEmpty.style.display = 'none';
   sidebarAcct.style.display = 'block';
-  const ctx = INDUSTRY_CONTEXT[acc.industry] || {};
+  const ctx = getIndustryContext(acc.industry) || {};
   // Build extra info for uploaded accounts
   var extraHtml = '';
   if(acc._uploaded){
@@ -772,16 +851,16 @@ function renderSidebar(acc){
 function showAccountOverview(acc){
   contentEmpty.style.display = 'none';
   contentDetail.style.display = 'block';
-  const ctx = INDUSTRY_CONTEXT[acc.industry] || {};
+  const ctx = getIndustryContext(acc.industry) || {};
   const activeRoles = Object.entries(acc.roles||{}).filter(function(e){ return e[1]&&e[1]!==''; });
   contentDetail.innerHTML =
     '<div style="margin-bottom:22px"><div style="font-size:19px;font-weight:700;margin-bottom:6px">'+esc(acc.name)+'</div>'+
     '<div style="font-size:12px;color:rgba(255,255,255,.5)">Select a Microsoft contact in the sidebar to load their engagement profile, LinkedIn, contact details, and personalised outreach.</div></div>'+
     '<div class="overview-tab"><div class="ov-title">Account at a Glance</div><div class="ov-grid">'+
-      '<div class="ov-stat"><div class="ov-stat-val">'+activeRoles.length+'</div><div class="ov-stat-lbl">Microsoft contacts in MAL</div></div>'+
+      '<div class="ov-stat"><div class="ov-stat-val">'+activeRoles.length+'</div><div class="ov-stat-lbl">'+(acc._uploaded&&activeRoles.length===0?'Contacts (add via CRM)':'Microsoft contacts in MAL')+'</div></div>'+
       '<div class="ov-stat"><div class="ov-stat-val">'+esc(ctx.acr_estimate||'TBD')+'</div><div class="ov-stat-lbl">Est. annual Azure ACR</div></div>'+
       '<div class="ov-stat"><div class="ov-stat-val">'+esc(acc.industry||'—')+'</div><div class="ov-stat-lbl">Industry vertical</div></div>'+
-      '<div class="ov-stat"><div class="ov-stat-val">'+esc(acc.sheet)+'</div><div class="ov-stat-lbl">MAL segment</div></div>'+
+      '<div class="ov-stat"><div class="ov-stat-val">'+esc(acc.sheet)+'</div><div class="ov-stat-lbl">'+(acc._uploaded?'Territory source':'MAL segment')+'</div></div>'+
     '</div></div>'+
     (ctx.signals ? '<div class="overview-tab"><div class="ov-title">&#128204; Common Buy Signals for '+esc(acc.industry)+'</div>'+
       ctx.signals.map(function(s){
