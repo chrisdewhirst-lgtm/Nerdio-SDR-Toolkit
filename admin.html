@@ -644,15 +644,26 @@ var adminKnowledge = [];
 var adminAlerts = [];
 
 // ===== INITIALIZATION =====
+function loadMALData() {
+    try {
+        var stored = localStorage.getItem('nerdio_v3_mal');
+        if (stored) {
+            malData = JSON.parse(stored);
+            displayMALStats();
+        }
+    } catch(e) { malData = []; }
+}
+
 function initApp() {
     document.getElementById('usernameDisplay').textContent = window.currentUser.username || 'User';
+
+    // Attach event listeners FIRST so logout always works
+    attachEventListeners();
 
     loadMALData();
     loadAdminKnowledge();
     loadAdminAlerts();
     loadUsers();
-
-    attachEventListeners();
 }
 
 function attachEventListeners() {
