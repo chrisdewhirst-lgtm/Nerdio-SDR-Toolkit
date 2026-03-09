@@ -1,561 +1,1204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel — Nerdio Sales Command Centre</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root {
-  --navy: #042838;
-  --navy-light: #0a3a50;
-  --teal: #1E9DB8;
-  --white: #FFFFFF;
-  --green: #CDFF4E;
-  --green-dim: rgba(205,255,78,0.15);
-  --purple: #A795C7;
-  --purple-dim: rgba(167,149,199,0.15);
-  --red: #ef4444;
-  --red-dim: rgba(239,68,68,0.12);
-  --orange: #f59e0b;
-  --orange-dim: rgba(245,158,11,0.12);
-  --gray-500: #6b7280;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--navy);
-  color: var(--white);
-  min-height: 100vh;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nerdio Command Centre v3 - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Login Screen */
-.login-screen {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(circle at 50% 40%, rgba(239,68,68,0.06), transparent 60%);
-}
-.login-box {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px; padding: 40px; width: 100%; max-width: 400px;
-  text-align: center;
-}
-.login-box .lock-icon { font-size: 48px; margin-bottom: 16px; }
-.login-box h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-.login-box p { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 24px; }
-.login-box input {
-  width: 100%; padding: 12px 16px; border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.05);
-  color: var(--white); font-family: 'Poppins'; font-size: 14px;
-  margin-bottom: 12px; text-align: center;
-  transition: border-color 0.2s;
-}
-.login-box input:focus { outline: none; border-color: var(--red); }
-.login-box input::placeholder { color: rgba(255,255,255,0.3); }
-.login-box .login-btn {
-  width: 100%; padding: 12px; border-radius: 12px; border: none;
-  background: var(--red); color: var(--white);
-  font-family: 'Poppins'; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all 0.3s;
-}
-.login-box .login-btn:hover { background: #dc2626; }
-.login-error {
-  color: var(--red); font-size: 12px; margin-top: 8px; display: none;
-}
-.login-box .back-link {
-  display: inline-block; margin-top: 16px;
-  color: rgba(255,255,255,0.3); font-size: 12px; text-decoration: none;
-}
-.login-box .back-link:hover { color: rgba(255,255,255,0.6); }
-.first-time-note {
-  margin-top: 16px; padding: 12px; border-radius: 10px;
-  background: rgba(30,157,184,0.08); border: 1px solid rgba(30,157,184,0.2);
-  font-size: 11px; color: var(--teal); line-height: 1.5;
-}
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #042838;
+            color: #FFFFFF;
+            min-height: 100vh;
+        }
 
-/* Admin Panel */
-.admin-panel { display: none; }
-.admin-panel.active { display: block; }
+        .top-bar {
+            background-color: #042838;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 24px;
-  background: rgba(4,40,56,0.95);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  position: sticky; top: 0; z-index: 100;
-  backdrop-filter: blur(12px);
-}
-.topbar-left { display: flex; align-items: center; gap: 12px; }
-.topbar-left .admin-badge {
-  background: var(--red-dim);
-  color: var(--red);
-  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
-  padding: 4px 12px; border-radius: 6px;
-}
-.topbar-left h2 { font-size: 16px; font-weight: 600; }
-.topbar-right { display: flex; align-items: center; gap: 12px; }
-.topbar-right a, .topbar-right button {
-  color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px;
-  padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
-  border: 1px solid transparent; background: none; font-family: 'Poppins'; cursor: pointer;
-}
-.topbar-right a:hover, .topbar-right button:hover { color: var(--white); border-color: rgba(255,255,255,0.15); }
+        .top-bar-left {
+            font-size: 18px;
+            font-weight: 600;
+        }
 
-.main { max-width: 1000px; margin: 0 auto; padding: 28px 24px; }
+        .top-bar-center {
+            font-size: 16px;
+            font-weight: 500;
+        }
 
-/* Stats */
-.admin-stats {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px;
-}
-.admin-stat {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px; padding: 18px; text-align: center;
-}
-.admin-stat .val { font-size: 28px; font-weight: 800; line-height: 1; }
-.admin-stat .label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
-.val.green { color: var(--green); }
-.val.red { color: var(--red); }
-.val.teal { color: var(--teal); }
-.val.purple { color: var(--purple); }
+        .top-bar-right {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
 
-/* Add User Form */
-.add-user-section {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px; padding: 24px; margin-bottom: 24px;
-}
-.add-user-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
-.form-row {
-  display: grid; grid-template-columns: 1fr 1fr 1fr auto auto; gap: 10px; align-items: end;
-}
-.form-group label {
-  display: block; font-size: 11px; color: rgba(255,255,255,0.4);
-  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
-}
-.form-group input, .form-group select {
-  width: 100%; padding: 10px 14px; border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.05);
-  color: var(--white); font-family: 'Poppins'; font-size: 13px;
-}
-.form-group select option { background: var(--navy); color: var(--white); }
-.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--teal); }
-.btn-add {
-  padding: 10px 20px; border-radius: 10px; border: none;
-  background: var(--teal); color: var(--white);
-  font-family: 'Poppins'; font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s; white-space: nowrap;
-}
-.btn-add:hover { background: #1aabbf; }
+        .username {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
 
-/* User Table */
-.user-section {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px; padding: 24px; margin-bottom: 24px;
-}
-.user-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
-.user-table {
-  width: 100%; border-collapse: collapse;
-}
-.user-table th {
-  text-align: left; padding: 10px 12px;
-  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
-  color: rgba(255,255,255,0.4);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.user-table td {
-  padding: 12px; font-size: 13px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.7);
-}
-.user-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .btn-logout {
+            background-color: #1E9DB8;
+            color: #FFFFFF;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
 
-.status-badge {
-  display: inline-block; padding: 3px 10px; border-radius: 6px;
-  font-size: 10px; font-weight: 600; text-transform: uppercase;
-}
-.status-badge.active { background: var(--green-dim); color: var(--green); }
-.status-badge.disabled { background: var(--red-dim); color: var(--red); }
+        .btn-logout:hover {
+            background-color: #17738c;
+        }
 
-.role-badge-sm {
-  display: inline-block; padding: 3px 10px; border-radius: 6px;
-  font-size: 10px; font-weight: 600; text-transform: uppercase;
-}
-.role-badge-sm.sdr { background: var(--green-dim); color: var(--green); }
-.role-badge-sm.ae { background: rgba(30,157,184,0.15); color: var(--teal); }
-.role-badge-sm.manager { background: var(--purple-dim); color: var(--purple); }
-.role-badge-sm.admin { background: var(--red-dim); color: var(--red); }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
 
-.btn-action {
-  padding: 4px 10px; border-radius: 6px; border: none;
-  font-family: 'Poppins'; font-size: 11px; font-weight: 500;
-  cursor: pointer; transition: all 0.2s; margin-right: 4px;
-}
-.btn-disable { background: var(--orange-dim); color: var(--orange); }
-.btn-disable:hover { background: rgba(245,158,11,0.25); }
-.btn-enable { background: var(--green-dim); color: var(--green); }
-.btn-enable:hover { background: rgba(205,255,78,0.25); }
-.btn-delete { background: var(--red-dim); color: var(--red); }
-.btn-delete:hover { background: rgba(239,68,68,0.25); }
-.btn-reset { background: rgba(30,157,184,0.12); color: var(--teal); }
-.btn-reset:hover { background: rgba(30,157,184,0.25); }
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-/* Change Admin Password */
-.admin-pw-section {
-  background: rgba(239,68,68,0.04);
-  border: 1px solid rgba(239,68,68,0.15);
-  border-radius: 16px; padding: 24px;
-}
-.admin-pw-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--red); }
-.pw-form { display: flex; gap: 10px; align-items: end; }
-.pw-form input {
-  flex: 1; padding: 10px 14px; border-radius: 10px;
-  border: 1px solid rgba(239,68,68,0.2);
-  background: rgba(255,255,255,0.05);
-  color: var(--white); font-family: 'Poppins'; font-size: 13px;
-}
-.pw-form input:focus { outline: none; border-color: var(--red); }
-.btn-pw {
-  padding: 10px 20px; border-radius: 10px; border: none;
-  background: var(--red); color: var(--white);
-  font-family: 'Poppins'; font-size: 13px; font-weight: 600;
-  cursor: pointer; white-space: nowrap;
-}
+        .tab-button {
+            padding: 12px 20px;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
 
-@media (max-width: 768px) {
-  .form-row { grid-template-columns: 1fr; }
-  .admin-stats { grid-template-columns: repeat(2, 1fr); }
-}
-</style>
+        .tab-button:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tab-button.active {
+            color: #1E9DB8;
+            border-bottom-color: #1E9DB8;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1E9DB8;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: #FFFFFF;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1E9DB8;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: #1E9DB8;
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background-color: #17738c;
+        }
+
+        .btn-secondary {
+            background-color: #A795C7;
+            color: #FFFFFF;
+        }
+
+        .btn-secondary:hover {
+            background-color: #8c769b;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: #FFFFFF;
+        }
+
+        .btn-danger:hover {
+            background-color: #bb2d3b;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(30, 157, 184, 0.5);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #1E9DB8;
+            background-color: rgba(30, 157, 184, 0.05);
+        }
+
+        .upload-area p {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .upload-area .upload-hint {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .table th {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .table tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .alert-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .alert-info {
+            background-color: rgba(30, 157, 184, 0.2);
+            color: #1E9DB8;
+        }
+
+        .alert-warning {
+            background-color: rgba(205, 255, 78, 0.2);
+            color: #CDFF4E;
+        }
+
+        .alert-critical {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #ff6b6b;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1E9DB8;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .chart {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chart-label {
+            width: 150px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .chart-bar-bg {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            height: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-bar-fill {
+            background: linear-gradient(90deg, #1E9DB8, #A795C7);
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .success-message {
+            background-color: rgba(205, 255, 78, 0.1);
+            border: 1px solid rgba(205, 255, 78, 0.3);
+            color: #CDFF4E;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .error-message {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #ff6b6b;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            color: #1E9DB8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+        }
+
+        .search-input {
+            margin-bottom: 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #042838;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .table {
+                font-size: 12px;
+            }
+
+            .table th,
+            .table td {
+                padding: 8px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<!-- Login Screen -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-box">
-    <div class="lock-icon">&#128272;</div>
-    <h2>Admin Access</h2>
-    <p>Enter the admin master password to manage users and access control.</p>
-    <input type="password" id="adminPwInput" placeholder="Admin password" onkeydown="if(event.key==='Enter')adminLogin()">
-    <button class="login-btn" onclick="adminLogin()">Unlock Admin Panel</button>
-    <div class="login-error" id="loginError">Incorrect password. Please try again.</div>
-    <div class="first-time-note" id="firstTimeNote" style="display:none;">
-      <strong>First time setup:</strong> No admin password has been set yet. Enter your desired admin password above and it will be saved as your master password.
+<!-- Auth Guard IIFE -->
+<script>
+(function() {
+    var session = localStorage.getItem('nerdio_v3_session');
+    if (!session) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    try {
+        var sessionData = JSON.parse(session);
+        if (!sessionData.role || sessionData.role !== 'admin') {
+            window.location.href = 'index.html';
+            return;
+        }
+        window.currentUser = sessionData;
+    } catch (e) {
+        window.location.href = 'index.html';
+    }
+})();
+</script>
+
+<div class="top-bar">
+    <div class="top-bar-left">🤓 nerdio Command Centre</div>
+    <div class="top-bar-center">Admin Panel</div>
+    <div class="top-bar-right">
+        <span class="username" id="usernameDisplay"></span>
+        <button class="btn-logout" id="logoutBtn">Logout</button>
     </div>
-    <a class="back-link" href="index.html">&larr; Back to Command Centre</a>
-  </div>
 </div>
 
-<!-- Admin Panel -->
-<div class="admin-panel" id="adminPanel">
-  <div class="topbar">
-    <div class="topbar-left">
-      <span class="admin-badge">&#128272; Admin</span>
-      <h2>User Management</h2>
-    </div>
-    <div class="topbar-right">
-      <a href="index.html">Command Centre</a>
-      <button onclick="adminLogout()">Logout</button>
-    </div>
-  </div>
-
-  <div class="main">
-    <!-- Stats -->
-    <div class="admin-stats">
-      <div class="admin-stat">
-        <div class="val teal" id="statTotal">0</div>
-        <div class="label">Total Users</div>
-      </div>
-      <div class="admin-stat">
-        <div class="val green" id="statActive">0</div>
-        <div class="label">Active</div>
-      </div>
-      <div class="admin-stat">
-        <div class="val red" id="statDisabled">0</div>
-        <div class="label">Disabled</div>
-      </div>
-      <div class="admin-stat">
-        <div class="val purple" id="statOnline">0</div>
-        <div class="label">Logged In Today</div>
-      </div>
+<div class="container">
+    <div class="tab-bar">
+        <button class="tab-button active" onclick="switchTab('mal-import')">MAL Import</button>
+        <button class="tab-button" onclick="switchTab('knowledge-manager')">Knowledge Manager</button>
+        <button class="tab-button" onclick="switchTab('account-alerts')">Account Alerts</button>
+        <button class="tab-button" onclick="switchTab('user-management')">User Management</button>
     </div>
 
-    <!-- Add User -->
-    <div class="add-user-section">
-      <h3>&#10133; Add New User</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="newName" placeholder="e.g. Sarah Chen">
+    <!-- TAB 1: MAL Import -->
+    <div id="mal-import" class="tab-content active">
+        <div class="card">
+            <h3>Microsoft Account List (MAL) Import</h3>
+            <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7); font-size: 14px;">Upload the Microsoft MAL Excel file to import enterprise accounts across all segments.</p>
+
+            <div class="upload-area" id="uploadArea">
+                <p style="font-size: 16px; font-weight: 500;">📁 Drag and drop Excel file here</p>
+                <p class="upload-hint">or click to browse</p>
+                <input type="file" id="malFile" accept=".xlsx,.xls">
+            </div>
+
+            <div id="malMessage"></div>
+            <div id="malStats"></div>
+            <div id="malData"></div>
         </div>
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" id="newUsername" placeholder="e.g. schen">
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="text" id="newPassword" placeholder="Initial password">
-        </div>
-        <div class="form-group">
-          <label>Role</label>
-          <select id="newRole">
-            <option value="sdr">SDR</option>
-            <option value="ae">AE</option>
-            <option value="manager">Manager</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
-          <button class="btn-add" onclick="addUser()">+ Add User</button>
-        </div>
-      </div>
     </div>
 
-    <!-- User List -->
-    <div class="user-section">
-      <h3>&#128101; All Users</h3>
-      <table class="user-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Username</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Last Login</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="userTableBody">
-          <tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">No users yet. Add your first user above.</td></tr>
-        </tbody>
-      </table>
+    <!-- TAB 2: Knowledge Manager -->
+    <div id="knowledge-manager" class="tab-content">
+        <div class="card">
+            <h3>Knowledge Base</h3>
+            <div id="knowledgeStatus" style="margin-bottom: 20px; padding: 12px; background: rgba(205,255,78,0.1); border-radius: 6px; font-size: 13px;"></div>
+
+            <div class="section-title">Add New Knowledge Entry</div>
+            <form id="knowledgeForm" onsubmit="addKnowledgeEntry(event)">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="knowledgeCategory">
+                        <option value="">Select category...</option>
+                        <option value="use-case">Use Case</option>
+                        <option value="discovery">Discovery Question</option>
+                        <option value="battlecard">Competitive Battlecard</option>
+                        <option value="positioning">Microsoft Positioning</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="knowledgeTitle" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="knowledgeContent" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Tags (comma-separated)</label>
+                    <input type="text" id="knowledgeTags">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Knowledge Entry</button>
+            </form>
+
+            <div class="section-title">Admin-Added Entries</div>
+            <div id="adminKnowledgeList"></div>
+        </div>
     </div>
 
-    <!-- Change Admin Password -->
-    <div class="admin-pw-section">
-      <h3>&#128274; Change Admin Password</h3>
-      <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px;">This is the master password used to access this admin panel.</p>
-      <div class="pw-form">
-        <input type="password" id="newAdminPw" placeholder="New admin password">
-        <input type="password" id="confirmAdminPw" placeholder="Confirm password">
-        <button class="btn-pw" onclick="changeAdminPw()">Update Password</button>
-      </div>
+    <!-- TAB 3: Account Alerts -->
+    <div id="account-alerts" class="tab-content">
+        <div class="card">
+            <h3>Account Alerts</h3>
+            <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7); font-size: 14px;">Create alerts that appear on specific accounts for all account executives.</p>
+
+            <form id="alertForm" onsubmit="createAlert(event)">
+                <div class="form-group">
+                    <label>Account Name or TPID</label>
+                    <input type="text" id="alertAccount" placeholder="Start typing to search..." required>
+                    <div id="accountSuggestions" style="position: absolute; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; max-height: 200px; overflow-y: auto; display: none; z-index: 100; width: 400px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Alert Message</label>
+                    <textarea id="alertMessage" placeholder="Enter alert message..." required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Severity</label>
+                        <select id="alertSeverity">
+                            <option value="Info">Info</option>
+                            <option value="Warning">Warning</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Expiry Date (optional)</label>
+                        <input type="date" id="alertExpiry">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Alert</button>
+            </form>
+
+            <div class="section-title">Active Alerts</div>
+            <div id="alertsList"></div>
+        </div>
     </div>
-  </div>
+
+    <!-- TAB 4: User Management -->
+    <div id="user-management" class="tab-content">
+        <div class="card">
+            <h3>User Management</h3>
+
+            <div class="section-title">Add New User</div>
+            <form id="userForm" onsubmit="addUser(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="newUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="newUserName" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="newUserRole">
+                            <option value="ae">Account Executive</option>
+                            <option value="se">Solutions Engineer</option>
+                            <option value="csa">Customer Success</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="newUserPassword" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add User</button>
+            </form>
+
+            <div class="section-title">All Users</div>
+            <div id="usersList"></div>
+        </div>
+    </div>
 </div>
 
 <script>
-/*
-  AUTH SYSTEM — Nerdio Sales Command Centre v2
-  Storage keys:
-  - nerdio_v2_admin_pw: Admin master password (hashed)
-  - nerdio_v2_users: Array of user objects [{id, name, username, passwordHash, role, status, created, lastLogin}]
-  - nerdio_v2_session: Current logged-in user session {userId, username, role, loginTime}
-*/
+// ===== GLOBAL STATE =====
+var currentTab = 'mal-import';
+var malData = [];
+var adminKnowledge = [];
+var adminAlerts = [];
 
-// Simple hash function (for prototype — not cryptographically secure, but prevents casual password reading)
-function simpleHash(str) {
-  let hash = 0;
-  for(let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return 'h_' + Math.abs(hash).toString(36);
+// ===== INITIALIZATION =====
+function initApp() {
+    document.getElementById('usernameDisplay').textContent = window.currentUser.username || 'User';
+
+    loadMALData();
+    loadAdminKnowledge();
+    loadAdminAlerts();
+    loadUsers();
+
+    attachEventListeners();
 }
 
-function getUsers() {
-  return JSON.parse(localStorage.getItem('nerdio_v2_users') || '[]');
-}
-function saveUsers(users) {
-  localStorage.setItem('nerdio_v2_users', JSON.stringify(users));
-}
-function getAdminPw() {
-  return localStorage.getItem('nerdio_v2_admin_pw');
-}
+function attachEventListeners() {
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.removeItem('nerdio_v3_session');
+        window.location.href = 'index.html';
+    });
 
-// Init
-document.addEventListener('DOMContentLoaded', () => {
-  const adminPw = getAdminPw();
-  if(!adminPw) {
-    document.getElementById('firstTimeNote').style.display = 'block';
-  }
-});
+    var uploadArea = document.getElementById('uploadArea');
+    var malFile = document.getElementById('malFile');
 
-function adminLogin() {
-  const input = document.getElementById('adminPwInput').value;
-  if(!input) return;
+    uploadArea.addEventListener('click', function() {
+        malFile.click();
+    });
 
-  const storedPw = getAdminPw();
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.style.backgroundColor = 'rgba(30, 157, 184, 0.1)';
+    });
 
-  if(!storedPw) {
-    // First time — set the admin password
-    localStorage.setItem('nerdio_v2_admin_pw', simpleHash(input));
-    showAdminPanel();
-    return;
-  }
+    uploadArea.addEventListener('dragleave', function() {
+        uploadArea.style.backgroundColor = 'transparent';
+    });
 
-  if(simpleHash(input) === storedPw) {
-    showAdminPanel();
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-    document.getElementById('adminPwInput').value = '';
-    document.getElementById('adminPwInput').focus();
-  }
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.style.backgroundColor = 'transparent';
+        if (e.dataTransfer.files.length > 0) {
+            malFile.files = e.dataTransfer.files;
+            parseMALFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    malFile.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            parseMALFile(e.target.files[0]);
+        }
+    });
 }
 
-function showAdminPanel() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('adminPanel').classList.add('active');
-  renderUsers();
-  updateStats();
+// ===== TAB SWITCHING =====
+function switchTab(tabName) {
+    var tabs = document.querySelectorAll('.tab-content');
+    var buttons = document.querySelectorAll('.tab-button');
+
+    tabs.forEach(function(tab) {
+        tab.classList.remove('active');
+    });
+
+    buttons.forEach(function(btn) {
+        btn.classList.remove('active');
+    });
+
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+    currentTab = tabName;
 }
 
-function adminLogout() {
-  document.getElementById('adminPanel').classList.remove('active');
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('adminPwInput').value = '';
-  document.getElementById('loginError').style.display = 'none';
+// ===== MAL IMPORT =====
+function parseMALFile(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var data = new Uint8Array(e.target.result);
+            var workbook = XLSX.read(data, { type: 'array' });
+
+            malData = [];
+            var sheetNames = ['UK Enterprise Accounts', 'IRL ENT Managed Accounts', 'SME&C Accounts'];
+
+            sheetNames.forEach(function(sheetName) {
+                if (workbook.SheetNames.indexOf(sheetName) !== -1) {
+                    var sheet = workbook.Sheets[sheetName];
+                    parseSheet(sheet, sheetName);
+                }
+            });
+
+            localStorage.setItem('nerdio_v3_mal', JSON.stringify(malData));
+            localStorage.setItem('nerdio_v3_mal_timestamp', new Date().toISOString());
+
+            displayMALStats();
+            showSuccessMessage('MAL file imported successfully with ' + malData.length + ' accounts.');
+        } catch (err) {
+            showErrorMessage('Error parsing MAL file: ' + err.message);
+        }
+    };
+    reader.readAsArrayBuffer(file);
 }
 
-function addUser() {
-  const name = document.getElementById('newName').value.trim();
-  const username = document.getElementById('newUsername').value.trim().toLowerCase();
-  const password = document.getElementById('newPassword').value;
-  const role = document.getElementById('newRole').value;
+function parseSheet(sheet, sheetName) {
+    var range = XLSX.utils.decode_range(sheet['!ref'] || 'A1');
+    var headerRow = 5; // Headers are at row 5 (0-indexed)
 
-  if(!name || !username || !password) {
-    alert('Please fill in all fields');
-    return;
-  }
+    for (var rowIdx = headerRow + 1; rowIdx <= range.e.r; rowIdx++) {
+        var row = [];
+        for (var colIdx = 0; colIdx <= range.e.c; colIdx++) {
+            var cellAddress = XLSX.utils.encode_cell({ r: rowIdx, c: colIdx });
+            var cellValue = sheet[cellAddress] ? sheet[cellAddress].v : '';
+            row.push(cellValue || '');
+        }
 
-  const users = getUsers();
-  if(users.find(u => u.username === username)) {
-    alert('Username "' + username + '" already exists. Choose a different username.');
-    return;
-  }
-
-  users.push({
-    id: 'usr_' + Date.now(),
-    name: name,
-    username: username,
-    passwordHash: simpleHash(password),
-    role: role,
-    status: 'active',
-    created: new Date().toISOString(),
-    lastLogin: null
-  });
-
-  saveUsers(users);
-  renderUsers();
-  updateStats();
-
-  // Clear form
-  document.getElementById('newName').value = '';
-  document.getElementById('newUsername').value = '';
-  document.getElementById('newPassword').value = '';
-}
-
-function toggleUser(username) {
-  const users = getUsers();
-  const user = users.find(u => u.username === username);
-  if(user) {
-    user.status = user.status === 'active' ? 'disabled' : 'active';
-    saveUsers(users);
-    // If disabling, also clear their session if they're logged in
-    if(user.status === 'disabled') {
-      const session = JSON.parse(localStorage.getItem('nerdio_v2_session') || '{}');
-      if(session.username === username) {
-        localStorage.removeItem('nerdio_v2_session');
-      }
+        if (row[0] && String(row[0]).trim()) {
+            var account = parseAccountRow(row, sheetName);
+            if (account) {
+                malData.push(account);
+            }
+        }
     }
-    renderUsers();
-    updateStats();
-  }
+}
+
+function parseAccountRow(row, sheetName) {
+    var account = {
+        tpid: String(row[0] || '').trim(),
+        name: String(row[1] || '').trim(),
+        segment: String(row[sheetName === 'SME&C Accounts' ? 2 : 2] || '').trim(),
+        industry: String(row[sheetName === 'SME&C Accounts' ? 3 : 3] || '').trim(),
+        malSheet: sheetName,
+        msTeam: {
+            ae: { alias: String(row[sheetName === 'UK Enterprise Accounts' ? 4 : sheetName === 'IRL ENT Managed Accounts' ? 5 : 4] || '').trim() },
+            ats: { alias: sheetName === 'UK Enterprise Accounts' ? String(row[5] || '').trim() : '' },
+            ce: { alias: sheetName === 'SME&C Accounts' ? String(row[5] || '').trim() : '' },
+            aiBizProcess: { alias: String(row[sheetName === 'UK Enterprise Accounts' ? 6 : sheetName === 'SME&C Accounts' ? 6 : 5] || '').trim() },
+            aiWorkforce: { alias: String(row[sheetName === 'UK Enterprise Accounts' ? 7 : sheetName === 'SME&C Accounts' ? 7 : 5] || '').trim() },
+            cloudAI: { alias: String(row[sheetName === 'UK Enterprise Accounts' ? 8 : sheetName === 'SME&C Accounts' ? 9 : 5] || '').trim() },
+            cloudAI2: { alias: sheetName === 'UK Enterprise Accounts' ? String(row[9] || '').trim() : '' },
+            security: { alias: String(row[sheetName === 'UK Enterprise Accounts' ? 10 : sheetName === 'SME&C Accounts' ? 8 : 5] || '').trim() }
+        },
+        atuGroup: sheetName === 'IRL ENT Managed Accounts' ? String(row[5] || '').trim() : ''
+    };
+
+    return account.tpid && account.name ? account : null;
+}
+
+function displayMALStats() {
+    if (malData.length === 0) {
+        document.getElementById('malStats').innerHTML = '';
+        document.getElementById('malData').innerHTML = '';
+        return;
+    }
+
+    var ukCount = malData.filter(function(a) { return a.malSheet === 'UK Enterprise Accounts'; }).length;
+    var irlCount = malData.filter(function(a) { return a.malSheet === 'IRL ENT Managed Accounts'; }).length;
+    var smeCount = malData.filter(function(a) { return a.malSheet === 'SME&C Accounts'; }).length;
+
+    var statsHtml = '<div class="stats">';
+    statsHtml += '<div class="stat-card"><div class="stat-value">' + malData.length + '</div><div class="stat-label">Total Accounts</div></div>';
+    statsHtml += '<div class="stat-card"><div class="stat-value">' + ukCount + '</div><div class="stat-label">UK Enterprise</div></div>';
+    statsHtml += '<div class="stat-card"><div class="stat-value">' + irlCount + '</div><div class="stat-label">Ireland Managed</div></div>';
+    statsHtml += '<div class="stat-card"><div class="stat-value">' + smeCount + '</div><div class="stat-label">SME&C</div></div>';
+    statsHtml += '</div>';
+
+    // Industry distribution
+    var industries = {};
+    malData.forEach(function(account) {
+        var ind = account.industry || 'Unknown';
+        industries[ind] = (industries[ind] || 0) + 1;
+    });
+
+    var industryEntries = Object.keys(industries).sort(function(a, b) {
+        return industries[b] - industries[a];
+    }).slice(0, 10);
+
+    var maxCount = Math.max.apply(Math, industryEntries.map(function(k) { return industries[k]; }));
+
+    var chartHtml = '<div style="margin-bottom: 24px;"><h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1E9DB8;">Top Industries</h4><div class="chart">';
+    industryEntries.forEach(function(ind) {
+        var count = industries[ind];
+        var percent = (count / maxCount) * 100;
+        chartHtml += '<div class="chart-bar"><div class="chart-label">' + ind + '</div><div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ' + percent + '%;">' + count + '</div></div></div>';
+    });
+    chartHtml += '</div></div>';
+
+    // Segment distribution
+    var segments = {};
+    malData.forEach(function(account) {
+        var seg = account.segment || 'Unknown';
+        segments[seg] = (segments[seg] || 0) + 1;
+    });
+
+    var segmentEntries = Object.keys(segments).sort(function(a, b) {
+        return segments[b] - segments[a];
+    });
+
+    var maxSegCount = Math.max.apply(Math, segmentEntries.map(function(k) { return segments[k]; }));
+
+    var segChartHtml = '<div><h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1E9DB8;">Segments</h4><div class="chart">';
+    segmentEntries.forEach(function(seg) {
+        var count = segments[seg];
+        var percent = (count / maxSegCount) * 100;
+        segChartHtml += '<div class="chart-bar"><div class="chart-label" style="width: 200px;">' + seg + '</div><div class="chart-bar-bg"><div class="chart-bar-fill" style="width: ' + percent + '%;">' + count + '</div></div></div>';
+    });
+    segChartHtml += '</div></div>';
+
+    document.getElementById('malStats').innerHTML = statsHtml + chartHtml + segChartHtml;
+
+    // Account table
+    var tableHtml = '<div class="section-title">Account Details</div>';
+    tableHtml += '<div class="search-input"><input type="text" id="malSearch" placeholder="Search by name or TPID..." style="width: 100%; padding: 10px 12px; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #FFFFFF;"></div>';
+    tableHtml += '<div id="malTableContainer"><table class="table">';
+    tableHtml += '<thead><tr><th>TPID</th><th>Account Name</th><th>Segment</th><th>Industry</th><th>Sheet</th><th>AE Assigned</th></tr></thead>';
+    tableHtml += '<tbody id="malTableBody">';
+
+    malData.forEach(function(account) {
+        var aeAlias = account.msTeam.ae.alias || '—';
+        tableHtml += '<tr>';
+        tableHtml += '<td>' + account.tpid + '</td>';
+        tableHtml += '<td>' + account.name + '</td>';
+        tableHtml += '<td>' + account.segment + '</td>';
+        tableHtml += '<td>' + account.industry + '</td>';
+        tableHtml += '<td>' + account.malSheet + '</td>';
+        tableHtml += '<td>' + aeAlias + '</td>';
+        tableHtml += '</tr>';
+    });
+
+    tableHtml += '</tbody></table></div>';
+    tableHtml += '<div style="margin-top: 20px; display: flex; gap: 12px;"><button class="btn btn-secondary" onclick="clearMALData()">Clear MAL Data</button></div>';
+
+    document.getElementById('malData').innerHTML = tableHtml;
+
+    // Attach search handler
+    var searchInput = document.getElementById('malSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            filterMALTable(this.value.toLowerCase());
+        });
+    }
+}
+
+function filterMALTable(query) {
+    var rows = document.querySelectorAll('#malTableBody tr');
+    rows.forEach(function(row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = text.indexOf(query) !== -1 ? '' : 'none';
+    });
+}
+
+function clearMALData() {
+    if (confirm('Are you sure you want to clear all MAL data?')) {
+        localStorage.removeItem('nerdio_v3_mal');
+        localStorage.removeItem('nerdio_v3_mal_timestamp');
+        malData = [];
+        document.getElementById('malStats').innerHTML = '';
+        document.getElementById('malData').innerHTML = '';
+        document.getElementById('malMessage').innerHTML = '';
+        showSuccessMessage('MAL data cleared.');
+    }
+}
+
+// ===== KNOWLEDGE MANAGER =====
+function loadAdminKnowledge() {
+    var stored = localStorage.getItem('nerdio_v3_admin_knowledge');
+    adminKnowledge = stored ? JSON.parse(stored) : [];
+    updateKnowledgeStatus();
+    displayAdminKnowledge();
+}
+
+function updateKnowledgeStatus() {
+    var msg = 'Embedded knowledge loaded: 12 use cases, 8 discovery sets, 5 battlecards, 7 positioning cards. ';
+    msg += 'Admin-added entries: ' + adminKnowledge.length;
+    document.getElementById('knowledgeStatus').textContent = msg;
+}
+
+function addKnowledgeEntry(event) {
+    event.preventDefault();
+
+    var category = document.getElementById('knowledgeCategory').value;
+    var title = document.getElementById('knowledgeTitle').value;
+    var content = document.getElementById('knowledgeContent').value;
+    var tags = document.getElementById('knowledgeTags').value;
+
+    if (!category) {
+        showErrorMessage('Please select a category.');
+        return;
+    }
+
+    var entry = {
+        id: Date.now(),
+        category: category,
+        title: title,
+        content: content,
+        tags: tags.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t; }),
+        createdBy: window.currentUser.username,
+        createdAt: new Date().toISOString()
+    };
+
+    adminKnowledge.push(entry);
+    localStorage.setItem('nerdio_v3_admin_knowledge', JSON.stringify(adminKnowledge));
+
+    document.getElementById('knowledgeForm').reset();
+    updateKnowledgeStatus();
+    displayAdminKnowledge();
+    showSuccessMessage('Knowledge entry added successfully.');
+}
+
+function displayAdminKnowledge() {
+    if (adminKnowledge.length === 0) {
+        document.getElementById('adminKnowledgeList').innerHTML = '<div class="empty-state">No admin-added knowledge entries yet.</div>';
+        return;
+    }
+
+    var html = '<table class="table"><thead><tr><th>Title</th><th>Category</th><th>Tags</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+
+    adminKnowledge.forEach(function(entry) {
+        var date = new Date(entry.createdAt).toLocaleDateString();
+        var tagsStr = entry.tags.join(', ');
+        html += '<tr>';
+        html += '<td>' + entry.title + '</td>';
+        html += '<td>' + entry.category + '</td>';
+        html += '<td><span style="font-size: 12px; color: rgba(255,255,255,0.6);">' + tagsStr + '</span></td>';
+        html += '<td>' + date + '</td>';
+        html += '<td><button class="btn btn-danger btn-small" onclick="deleteKnowledgeEntry(' + entry.id + ')">Delete</button></td>';
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('adminKnowledgeList').innerHTML = html;
+}
+
+function deleteKnowledgeEntry(id) {
+    adminKnowledge = adminKnowledge.filter(function(e) { return e.id !== id; });
+    localStorage.setItem('nerdio_v3_admin_knowledge', JSON.stringify(adminKnowledge));
+    updateKnowledgeStatus();
+    displayAdminKnowledge();
+    showSuccessMessage('Knowledge entry deleted.');
+}
+
+// ===== ACCOUNT ALERTS =====
+function loadAdminAlerts() {
+    var stored = localStorage.getItem('nerdio_v3_admin_alerts');
+    adminAlerts = stored ? JSON.parse(stored) : [];
+    displayAlerts();
+}
+
+function createAlert(event) {
+    event.preventDefault();
+
+    var accountName = document.getElementById('alertAccount').value;
+    var message = document.getElementById('alertMessage').value;
+    var severity = document.getElementById('alertSeverity').value;
+    var expiry = document.getElementById('alertExpiry').value;
+
+    if (!accountName || !message) {
+        showErrorMessage('Please fill in required fields.');
+        return;
+    }
+
+    var tpid = '';
+    malData.forEach(function(acc) {
+        if (acc.name.toLowerCase() === accountName.toLowerCase() || acc.tpid === accountName) {
+            tpid = acc.tpid;
+            accountName = acc.name;
+        }
+    });
+
+    var alert = {
+        id: Date.now(),
+        accountName: accountName,
+        tpid: tpid,
+        message: message,
+        severity: severity,
+        expiry: expiry || '',
+        created: new Date().toISOString(),
+        createdBy: window.currentUser.username
+    };
+
+    adminAlerts.push(alert);
+    localStorage.setItem('nerdio_v3_admin_alerts', JSON.stringify(adminAlerts));
+
+    document.getElementById('alertForm').reset();
+    displayAlerts();
+    showSuccessMessage('Alert created successfully.');
+}
+
+function displayAlerts() {
+    if (adminAlerts.length === 0) {
+        document.getElementById('alertsList').innerHTML = '<div class="empty-state">No active alerts.</div>';
+        return;
+    }
+
+    var activeAlerts = adminAlerts.filter(function(a) {
+        if (!a.expiry) return true;
+        return new Date(a.expiry) > new Date();
+    });
+
+    if (activeAlerts.length === 0) {
+        document.getElementById('alertsList').innerHTML = '<div class="empty-state">No active alerts.</div>';
+        return;
+    }
+
+    var html = '<table class="table"><thead><tr><th>Account</th><th>Message</th><th>Severity</th><th>Expiry</th><th>Actions</th></tr></thead><tbody>';
+
+    activeAlerts.forEach(function(alert) {
+        var expiryText = alert.expiry ? new Date(alert.expiry).toLocaleDateString() : 'Never';
+        var severityClass = 'alert-' + alert.severity.toLowerCase();
+        html += '<tr>';
+        html += '<td>' + alert.accountName + '</td>';
+        html += '<td><span style="font-size: 13px;">' + alert.message + '</span></td>';
+        html += '<td><span class="alert-badge ' + severityClass + '">' + alert.severity + '</span></td>';
+        html += '<td>' + expiryText + '</td>';
+        html += '<td><button class="btn btn-danger btn-small" onclick="deleteAlert(' + alert.id + ')">Delete</button></td>';
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('alertsList').innerHTML = html;
+}
+
+function deleteAlert(id) {
+    adminAlerts = adminAlerts.filter(function(a) { return a.id !== id; });
+    localStorage.setItem('nerdio_v3_admin_alerts', JSON.stringify(adminAlerts));
+    displayAlerts();
+    showSuccessMessage('Alert deleted.');
+}
+
+// ===== USER MANAGEMENT =====
+function loadUsers() {
+    displayUsers();
+}
+
+function addUser(event) {
+    event.preventDefault();
+
+    var username = document.getElementById('newUsername').value;
+    var name = document.getElementById('newUserName').value;
+    var role = document.getElementById('newUserRole').value;
+    var password = document.getElementById('newUserPassword').value;
+
+    var users = JSON.parse(localStorage.getItem('nerdio_v3_users') || '[]');
+
+    if (users.find(function(u) { return u.username === username; })) {
+        showErrorMessage('Username already exists.');
+        return;
+    }
+
+    var user = {
+        id: Date.now(),
+        username: username,
+        name: name,
+        role: role,
+        password: btoa(password), // Simple base64 encoding (not secure, for demo only)
+        createdAt: new Date().toISOString()
+    };
+
+    users.push(user);
+    localStorage.setItem('nerdio_v3_users', JSON.stringify(users));
+
+    document.getElementById('userForm').reset();
+    displayUsers();
+    showSuccessMessage('User added successfully.');
+}
+
+function displayUsers() {
+    var users = JSON.parse(localStorage.getItem('nerdio_v3_users') || '[]');
+
+    if (users.length === 0) {
+        document.getElementById('usersList').innerHTML = '<div class="empty-state">No users created yet.</div>';
+        return;
+    }
+
+    var html = '<table class="table"><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Created</th><th>Actions</th></tr></thead><tbody>';
+
+    users.forEach(function(user) {
+        var date = new Date(user.createdAt).toLocaleDateString();
+        html += '<tr>';
+        html += '<td>' + user.username + '</td>';
+        html += '<td>' + user.name + '</td>';
+        html += '<td>' + user.role + '</td>';
+        html += '<td>' + date + '</td>';
+        html += '<td>';
+        html += '<button class="btn btn-secondary btn-small" onclick="changeUserRole(\'' + user.username + '\')" style="margin-right: 6px;">Change Role</button>';
+        html += '<button class="btn btn-danger btn-small" onclick="deleteUser(\'' + user.username + '\')">Delete</button>';
+        html += '</td>';
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('usersList').innerHTML = html;
+}
+
+function changeUserRole(username) {
+    var newRole = prompt('Enter new role (ae, se, csa, admin):');
+    if (!newRole) return;
+
+    var users = JSON.parse(localStorage.getItem('nerdio_v3_users') || '[]');
+    var user = users.find(function(u) { return u.username === username; });
+
+    if (user) {
+        user.role = newRole;
+        localStorage.setItem('nerdio_v3_users', JSON.stringify(users));
+        displayUsers();
+        showSuccessMessage('User role updated.');
+    }
 }
 
 function deleteUser(username) {
-  if(!confirm('Permanently delete user "' + username + '"? This cannot be undone.')) return;
-  let users = getUsers();
-  users = users.filter(u => u.username !== username);
-  saveUsers(users);
-  // Clear session if this user was logged in
-  const session = JSON.parse(localStorage.getItem('nerdio_v2_session') || '{}');
-  if(session.username === username) {
-    localStorage.removeItem('nerdio_v2_session');
-  }
-  renderUsers();
-  updateStats();
+    if (confirm('Are you sure you want to delete this user?')) {
+        var users = JSON.parse(localStorage.getItem('nerdio_v3_users') || '[]');
+        users = users.filter(function(u) { return u.username !== username; });
+        localStorage.setItem('nerdio_v3_users', JSON.stringify(users));
+        displayUsers();
+        showSuccessMessage('User deleted.');
+    }
 }
 
-function resetPassword(username) {
-  const newPw = prompt('Enter new password for "' + username + '":');
-  if(!newPw) return;
-  const users = getUsers();
-  const user = users.find(u => u.username === username);
-  if(user) {
-    user.passwordHash = simpleHash(newPw);
-    saveUsers(users);
-    alert('Password updated for ' + username);
-  }
+// ===== UTILITIES =====
+function showSuccessMessage(msg) {
+    var msgDiv = document.getElementById(currentTab === 'mal-import' ? 'malMessage' : 'malMessage');
+    var html = '<div class="success-message">' + msg + '</div>';
+
+    if (currentTab !== 'mal-import') {
+        html = '<div class="success-message" style="position: fixed; top: 80px; right: 24px; width: 400px; z-index: 500;">' + msg + '</div>';
+        document.body.insertAdjacentHTML('beforeend', html);
+        setTimeout(function() {
+            var elem = document.querySelectorAll('.success-message');
+            if (elem.length > 1) elem[elem.length - 1].remove();
+        }, 3000);
+    } else {
+        document.getElementById('malMessage').innerHTML = html;
+        setTimeout(function() {
+            document.getElementById('malMessage').innerHTML = '';
+        }, 4000);
+    }
 }
 
-function renderUsers() {
-  const users = getUsers();
-  const tbody = document.getElementById('userTableBody');
+function showErrorMessage(msg) {
+    var html = '<div class="error-message">' + msg + '</div>';
 
-  if(users.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">No users yet. Add your first user above.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = users.map(u => {
-    const statusClass = u.status === 'active' ? 'active' : 'disabled';
-    const roleClass = u.role;
-    const lastLogin = u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() + ' ' + new Date(u.lastLogin).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : 'Never';
-    const toggleBtn = u.status === 'active'
-      ? `<button class="btn-action btn-disable" onclick="toggleUser('${u.username}')">Disable</button>`
-      : `<button class="btn-action btn-enable" onclick="toggleUser('${u.username}')">Enable</button>`;
-
-    return `<tr>
-      <td><strong>${u.name}</strong></td>
-      <td style="font-family:monospace;font-size:12px;">${u.username}</td>
-      <td><span class="role-badge-sm ${roleClass}">${u.role.toUpperCase()}</span></td>
-      <td><span class="status-badge ${statusClass}">${u.status}</span></td>
-      <td style="font-size:12px;color:rgba(255,255,255,0.4);">${lastLogin}</td>
-      <td>
-        ${toggleBtn}
-        <button class="btn-action btn-reset" onclick="resetPassword('${u.username}')">Reset PW</button>
-        <button class="btn-action btn-delete" onclick="deleteUser('${u.username}')">Delete</button>
-      </td>
-    </tr>`;
-  }).join('');
+    if (currentTab === 'mal-import') {
+        document.getElementById('malMessage').innerHTML = html;
+        setTimeout(function() {
+            document.getElementById('malMessage').innerHTML = '';
+        }, 4000);
+    } else {
+        html = '<div class="error-message" style="position: fixed; top: 80px; right: 24px; width: 400px; z-index: 500;">' + msg + '</div>';
+        document.body.insertAdjacentHTML('beforeend', html);
+        setTimeout(function() {
+            var elem = document.querySelectorAll('.error-message');
+            if (elem.length > 1) elem[elem.length - 1].remove();
+        }, 3000);
+    }
 }
 
-function updateStats() {
-  const users = getUsers();
-  document.getElementById('statTotal').textContent = users.length;
-  document.getElementById('statActive').textContent = users.filter(u => u.status === 'active').length;
-  document.getElementById('statDisabled').textContent = users.filter(u => u.status === 'disabled').length;
-
-  const today = new Date().toISOString().slice(0, 10);
-  const todayLogins = users.filter(u => u.lastLogin && u.lastLogin.slice(0, 10) === today).length;
-  document.getElementById('statOnline').textContent = todayLogins;
-}
-
-function changeAdminPw() {
-  const newPw = document.getElementById('newAdminPw').value;
-  const confirm = document.getElementById('confirmAdminPw').value;
-  if(!newPw || !confirm) { alert('Please fill in both fields.'); return; }
-  if(newPw !== confirm) { alert('Passwords do not match.'); return; }
-  localStorage.setItem('nerdio_v2_admin_pw', simpleHash(newPw));
-  document.getElementById('newAdminPw').value = '';
-  document.getElementById('confirmAdminPw').value = '';
-  alert('Admin password updated successfully.');
-}
+// ===== STARTUP =====
+document.addEventListener('DOMContentLoaded', function() {
+    initApp();
+});
 </script>
+
 </body>
 </html>

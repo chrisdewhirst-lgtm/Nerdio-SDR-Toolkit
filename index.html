@@ -3,552 +3,186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nerdio Sales Command Centre v2</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Nerdio Sales Command Centre v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --navy: #042838;
-  --navy-light: #0a3a50;
-  --teal: #1E9DB8;
-  --teal-glow: rgba(30,157,184,0.15);
-  --white: #FFFFFF;
-  --green: #CDFF4E;
-  --purple: #A795C7;
-  --gray-100: #f7f8fa;
-  --gray-200: #e8ecf0;
-  --gray-300: #d1d5db;
-  --gray-500: #6b7280;
-  --gray-700: #374151;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--navy);
-  color: var(--white);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* Animated background */
-.bg-grid {
-  position: fixed; inset: 0; z-index: 0;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(30,157,184,0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(167,149,199,0.06) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(205,255,78,0.03) 0%, transparent 50%);
-  animation: bgPulse 8s ease-in-out infinite alternate;
-}
-@keyframes bgPulse {
-  0% { opacity: 0.6; }
-  100% { opacity: 1; }
-}
-
-.container {
-  position: relative; z-index: 1;
-  max-width: 1200px; margin: 0 auto; padding: 40px 24px;
-  min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-}
-
-/* Header */
-.header {
-  text-align: center; margin-bottom: 60px;
-}
-.header .badge {
-  display: inline-block;
-  background: linear-gradient(135deg, var(--teal), var(--purple));
-  color: var(--white);
-  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;
-  padding: 6px 20px; border-radius: 20px; margin-bottom: 20px;
-}
-.header h1 {
-  font-size: 42px; font-weight: 800; line-height: 1.15; margin-bottom: 12px;
-  background: linear-gradient(135deg, var(--white) 0%, var(--teal) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-.header p {
-  font-size: 17px; color: rgba(255,255,255,0.6); font-weight: 300; max-width: 560px; margin: 0 auto;
-}
-
-/* Role Cards */
-.roles {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
-  width: 100%; max-width: 1000px; margin-bottom: 40px;
-}
-.role-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px; padding: 36px 28px;
-  cursor: pointer; transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
-  text-decoration: none; color: var(--white);
-  display: flex; flex-direction: column; align-items: center; text-align: center;
-  position: relative; overflow: hidden;
-}
-.role-card::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(30,157,184,0.06) 100%);
-  opacity: 0; transition: opacity 0.35s;
-}
-.role-card:hover {
-  border-color: var(--teal);
-  transform: translateY(-6px);
-  box-shadow: 0 20px 60px rgba(30,157,184,0.15), 0 0 0 1px rgba(30,157,184,0.3);
-}
-.role-card:hover::before { opacity: 1; }
-
-.role-icon {
-  width: 80px; height: 80px; border-radius: 20px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px; margin-bottom: 20px; position: relative; z-index: 1;
-  transition: transform 0.35s;
-}
-.role-card:hover .role-icon { transform: scale(1.1); }
-
-.role-card.sdr .role-icon { background: linear-gradient(135deg, rgba(205,255,78,0.15), rgba(205,255,78,0.05)); }
-.role-card.ae .role-icon { background: linear-gradient(135deg, rgba(30,157,184,0.2), rgba(30,157,184,0.05)); }
-.role-card.mgr .role-icon { background: linear-gradient(135deg, rgba(167,149,199,0.2), rgba(167,149,199,0.05)); }
-
-.role-title {
-  font-size: 22px; font-weight: 700; margin-bottom: 6px; position: relative; z-index: 1;
-}
-.role-subtitle {
-  font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px;
-  margin-bottom: 16px; position: relative; z-index: 1;
-}
-.role-card.sdr .role-subtitle { color: var(--green); }
-.role-card.ae .role-subtitle { color: var(--teal); }
-.role-card.mgr .role-subtitle { color: var(--purple); }
-
-.role-desc {
-  font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 20px;
-  position: relative; z-index: 1;
-}
-
-.role-tools {
-  display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
-  position: relative; z-index: 1;
-}
-.role-tools span {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 8px; padding: 4px 10px; font-size: 11px;
-  color: rgba(255,255,255,0.5); white-space: nowrap;
-}
-
-.role-enter {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 20px; padding: 10px 24px; border-radius: 12px;
-  font-size: 13px; font-weight: 600;
-  position: relative; z-index: 1; transition: all 0.3s;
-}
-.role-card.sdr .role-enter { background: rgba(205,255,78,0.1); color: var(--green); }
-.role-card.ae .role-enter { background: rgba(30,157,184,0.1); color: var(--teal); }
-.role-card.mgr .role-enter { background: rgba(167,149,199,0.1); color: var(--purple); }
-
-.role-card:hover .role-enter { transform: translateX(4px); }
-
-/* Shared Enablement Link */
-.shared-link {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 12px 28px; border-radius: 14px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.6);
-  font-size: 14px; font-weight: 500;
-  text-decoration: none; transition: all 0.3s; cursor: pointer;
-  margin-top: 12px;
-}
-.shared-link:hover {
-  border-color: rgba(255,255,255,0.25);
-  color: var(--white);
-  background: rgba(255,255,255,0.07);
-}
-
-/* V1 link */
-.v1-link {
-  position: fixed; bottom: 20px; right: 20px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px; padding: 8px 16px;
-  color: rgba(255,255,255,0.4); font-size: 12px;
-  text-decoration: none; transition: all 0.3s; z-index: 100;
-}
-.v1-link:hover {
-  color: var(--teal); border-color: var(--teal);
-}
-
-/* Admin link */
-.admin-link {
-  position: fixed; bottom: 20px; left: 20px;
-  background: rgba(239,68,68,0.08);
-  border: 1px solid rgba(239,68,68,0.2);
-  border-radius: 10px; padding: 8px 16px;
-  color: rgba(239,68,68,0.6); font-size: 12px;
-  text-decoration: none; transition: all 0.3s; z-index: 100;
-}
-.admin-link:hover {
-  color: #ef4444; border-color: #ef4444;
-}
-
-/* Login Overlay */
-.login-overlay {
-  position: fixed; inset: 0; z-index: 1000;
-  background: var(--navy);
-  display: flex; align-items: center; justify-content: center;
-}
-.login-overlay.hidden { display: none; }
-.login-box {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 24px; padding: 44px 40px; width: 100%; max-width: 420px;
-  text-align: center;
-}
-.login-box .login-icon { font-size: 48px; margin-bottom: 16px; }
-.login-box h2 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-.login-box p { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 28px; }
-.login-box input {
-  width: 100%; padding: 12px 16px; border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.05);
-  color: var(--white); font-family: 'Poppins'; font-size: 14px;
-  margin-bottom: 10px; transition: border-color 0.2s;
-}
-.login-box input:focus { outline: none; border-color: var(--teal); }
-.login-box input::placeholder { color: rgba(255,255,255,0.3); }
-.login-btn {
-  width: 100%; padding: 13px; border-radius: 12px; border: none;
-  background: linear-gradient(135deg, var(--teal), #17899f);
-  color: var(--white);
-  font-family: 'Poppins'; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all 0.3s; margin-top: 6px;
-}
-.login-btn:hover { filter: brightness(1.1); }
-.login-error {
-  color: #ef4444; font-size: 12px; margin-top: 10px; display: none;
-}
-.logged-in-as {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 6px 16px; border-radius: 10px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  font-size: 12px; color: rgba(255,255,255,0.5);
-  margin-bottom: 20px;
-}
-.logged-in-as .user-name { color: var(--teal); font-weight: 600; }
-.logout-link {
-  color: rgba(255,255,255,0.3); text-decoration: none; font-size: 11px;
-  margin-left: 8px; padding: 2px 8px; border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s;
-}
-.logout-link:hover { color: #ef4444; border-color: rgba(239,68,68,0.3); }
-
-/* Footer */
-.footer {
-  margin-top: 40px; text-align: center;
-  color: rgba(255,255,255,0.25); font-size: 12px;
-}
-
-@media (max-width: 768px) {
-  .roles { grid-template-columns: 1fr; max-width: 400px; }
-  .header h1 { font-size: 30px; }
-}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:#042838;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.login-container{width:100%;max-width:420px;padding:32px}
+.logo{text-align:center;margin-bottom:36px}
+.logo-icon{font-size:48px;margin-bottom:8px}
+.logo h1{font-size:22px;font-weight:600;letter-spacing:-.5px}
+.logo h1 span{color:#1E9DB8}
+.logo p{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;letter-spacing:1px;text-transform:uppercase;font-weight:500}
+.version-badge{display:inline-block;background:linear-gradient(135deg,#1E9DB8,#CDFF4E);color:#042838;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:8px}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:28px;backdrop-filter:blur(20px)}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:11px;font-weight:500;color:rgba(255,255,255,.5);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-family:'Poppins',sans-serif;font-size:13px;outline:none;transition:border .2s}
+.field input:focus,.field select:focus{border-color:#1E9DB8}
+.field select option{background:#042838;color:#fff}
+.btn-login{width:100%;padding:12px;background:linear-gradient(135deg,#1E9DB8,#1E9DB8);border:none;border-radius:10px;color:#fff;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
+.btn-login:hover{background:linear-gradient(135deg,#1E9DB8,#CDFF4E);color:#042838}
+.signup-link{text-align:center;margin-top:18px;font-size:12px;color:rgba(255,255,255,.35)}
+.signup-link a{color:#1E9DB8;cursor:pointer;text-decoration:none}
+.signup-link a:hover{color:#CDFF4E}
+.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:16px;display:none}
+/* Signup form */
+.signup-form{display:none}
+.signup-form .field-row{display:flex;gap:12px}
+.signup-form .field-row .field{flex:1}
+.back-link{text-align:center;margin-top:14px;font-size:12px}
+.back-link a{color:rgba(255,255,255,.4);cursor:pointer;text-decoration:none}
+.back-link a:hover{color:#1E9DB8}
 </style>
 </head>
 <body>
-<!-- Login Overlay -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-box">
-    <div class="login-icon">&#128274;</div>
-    <h2>Sign In</h2>
-    <p>Enter your credentials to access the Nerdio Sales Command Centre.</p>
-    <input type="text" id="loginUsername" placeholder="Username" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
-    <input type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">Sign In</button>
-    <div class="login-error" id="loginError">Invalid username or password. Contact your admin for access.</div>
+<div class="login-container">
+  <div class="logo">
+    <div class="logo-icon">🤓</div>
+    <h1>nerdio <span>Command Centre</span></h1>
+    <p>Account Intelligence Platform</p>
+    <div class="version-badge">V3</div>
   </div>
-</div>
 
-<div class="bg-grid"></div>
-<div class="container" id="mainContainer" style="display:none;">
-  <div class="header">
-    <div class="badge">Version 2.0 — Role-Based Experience</div>
-    <h1>Nerdio Sales<br>Command Centre</h1>
-    <div class="logged-in-as" id="loggedInAs">
-      Signed in as <span class="user-name" id="displayName">—</span>
-      (<span id="displayRole">—</span>)
-      <a class="logout-link" href="#" onclick="doLogout();return false;">Sign Out</a>
+  <!-- LOGIN FORM -->
+  <div class="card login-form" id="loginForm">
+    <div class="error" id="loginError"></div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="Enter your username" autocomplete="off">
     </div>
-    <p>Select your role to access your personalised toolkit, territory data, and enablement resources.</p>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Enter your password">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <div class="signup-link">Don't have an account? <a onclick="showSignup()">Request access</a></div>
   </div>
 
-  <div class="roles" id="roleCards">
-    <!-- SDR -->
-    <a class="role-card sdr" href="sdr-portal.html" data-role="sdr">
-      <div class="role-icon">&#9889;</div>
-      <div class="role-subtitle">Pipeline Builder</div>
-      <div class="role-title">SDR</div>
-      <div class="role-desc">Upload your territory, set your vertical focus, and start building pipeline with intelligent outreach and qualification tools.</div>
-      <div class="role-tools">
-        <span>Pipeline Engine</span>
-        <span>Outreach</span>
-        <span>Discovery</span>
-        <span>Battlecards</span>
-        <span>CRM</span>
-        <span>+3 more</span>
+  <!-- SIGNUP FORM -->
+  <div class="card signup-form" id="signupForm">
+    <div class="error" id="signupError"></div>
+    <div class="field-row">
+      <div class="field">
+        <label>First Name</label>
+        <input type="text" id="signupFirst" placeholder="First name">
       </div>
-      <div class="role-enter">Enter SDR Portal &#8594;</div>
-    </a>
-
-    <!-- AE -->
-    <a class="role-card ae" href="ae-portal.html" data-role="ae">
-      <div class="role-icon">&#127919;</div>
-      <div class="role-title">Account Executive</div>
-      <div class="role-subtitle">Deal Closer</div>
-      <div class="role-desc">Manage deals and accounts with equal firepower. From discovery whiteboards to ROI calculators — everything to close.</div>
-      <div class="role-tools">
-        <span>Deal Timeline</span>
-        <span>Whiteboards</span>
-        <span>ROI Calc</span>
-        <span>Journey Map</span>
-        <span>CRM</span>
-        <span>+6 more</span>
+      <div class="field">
+        <label>Last Name</label>
+        <input type="text" id="signupLast" placeholder="Last name">
       </div>
-      <div class="role-enter">Enter AE Portal &#8594;</div>
-    </a>
-
-    <!-- Manager -->
-    <a class="role-card mgr" href="manager-portal.html" data-role="manager">
-      <div class="role-icon">&#128202;</div>
-      <div class="role-title">Manager</div>
-      <div class="role-subtitle">Team Leader</div>
-      <div class="role-desc">Pipeline oversight, deal coaching, and team performance. Review discovery quality, validate business cases, and drive results.</div>
-      <div class="role-tools">
-        <span>Pipeline View</span>
-        <span>Deal Review</span>
-        <span>Coaching</span>
-        <span>ROI Review</span>
-        <span>Reports</span>
-        <span>+3 more</span>
-      </div>
-      <div class="role-enter">Enter Manager Portal &#8594;</div>
-    </a>
-  </div>
-
-  <a class="shared-link" href="enablement-hub.html">
-    &#128218; Positioning & Enablement Hub — Available to all roles
-  </a>
-  <a class="shared-link" href="nerdio-user-guide.html" style="margin-top:-8px;font-size:13px;opacity:0.7;">
-    &#128214; User Guide — Setup, tools, and day-to-day usage
-  </a>
-
-  <div class="footer">
-    Nerdio Sales Command Centre v2 &middot; Role-Based Experience &middot; 16 Tools
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="signupUser" placeholder="Choose a username" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="signupPass" placeholder="Choose a password">
+    </div>
+    <div class="field">
+      <label>Role</label>
+      <select id="signupRole">
+        <option value="sdr">SDR</option>
+        <option value="ae" selected>Account Executive</option>
+        <option value="manager">Manager</option>
+      </select>
+    </div>
+    <button class="btn-login" onclick="doSignup()">Create Account</button>
+    <div class="back-link"><a onclick="showLogin()">← Back to sign in</a></div>
   </div>
 </div>
-
-<a class="v1-link" href="../index.html" style="display:none;" id="v1Link">&#8592; v1 Master View</a>
-<a class="admin-link" href="admin.html" style="display:none;" id="adminLink">&#128272; Admin Panel</a>
 
 <script>
-// ===== SHARED AUTH MODULE =====
-function simpleHash(str) {
-  let hash = 0;
-  for(let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return 'h_' + Math.abs(hash).toString(36);
-}
-
-function getUsers() { return JSON.parse(localStorage.getItem('nerdio_v2_users') || '[]'); }
-function getSession() { return JSON.parse(localStorage.getItem('nerdio_v2_session') || 'null'); }
-function setSession(session) { localStorage.setItem('nerdio_v2_session', JSON.stringify(session)); }
-function clearSession() { localStorage.removeItem('nerdio_v2_session'); }
-
-function doLogin() {
-  const username = document.getElementById('loginUsername').value.trim().toLowerCase();
-  const password = document.getElementById('loginPassword').value;
-  if(!username || !password) return;
-
-  const users = getUsers();
-  const user = users.find(u => u.username === username && u.status === 'active');
-
-  if(!user || user.passwordHash !== simpleHash(password)) {
-    document.getElementById('loginError').style.display = 'block';
-    document.getElementById('loginPassword').value = '';
+(function(){
+  // ── Check existing session ──
+  var session = null;
+  try { session = JSON.parse(localStorage.getItem('nerdio_v3_session')); } catch(e){}
+  if(session && session.username && session.role){
+    routeToRole(session.role);
     return;
   }
 
-  // Update last login
-  user.lastLogin = new Date().toISOString();
-  localStorage.setItem('nerdio_v2_users', JSON.stringify(users));
+  // ── User database ──
+  function getUsers(){
+    try { return JSON.parse(localStorage.getItem('nerdio_v3_users')) || {}; } catch(e){ return {}; }
+  }
+  function saveUsers(u){ localStorage.setItem('nerdio_v3_users', JSON.stringify(u)); }
 
-  // Create session
-  setSession({
-    userId: user.id,
-    username: user.username,
-    name: user.name,
-    role: user.role,
-    loginTime: new Date().toISOString()
-  });
+  // Ensure default admin exists
+  var users = getUsers();
+  if(!users['admin']){
+    users['admin'] = { password:'admin', name:'Admin', role:'admin', created: new Date().toISOString() };
+    saveUsers(users);
+  }
 
-  showApp();
-}
+  // ── Login ──
+  window.doLogin = function(){
+    var username = document.getElementById('loginUser').value.trim().toLowerCase();
+    var password = document.getElementById('loginPass').value;
+    var errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
 
-function doLogout() {
-  clearSession();
-  location.reload();
-}
+    if(!username || !password){ errEl.textContent = 'Please enter username and password.'; errEl.style.display = 'block'; return; }
 
-function showApp() {
-  const session = getSession();
-  if(!session) return;
+    var users = getUsers();
+    if(!users[username] || users[username].password !== password){
+      errEl.textContent = 'Invalid username or password.'; errEl.style.display = 'block'; return;
+    }
 
-  document.getElementById('loginOverlay').classList.add('hidden');
-  document.getElementById('mainContainer').style.display = 'flex';
-  document.getElementById('v1Link').style.display = 'block';
-  document.getElementById('displayName').textContent = session.name;
-  document.getElementById('displayRole').textContent = session.role.toUpperCase();
-
-  document.getElementById('adminLink').style.display = 'block';
-
-  // Role-based card visibility
-  const roleAccess = {
-    sdr: ['sdr'],
-    ae: ['sdr', 'ae'],
-    manager: ['sdr', 'ae', 'manager']
+    var user = users[username];
+    localStorage.setItem('nerdio_v3_session', JSON.stringify({
+      username: username, name: user.name, role: user.role, loginTime: new Date().toISOString()
+    }));
+    routeToRole(user.role);
   };
-  const allowed = roleAccess[session.role] || [];
 
-  const cards = document.querySelectorAll('.role-card');
-  let visibleCount = 0;
-  cards.forEach(card => {
-    const cardRole = card.getAttribute('data-role');
-    if(allowed.includes(cardRole)) {
-      card.style.display = 'flex';
-      visibleCount++;
-      if(cardRole === session.role) {
-        card.style.order = '-1';
-        card.style.borderColor = 'rgba(30,157,184,0.3)';
-      }
-    } else {
-      card.style.display = 'none';
-    }
-  });
+  // ── Signup ──
+  window.doSignup = function(){
+    var first = document.getElementById('signupFirst').value.trim();
+    var last = document.getElementById('signupLast').value.trim();
+    var username = document.getElementById('signupUser').value.trim().toLowerCase();
+    var password = document.getElementById('signupPass').value;
+    var role = document.getElementById('signupRole').value;
+    var errEl = document.getElementById('signupError');
+    errEl.style.display = 'none';
 
-  // Adjust grid for fewer cards
-  const roleGrid = document.getElementById('roleCards');
-  if(visibleCount === 1) {
-    roleGrid.style.gridTemplateColumns = '1fr';
-    roleGrid.style.maxWidth = '380px';
-  } else if(visibleCount === 2) {
-    roleGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
-    roleGrid.style.maxWidth = '700px';
+    if(!first || !username || !password){ errEl.textContent = 'Please fill in all required fields.'; errEl.style.display = 'block'; return; }
+    if(username.length < 3){ errEl.textContent = 'Username must be at least 3 characters.'; errEl.style.display = 'block'; return; }
+    if(password.length < 3){ errEl.textContent = 'Password must be at least 3 characters.'; errEl.style.display = 'block'; return; }
+
+    var users = getUsers();
+    if(users[username]){ errEl.textContent = 'Username already taken.'; errEl.style.display = 'block'; return; }
+
+    users[username] = { password: password, name: first + (last ? ' ' + last : ''), role: role, created: new Date().toISOString() };
+    saveUsers(users);
+
+    localStorage.setItem('nerdio_v3_session', JSON.stringify({
+      username: username, name: users[username].name, role: role, loginTime: new Date().toISOString()
+    }));
+    routeToRole(role);
+  };
+
+  // ── Navigation ──
+  window.showSignup = function(){ document.getElementById('loginForm').style.display = 'none'; document.getElementById('signupForm').style.display = 'block'; };
+  window.showLogin = function(){ document.getElementById('signupForm').style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; };
+
+  function routeToRole(role){
+    var routes = {
+      'admin': 'admin.html',
+      'manager': 'manager-portal.html',
+      'ae': 'intelligence-centre.html',
+      'sdr': 'sdr-engine.html'
+    };
+    window.location.href = routes[role] || 'intelligence-centre.html';
   }
 
-  // Manager user switcher - intercept SDR/AE card clicks
-  if(session.role === 'manager') {
-    cards.forEach(card => {
-      card.addEventListener('click', function(e) {
-        const cardRole = this.getAttribute('data-role');
-        if(cardRole === 'sdr' || cardRole === 'ae') {
-          e.preventDefault();
-          showUserPicker(cardRole, this.getAttribute('href'));
-        }
-        // manager card goes straight through
-      });
-    });
-  }
-}
-
-function showUserPicker(targetRole, targetUrl) {
-  const users = getUsers().filter(u => u.role === targetRole && u.status === 'active');
-
-  // Remove existing picker if any
-  const existing = document.getElementById('userPickerOverlay');
-  if(existing) existing.remove();
-
-  const overlay = document.createElement('div');
-  overlay.id = 'userPickerOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(4,40,56,0.92);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);';
-
-  const roleLabel = targetRole === 'sdr' ? 'SDR' : 'AE';
-  const roleColor = targetRole === 'sdr' ? '#CDFF4E' : '#1E9DB8';
-
-  let userListHtml = '';
-  if(users.length === 0) {
-    userListHtml = '<div style="padding:24px;text-align:center;color:rgba(255,255,255,0.4);font-size:14px;">No active ' + roleLabel + ' users found.</div>';
-  } else {
-    users.forEach(u => {
-      userListHtml += '<div class="picker-user" onclick="selectViewAs(\'' + u.username + '\',\'' + u.name.replace(/'/g, "\\'") + '\',\'' + targetRole + '\',\'' + targetUrl + '\')" style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px;" onmouseover="this.style.background=\'rgba(255,255,255,0.06)\'" onmouseout="this.style.background=\'transparent\'">';
-      userListHtml += '<div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:' + roleColor + ';">' + u.name.charAt(0).toUpperCase() + '</div>';
-      userListHtml += '<div><div style="font-size:14px;font-weight:600;">' + u.name + '</div><div style="font-size:11px;color:rgba(255,255,255,0.4);">@' + u.username + '</div></div>';
-      userListHtml += '</div>';
-    });
-  }
-
-  // Also add "View as myself" option for the manager's own view
-  userListHtml += '<div onclick="selectViewAs(null,null,null,\'' + targetUrl + '\')" style="padding:14px 20px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px;border-top:1px solid rgba(255,255,255,0.1);" onmouseover="this.style.background=\'rgba(167,149,199,0.1)\'" onmouseout="this.style.background=\'transparent\'">';
-  userListHtml += '<div style="width:36px;height:36px;border-radius:10px;background:rgba(167,149,199,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;">&#128202;</div>';
-  userListHtml += '<div><div style="font-size:14px;font-weight:600;color:#A795C7;">View as Manager (Overview)</div><div style="font-size:11px;color:rgba(255,255,255,0.4);">See portal without specific user context</div></div>';
-  userListHtml += '</div>';
-
-  overlay.innerHTML = '<div style="background:rgba(13,47,66,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:20px;width:100%;max-width:440px;max-height:70vh;overflow:hidden;display:flex;flex-direction:column;">' +
-    '<div style="padding:24px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.08);">' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-    '<h3 style="font-size:18px;font-weight:700;font-family:Poppins,sans-serif;">Select ' + roleLabel + ' to View</h3>' +
-    '<button onclick="document.getElementById(\'userPickerOverlay\').remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:4px 8px;">✕</button>' +
-    '</div>' +
-    '<p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;font-family:Poppins,sans-serif;">Choose a team member to view the ' + roleLabel + ' portal as their perspective.</p>' +
-    '</div>' +
-    '<div style="overflow-y:auto;font-family:Poppins,sans-serif;">' + userListHtml + '</div>' +
-    '</div>';
-
-  overlay.addEventListener('click', function(e) {
-    if(e.target === overlay) overlay.remove();
-  });
-
-  document.body.appendChild(overlay);
-}
-
-function selectViewAs(username, name, role, targetUrl) {
-  if(username) {
-    sessionStorage.setItem('nerdio_v2_viewAs', JSON.stringify({username: username, name: name, role: role}));
-  } else {
-    sessionStorage.removeItem('nerdio_v2_viewAs');
-  }
-  window.location.href = targetUrl;
-}
-
-// Init — check for existing session
-document.addEventListener('DOMContentLoaded', () => {
-  const session = getSession();
-  const users = getUsers();
-
-  if(session) {
-    // Validate session — make sure user still exists and is active
-    const user = users.find(u => u.username === session.username && u.status === 'active');
-    if(user) {
-      showApp();
-      return;
-    } else {
-      // User was disabled or deleted — clear session
-      clearSession();
-    }
-  }
-
-  // If no users exist at all, show a setup prompt
-  if(users.length === 0) {
-    document.getElementById('loginError').style.display = 'none';
-    const note = document.createElement('div');
-    note.style.cssText = 'margin-top:16px;padding:12px;border-radius:10px;background:rgba(30,157,184,0.08);border:1px solid rgba(30,157,184,0.2);font-size:11px;color:#1E9DB8;line-height:1.5;';
-    note.innerHTML = '<strong>No users configured yet.</strong><br>Visit the <a href="admin.html" style="color:#CDFF4E;">Admin Panel</a> to set up your master password and create user accounts.';
-    document.querySelector('.login-box').appendChild(note);
-  }
-
-  // Show login
-  document.getElementById('loginOverlay').classList.remove('hidden');
-});
+  // Enter key support
+  document.getElementById('loginPass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+  document.getElementById('signupPass').addEventListener('keydown', function(e){ if(e.key==='Enter') doSignup(); });
+  document.getElementById('loginUser').focus();
+})();
 </script>
 </body>
 </html>

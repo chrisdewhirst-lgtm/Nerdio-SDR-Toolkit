@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nerdio SDR Engine v3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #042838;
+      color: #FFFFFF;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .header {
+      height: 52px;
+      background-color: #042838;
+      border-bottom: 1px solid #1E9DB8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .header-badge {
+      background-color: #1E9DB8;
+      color: #FFFFFF;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header-user {
+      font-size: 13px;
+      color: #A795C7;
+    }
+
+    .header-link {
+      color: #1E9DB8;
+      text-decoration: none;
+      font-size: 13px;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .header-link:hover {
+      color: #CDFF4E;
+    }
+
+    .logout-btn {
+      background-color: #1E9DB8;
+      color: #FFFFFF;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .logout-btn:hover {
+      background-color: #CDFF4E;
+      color: #042838;
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .left-panel {
+      width: 340px;
+      background-color: #0a3d52;
+      border-right: 1px solid #1E9DB8;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .search-bar {
+      padding: 12px;
+      border: none;
+      background-color: #042838;
+      color: #FFFFFF;
+      font-size: 13px;
+      border-bottom: 1px solid #1E9DB8;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .search-bar::placeholder {
+      color: #888;
+    }
+
+    .filters {
+      padding: 12px;
+      border-bottom: 1px solid #1E9DB8;
+      overflow-x: auto;
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-chip {
+      background-color: #042838;
+      border: 1px solid #1E9DB8;
+      color: #1E9DB8;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .filter-chip.active {
+      background-color: #1E9DB8;
+      color: #FFFFFF;
+    }
+
+    .filter-chip:hover {
+      background-color: #1E9DB8;
+      color: #FFFFFF;
+    }
+
+    .sort-bar {
+      padding: 8px 12px;
+      border-bottom: 1px solid #1E9DB8;
+      font-size: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sort-select {
+      background-color: #042838;
+      color: #1E9DB8;
+      border: 1px solid #1E9DB8;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+    }
+
+    .account-count {
+      font-size: 11px;
+      color: #A795C7;
+      padding: 8px 12px;
+      border-bottom: 1px solid #1E9DB8;
+    }
+
+    .account-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .account-card {
+      background-color: #042838;
+      border: 1px solid #1E9DB8;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .account-card:hover {
+      background-color: #0a4d62;
+      border-color: #CDFF4E;
+    }
+
+    .account-card.active {
+      background-color: #1E9DB8;
+      color: #042838;
+      border-color: #CDFF4E;
+    }
+
+    .account-card.active .account-name,
+    .account-card.active .account-industry,
+    .account-card.active .account-employees,
+    .account-card.active .account-signal {
+      color: #042838;
+    }
+
+    .account-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .account-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: #CDFF4E;
+    }
+
+    .heat-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .heat-hot {
+      background-color: #FF4444;
+      color: #FFFFFF;
+    }
+
+    .heat-warm {
+      background-color: #FF9500;
+      color: #FFFFFF;
+    }
+
+    .heat-cool {
+      background-color: #1E9DB8;
+      color: #FFFFFF;
+    }
+
+    .heat-cold {
+      background-color: #666;
+      color: #FFFFFF;
+    }
+
+    .account-industry {
+      font-size: 11px;
+      color: #A795C7;
+      margin-bottom: 4px;
+    }
+
+    .account-employees {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .account-signal {
+      font-size: 11px;
+      color: #CDFF4E;
+    }
+
+    .import-section {
+      background-color: #042838;
+      border: 1px dashed #1E9DB8;
+      border-radius: 6px;
+      padding: 12px;
+      margin: 12px;
+      font-size: 12px;
+    }
+
+    .import-section h4 {
+      color: #CDFF4E;
+      margin-bottom: 8px;
+    }
+
+    .import-btn {
+      background-color: #1E9DB8;
+      color: #FFFFFF;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: background-color 0.2s;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+
+    .import-btn:hover {
+      background-color: #CDFF4E;
+      color: #042838;
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #1E9DB8;
+      background-color: #0a3d52;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #A795C7;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: #CDFF4E;
+    }
+
+    .tab.active {
+      color: #CDFF4E;
+      border-bottom-color: #CDFF4E;
+    }
+
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: none;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      color: #CDFF4E;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #1E9DB8;
+      padding-bottom: 8px;
+    }
+
+    .snapshot-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .snapshot-item {
+      background-color: #0a3d52;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .snapshot-label {
+      color: #A795C7;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .snapshot-value {
+      color: #CDFF4E;
+      font-weight: 600;
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .signal-item {
+      background-color: #0a3d52;
+      padding: 12px;
+      border-radius: 4px;
+      border-left: 3px solid #666;
+    }
+
+    .signal-label {
+      font-size: 11px;
+      color: #A795C7;
+      margin-bottom: 4px;
+    }
+
+    .signal-value {
+      font-weight: 600;
+      font-size: 13px;
+      color: #CDFF4E;
+    }
+
+    .signal-indicator {
+      font-size: 10px;
+      margin-top: 4px;
+    }
+
+    .indicator-green {
+      color: #CDFF4E;
+    }
+
+    .indicator-yellow {
+      color: #FF9500;
+    }
+
+    .indicator-red {
+      color: #FF4444;
+    }
+
+    .contacts-list {
+      background-color: #0a3d52;
+      border-radius: 4px;
+      padding: 12px;
+      font-size: 12px;
+    }
+
+    .contact-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #1E9DB8;
+    }
+
+    .contact-item:last-child {
+      border-bottom: none;
+    }
+
+    .contact-name {
+      color: #CDFF4E;
+      font-weight: 600;
+    }
+
+    .contact-role {
+      color: #A795C7;
+      font-size: 11px;
+    }
+
+    .alerts-box {
+      background-color: #331515;
+      border: 1px solid #FF4444;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .alert-item {
+      font-size: 12px;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+
+    .alert-severity {
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .prompts-box {
+      background-color: #0a3d52;
+      border-left: 3px solid #CDFF4E;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .prompt-item {
+      font-size: 12px;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .prompt-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .checklist {
+      list-style: none;
+      margin-bottom: 16px;
+    }
+
+    .checklist-item {
+      background-color: #0a3d52;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .checklist-item input[type="checkbox"] {
+      margin-right: 12px;
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+
+    .qualification-bar {
+      background-color: #0a3d52;
+      border-radius: 4px;
+      height: 24px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 1px solid #1E9DB8;
+    }
+
+    .qualification-fill {
+      background-color: #CDFF4E;
+      height: 100%;
+      width: 0%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #042838;
+      transition: width 0.3s;
+    }
+
+    .reason-input {
+      background-color: #042838;
+      color: #FFFFFF;
+      border: 1px solid #1E9DB8;
+      border-radius: 4px;
+      padding: 8px;
+      font-size: 12px;
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .qualify-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .qualify-btn, .disqualify-btn, .handoff-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .qualify-btn {
+      background-color: #CDFF4E;
+      color: #042838;
+    }
+
+    .qualify-btn:hover {
+      background-color: #E8FF99;
+    }
+
+    .disqualify-btn {
+      background-color: #FF4444;
+      color: #FFFFFF;
+    }
+
+    .disqualify-btn:hover {
+      background-color: #FF6666;
+    }
+
+    .handoff-btn {
+      background-color: #1E9DB8;
+      color: #FFFFFF;
+    }
+
+    .handoff-btn:hover {
+      background-color: #2AC4D0;
+    }
+
+    .history-log {
+      background-color: #0a3d52;
+      border-radius: 4px;
+      padding: 12px;
+      font-size: 11px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      padding: 6px 0;
+      border-bottom: 1px solid #1E9DB8;
+      color: #A795C7;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .playbook-section {
+      background-color: #0a3d52;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .playbook-title {
+      color: #CDFF4E;
+      font-weight: 600;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .playbook-content {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+    }
+
+    .copy-btn {
+      background-color: #1E9DB8;
+      color: #FFFFFF;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: background-color 0.2s;
+      width: 100%;
+    }
+
+    .copy-btn:hover {
+      background-color: #CDFF4E;
+      color: #042838;
+    }
+
+    .notes-textarea {
+      background-color: #042838;
+      color: #FFFFFF;
+      border: 1px solid #1E9DB8;
+      border-radius: 4px;
+      padding: 10px;
+      font-size: 12px;
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+      height: 100px;
+      resize: vertical;
+      margin-bottom: 8px;
+    }
+
+    .notes-timestamp {
+      font-size: 10px;
+      color: #A795C7;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #A795C7;
+      padding: 40px 20px;
+    }
+
+    .confirmation-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .confirmation-modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: #0a3d52;
+      border: 2px solid #1E9DB8;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .modal-title {
+      color: #CDFF4E;
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .modal-message {
+      color: #FFFFFF;
+      font-size: 13px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .modal-confirm {
+      background-color: #CDFF4E;
+      color: #042838;
+    }
+
+    .modal-confirm:hover {
+      background-color: #E8FF99;
+    }
+
+    .modal-cancel {
+      background-color: #1E9DB8;
+      color: #FFFFFF;
+    }
+
+    .modal-cancel:hover {
+      background-color: #2AC4D0;
+    }
+  </style>
+</head>
+<body>
+
+<script>
+(function(){
+  var s=null;try{s=JSON.parse(localStorage.getItem('nerdio_v3_session'));}catch(e){}
+  if(!s||!s.username){window.location.href='index.html';return;}
+  if(s.role!=='sdr'&&s.role!=='admin'){window.location.href='index.html';return;}
+  window._session=s;
+})();
+</script>
+
+<div class="container">
+  <div class="header">
+    <div class="header-title">
+      <span>🤓 nerdio SDR Engine</span>
+      <span class="header-badge">V3</span>
+    </div>
+    <div class="header-right">
+      <div class="header-user">Welcome, <span id="headerUsername"></span></div>
+      <a class="header-link" href="intelligence-centre.html">Intelligence Centre</a>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="left-panel">
+      <input type="text" id="searchInput" class="search-bar" placeholder="Search accounts...">
+
+      <div class="filters">
+        <div class="filter-chip active" data-filter="all">All</div>
+        <div class="filter-chip" data-filter="hot">Hot</div>
+        <div class="filter-chip" data-filter="warm">Warm</div>
+        <div class="filter-chip" data-filter="cool">Cool</div>
+        <div class="filter-chip" data-filter="cold">Cold</div>
+        <div class="filter-chip" data-filter="qualified">Qualified</div>
+        <div class="filter-chip" data-filter="disqualified">Disqualified</div>
+      </div>
+
+      <div class="sort-bar">
+        <span>Sort by:</span>
+        <select id="sortSelect" class="sort-select">
+          <option value="heat">Heat Score</option>
+          <option value="fit">Fit Score</option>
+          <option value="name">Account Name</option>
+          <option value="employees">Employees</option>
+        </select>
+      </div>
+
+      <div class="account-count"><span id="accountCountSpan">0</span> accounts</div>
+
+      <div class="account-list" id="accountList">
+      </div>
+
+      <div class="import-section">
+        <h4>Import Territory</h4>
+        <button class="import-btn" id="importTerritoryBtn">Choose XLSX</button>
+        <input type="file" id="territoryFileInput" style="display:none;">
+        <div style="font-size: 11px; color: #A795C7; margin-top: 8px;">CSV/XLSX with accountName, industry, segment, employees, rdsCurrent, daaSCurrent, intuneLicensed, eaLicensed</div>
+      </div>
+
+      <div class="import-section">
+        <h4>Import WOPR</h4>
+        <button class="import-btn" id="importWOPRBtn">Choose XLSX</button>
+        <input type="file" id="woprFileInput" style="display:none;">
+        <div style="font-size: 11px; color: #A795C7; margin-top: 8px;">CSV/XLSX with enrichment data: tpid, rdsDevices, daasDevices, intune, avdDealSize, eaE3, eaE5, engagementStatus, opportunities</div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="tabs">
+        <div class="tab active" data-tab="research">Research Brief</div>
+        <div class="tab" data-tab="qualification">Qualification</div>
+        <div class="tab" data-tab="playbook">Outreach Playbook</div>
+        <div class="tab" data-tab="handoff">Handoff</div>
+      </div>
+
+      <div id="researchTab" class="tab-content active">
+        <div class="section">
+          <div class="section-title">Company Snapshot</div>
+          <div class="snapshot-grid">
+            <div class="snapshot-item">
+              <div class="snapshot-label">Company Name</div>
+              <div class="snapshot-value" id="snapshotName">-</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-label">Industry</div>
+              <div class="snapshot-value" id="snapshotIndustry">-</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-label">Segment</div>
+              <div class="snapshot-value" id="snapshotSegment">-</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-label">Employees</div>
+              <div class="snapshot-value" id="snapshotEmployees">-</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Signal Summary</div>
+          <div class="signal-grid">
+            <div class="signal-item">
+              <div class="signal-label">RDS Infrastructure</div>
+              <div class="signal-value" id="signalRDS">-</div>
+              <div class="signal-indicator" id="indicatorRDS"></div>
+            </div>
+            <div class="signal-item">
+              <div class="signal-label">DaaS Usage</div>
+              <div class="signal-value" id="signalDaaS">-</div>
+              <div class="signal-indicator" id="indicatorDaaS"></div>
+            </div>
+            <div class="signal-item">
+              <div class="signal-label">Intune</div>
+              <div class="signal-value" id="signalIntune">-</div>
+              <div class="signal-indicator" id="indicatorIntune"></div>
+            </div>
+            <div class="signal-item">
+              <div class="signal-label">EA Status</div>
+              <div class="signal-value" id="signalEA">-</div>
+              <div class="signal-indicator" id="indicatorEA"></div>
+            </div>
+            <div class="signal-item">
+              <div class="signal-label">AVD Deal Size</div>
+              <div class="signal-value" id="signalAVD">-</div>
+              <div class="signal-indicator" id="indicatorAVD"></div>
+            </div>
+            <div class="signal-item">
+              <div class="signal-label">Engagement</div>
+              <div class="signal-value" id="signalEngagement">-</div>
+              <div class="signal-indicator" id="indicatorEngagement"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" id="alertsSection" style="display:none;">
+          <div class="section-title">Admin Alerts</div>
+          <div class="alerts-box" id="alertsBox"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Microsoft Team Contacts</div>
+          <div class="contacts-list" id="contactsList">
+            <div style="font-size: 12px; color: #A795C7;">No contacts found</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Research Prompts</div>
+          <div class="prompts-box" id="promptsBox">
+            <div style="font-size: 12px; color: #A795C7;">Load an account to see research prompts</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="qualificationTab" class="tab-content">
+        <div class="section">
+          <div class="section-title">BANT Qualification</div>
+          <ul class="checklist">
+            <li class="checklist-item">
+              <input type="checkbox" class="bant-check" data-bant="budget">
+              <span>Budget: Has budget allocated for IT infrastructure modernisation</span>
+            </li>
+            <li class="checklist-item">
+              <input type="checkbox" class="bant-check" data-bant="authority">
+              <span>Authority: Identified decision maker or champion</span>
+            </li>
+            <li class="checklist-item">
+              <input type="checkbox" class="bant-check" data-bant="need">
+              <span>Need: Has confirmed pain point (VDI cost, complexity, refresh cycle)</span>
+            </li>
+            <li class="checklist-item">
+              <input type="checkbox" class="bant-check" data-bant="timeline">
+              <span>Timeline: Has timeline for evaluation or decision within 6 months</span>
+            </li>
+            <li class="checklist-item">
+              <input type="checkbox" class="bant-check" data-bant="msalignment">
+              <span>Microsoft Alignment: Microsoft team engaged or aware of opportunity</span>
+            </li>
+            <li class="checklist-item">
+              <input type="checkbox" class="bant-check" data-bant="techfit">
+              <span>Technical Fit: Nerdio fit score > 50 or clear use case match</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Qualification Status</div>
+          <div class="qualification-bar">
+            <div class="qualification-fill" id="qualificationFill" style="width: 0%;">0%</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Qualification Action</div>
+          <input type="text" id="reasonInput" class="reason-input" placeholder="Reason for qualification decision (optional)">
+          <div class="qualify-buttons">
+            <button class="qualify-btn" id="qualifyBtn">Qualify</button>
+            <button class="disqualify-btn" id="disqualifyBtn">Disqualify</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">History</div>
+          <div class="history-log" id="historyLog">
+            <div style="font-size: 12px; color: #A795C7;">No history yet</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="playbookTab" class="tab-content">
+        <div class="section">
+          <div class="section-title">Opening Line</div>
+          <div class="playbook-section">
+            <div class="playbook-content" id="openingLine">
+              No account selected
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Email Template</div>
+          <div class="playbook-section">
+            <div class="playbook-content" id="emailTemplate">
+              No account selected
+            </div>
+            <button class="copy-btn" id="copyEmailBtn">Copy Email</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">LinkedIn Connection Request</div>
+          <div class="playbook-section">
+            <div class="playbook-content" id="linkedinTemplate">
+              No account selected
+            </div>
+            <button class="copy-btn" id="copyLinkedinBtn">Copy Message</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Call Script Outline</div>
+          <div class="playbook-section">
+            <div class="playbook-content" id="callScript">
+              No account selected
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">MS Co-Sell Talking Points</div>
+          <div class="playbook-section">
+            <div class="playbook-content" id="coSellPoints">
+              No account selected
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="handoffTab" class="tab-content">
+        <div class="section">
+          <div class="section-title">Handoff Summary</div>
+          <div class="snapshot-grid">
+            <div class="snapshot-item">
+              <div class="snapshot-label">Account Name</div>
+              <div class="snapshot-value" id="handoffName">-</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-label">Qualification %</div>
+              <div class="snapshot-value" id="handoffQual">0%</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-label">Heat Score</div>
+              <div class="snapshot-value" id="handoffHeat">-</div>
+            </div>
+            <div class="snapshot-item">
+              <div class="snapshot-label">Fit Score</div>
+              <div class="snapshot-value" id="handoffFit">-</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Key Findings for AE</div>
+          <textarea id="handoffNotes" class="notes-textarea" placeholder="Summarize key findings, pain points, and context for the AE..."></textarea>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Microsoft Contact Summary</div>
+          <div class="playbook-section">
+            <div class="playbook-content" id="handoffContacts">No contacts found</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Recommended Next Steps</div>
+          <div class="playbook-section">
+            <div class="playbook-content" id="nextSteps">
+              - Schedule discovery call with identified contact<br>
+              - Prepare technical presentation based on signals<br>
+              - Coordinate with Microsoft if contacts exist
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <button class="handoff-btn" id="handoffBtn">Hand Off to AE</button>
+        </div>
+      </div>
+
+      <div style="position: absolute; bottom: 0; right: 0; width: calc(100% - 340px); padding: 16px; background-color: #0a3d52; border-top: 1px solid #1E9DB8;">
+        <div class="section-title" style="margin-bottom: 8px; margin-top: 0;">SDR Notes</div>
+        <textarea id="sdrNotes" class="notes-textarea" placeholder="Add personal notes about this account..."></textarea>
+        <div class="notes-timestamp" id="notesTimestamp">Not saved</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="confirmationModal" class="confirmation-modal">
+  <div class="modal-content">
+    <div class="modal-title" id="modalTitle">Confirm Action</div>
+    <div class="modal-message" id="modalMessage">Are you sure?</div>
+    <div class="modal-buttons">
+      <button class="modal-btn modal-confirm" id="modalConfirmBtn">Confirm</button>
+      <button class="modal-btn modal-cancel" id="modalCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+<script>
+var app = {
+  accounts: [],
+  filteredAccounts: [],
+  currentAccount: null,
+  currentFilter: 'all',
+  currentSort: 'heat',
+  selectedAccountIndex: -1,
+  modal: {
+    resolve: null,
+    action: null
+  },
+
+  init: function() {
+    var self = this;
+
+    document.getElementById('headerUsername').textContent = window._session.username;
+
+    this.loadData();
+    this.attachEventListeners();
+    this.renderAccountList();
+  },
+
+  loadData: function() {
+    var territory = this.getStorageItem('nerdio_v3_territory_' + window._session.username, []);
+    var wopr = this.getStorageItem('nerdio_v3_wopr_' + window._session.username, []);
+    var mal = this.getStorageItem('nerdio_v3_mal', []);
+    var qualified = this.getStorageItem('nerdio_v3_sdr_qualified_' + window._session.username, {});
+
+    this.accounts = this.buildUnifiedAccounts(territory, wopr, mal, qualified);
+  },
+
+  getStorageItem: function(key, defaultValue) {
+    try {
+      var item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue;
+    } catch (e) {
+      return defaultValue;
+    }
+  },
+
+  buildUnifiedAccounts: function(territory, wopr, mal, qualified) {
+    var self = this;
+    var unified = [];
+    var seen = {};
+
+    territory.forEach(function(acc) {
+      var normName = self.normName(acc.accountName);
+      if (!seen[normName]) {
+        seen[normName] = true;
+        var unified_acc = self.mergeAccountData(acc, wopr, mal, normName);
+        unified_acc.qualStatus = qualified[normName] || { status: 'pending', reason: '', history: [] };
+        unified.push(unified_acc);
+      }
+    });
+
+    wopr.forEach(function(rec) {
+      var normName = self.normName(rec.accountName);
+      if (!seen[normName]) {
+        seen[normName] = true;
+        var unified_acc = self.mergeAccountData({accountName: rec.accountName}, [rec], mal, normName);
+        unified_acc.qualStatus = qualified[normName] || { status: 'pending', reason: '', history: [] };
+        unified.push(unified_acc);
+      }
+    });
+
+    return unified;
+  },
+
+  mergeAccountData: function(territory, wopr, mal, normName) {
+    var account = {
+      accountName: territory.accountName || '',
+      industry: territory.industry || 'Unknown',
+      segment: territory.segment || 'Unknown',
+      numberOfEmployees: territory.numberOfEmployees || 0,
+      rdsCurrent: territory.rdsCurrent || 'None',
+      daaSCurrent: territory.daaSCurrent || 'None',
+      intuneLicensed: territory.intuneLicensed || 'No',
+      eaLicensed: territory.eaLicensed || 'None',
+      tpid: territory.tpid || ''
+    };
+
+    var woprRec = wopr.find(function(w) {
+      var wNorm = app.normName(w.accountName);
+      return wNorm === normName;
+    });
+
+    if (woprRec) {
+      account.rdsDevices = woprRec.rdsDevices || 0;
+      account.daasDevices = woprRec.daasDevices || 0;
+      account.intune = woprRec.intune || 'No';
+      account.avdDealSize = woprRec.avdDealSize || 0;
+      account.eaE3 = woprRec.eaE3 || 'No';
+      account.eaE5 = woprRec.eaE5 || 'No';
+      account.engagementStatus = woprRec.engagementStatus || 'Not Started';
+      account.opportunities = woprRec.opportunities || [];
+    } else {
+      account.rdsDevices = 0;
+      account.daasDevices = 0;
+      account.intune = 'No';
+      account.avdDealSize = 0;
+      account.eaE3 = 'No';
+      account.eaE5 = 'No';
+      account.engagementStatus = 'Not Started';
+      account.opportunities = [];
+    }
+
+    var malRec = mal.find(function(m) {
+      var mNorm = app.normName(m.accountName);
+      return mNorm === normName;
+    });
+
+    if (malRec) {
+      account.msTeam = malRec.msTeam || {};
+    } else {
+      account.msTeam = {};
+    }
+
+    account.fitScore = this.calculateFitScore(account);
+    account.heatScore = this.calculateHeatScore(account);
+
+    return account;
+  },
+
+  normName: function(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  },
+
+  calculateFitScore: function(account) {
+    var score = 0;
+    var breakdown = {
+      rds: 0,
+      daas: 0,
+      intune: 0,
+      ea: 0,
+      employees: 0,
+      engagement: 0
+    };
+
+    var rdsRange = String(account.rdsCurrent).match(/\d+/);
+    if (rdsRange) {
+      var rdsVal = Math.min(parseInt(rdsRange[0]), 1000);
+      breakdown.rds = Math.round((rdsVal / 1000) * 25);
+    }
+
+    var daasRange = String(account.daaSCurrent).match(/\d+/);
+    if (daasRange) {
+      var daasVal = Math.min(parseInt(daasRange[0]), 1000);
+      breakdown.daas = Math.round((daasVal / 1000) * 25);
+    }
+
+    if (account.intuneLicensed === 'Yes' || account.intune === 'Yes') {
+      breakdown.intune = 15;
+    }
+
+    if (account.eaE5 === 'Yes') {
+      breakdown.ea = 15;
+    } else if (account.eaE3 === 'Yes') {
+      breakdown.ea = 10;
+    }
+
+    var emp = parseInt(account.numberOfEmployees) || 0;
+    breakdown.employees = Math.min(Math.round((emp / 10000) * 10), 10);
+
+    var engMap = { 'Active': 10, 'In Progress': 5, 'Not Started': 0 };
+    breakdown.engagement = engMap[account.engagementStatus] || 0;
+
+    score = breakdown.rds + breakdown.daas + breakdown.intune + breakdown.ea + breakdown.employees + breakdown.engagement;
+    return { score: Math.min(score, 100), breakdown: breakdown };
+  },
+
+  calculateHeatScore: function(account) {
+    var fitScore = this.calculateFitScore(account).score;
+    var signalStrength = 0;
+    var msTeamCoverage = 0;
+    var recency = 0;
+
+    if (account.rdsCurrent && account.rdsCurrent !== 'None') signalStrength += 15;
+    if (account.daaSCurrent && account.daaSCurrent !== 'None') signalStrength += 15;
+    if (account.opportunities && account.opportunities.length > 0) signalStrength += 10;
+
+    var teamKeys = Object.keys(account.msTeam || {});
+    if (teamKeys.length > 0) msTeamCoverage = 15;
+
+    var engMap = { 'Active': 15, 'In Progress': 7, 'Not Started': 0 };
+    recency = engMap[account.engagementStatus] || 0;
+
+    var heat = (fitScore * 0.4) + (signalStrength * 0.3) + (msTeamCoverage * 0.15) + (recency * 0.15);
+    return Math.round(Math.min(heat, 100));
+  },
+
+  getHeatBadge: function(score) {
+    if (score >= 80) return { text: 'Hot', class: 'heat-hot' };
+    if (score >= 50) return { text: 'Warm', class: 'heat-warm' };
+    if (score >= 20) return { text: 'Cool', class: 'heat-cool' };
+    return { text: 'Cold', class: 'heat-cold' };
+  },
+
+  attachEventListeners: function() {
+    var self = this;
+
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      self.filterAndRenderAccounts();
+    });
+
+    document.getElementById('sortSelect').addEventListener('change', function(e) {
+      self.currentSort = e.target.value;
+      self.renderAccountList();
+    });
+
+    document.querySelectorAll('.filter-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(function(c) {
+          c.classList.remove('active');
+        });
+        this.classList.add('active');
+        self.currentFilter = this.getAttribute('data-filter');
+        self.filterAndRenderAccounts();
+      });
+    });
+
+    document.querySelectorAll('.tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        self.switchTab(this.getAttribute('data-tab'));
+      });
+    });
+
+    document.querySelectorAll('.bant-check').forEach(function(check) {
+      check.addEventListener('change', function() {
+        self.updateQualificationBar();
+      });
+    });
+
+    document.getElementById('qualifyBtn').addEventListener('click', function() {
+      if (self.currentAccount) {
+        self.showConfirmation('Qualify Account', 'Mark this account as qualified?', function() {
+          self.qualifyAccount('qualified');
+        });
+      }
+    });
+
+    document.getElementById('disqualifyBtn').addEventListener('click', function() {
+      if (self.currentAccount) {
+        self.showConfirmation('Disqualify Account', 'Mark this account as disqualified?', function() {
+          self.qualifyAccount('disqualified');
+        });
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      localStorage.removeItem('nerdio_v3_session');
+      window.location.href = 'index.html';
+    });
+
+    document.getElementById('importTerritoryBtn').addEventListener('click', function() {
+      document.getElementById('territoryFileInput').click();
+    });
+
+    document.getElementById('territoryFileInput').addEventListener('change', function(e) {
+      self.importFile(e, 'territory');
+    });
+
+    document.getElementById('importWOPRBtn').addEventListener('click', function() {
+      document.getElementById('woprFileInput').click();
+    });
+
+    document.getElementById('woprFileInput').addEventListener('change', function(e) {
+      self.importFile(e, 'wopr');
+    });
+
+    document.getElementById('copyEmailBtn').addEventListener('click', function() {
+      var text = document.getElementById('emailTemplate').textContent;
+      self.copyToClipboard(text);
+    });
+
+    document.getElementById('copyLinkedinBtn').addEventListener('click', function() {
+      var text = document.getElementById('linkedinTemplate').textContent;
+      self.copyToClipboard(text);
+    });
+
+    document.getElementById('handoffBtn').addEventListener('click', function() {
+      if (self.currentAccount) {
+        self.showConfirmation('Hand Off to AE', 'Hand off this account to the AE?', function() {
+          self.handOffAccount();
+        });
+      }
+    });
+
+    document.getElementById('sdrNotes').addEventListener('input', function() {
+      if (self.currentAccount) {
+        self.saveSdrNotes();
+      }
+    });
+
+    document.getElementById('modalConfirmBtn').addEventListener('click', function() {
+      if (self.modal.resolve) {
+        self.modal.resolve(true);
+      }
+      document.getElementById('confirmationModal').classList.remove('active');
+    });
+
+    document.getElementById('modalCancelBtn').addEventListener('click', function() {
+      if (self.modal.resolve) {
+        self.modal.resolve(false);
+      }
+      document.getElementById('confirmationModal').classList.remove('active');
+    });
+  },
+
+  switchTab: function(tabName) {
+    document.querySelectorAll('.tab').forEach(function(tab) {
+      tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-content').forEach(function(content) {
+      content.classList.remove('active');
+    });
+
+    document.querySelector('[data-tab="' + tabName + '"]').classList.add('active');
+    document.getElementById(tabName + 'Tab').classList.add('active');
+  },
+
+  filterAndRenderAccounts: function() {
+    var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    var self = this;
+
+    this.filteredAccounts = this.accounts.filter(function(acc) {
+      var matchesSearch = acc.accountName.toLowerCase().indexOf(searchTerm) !== -1;
+      var matchesFilter = true;
+
+      if (self.currentFilter !== 'all') {
+        if (self.currentFilter === 'hot' || self.currentFilter === 'warm' || self.currentFilter === 'cool' || self.currentFilter === 'cold') {
+          var badge = self.getHeatBadge(acc.heatScore);
+          matchesFilter = badge.text.toLowerCase() === self.currentFilter;
+        } else if (self.currentFilter === 'qualified') {
+          matchesFilter = acc.qualStatus && acc.qualStatus.status === 'qualified';
+        } else if (self.currentFilter === 'disqualified') {
+          matchesFilter = acc.qualStatus && acc.qualStatus.status === 'disqualified';
+        }
+      }
+
+      return matchesSearch && matchesFilter;
+    });
+
+    this.sortAccounts();
+    this.renderAccountList();
+  },
+
+  sortAccounts: function() {
+    var self = this;
+
+    this.filteredAccounts.sort(function(a, b) {
+      if (self.currentSort === 'heat') {
+        return b.heatScore - a.heatScore;
+      } else if (self.currentSort === 'fit') {
+        return b.fitScore.score - a.fitScore.score;
+      } else if (self.currentSort === 'name') {
+        return a.accountName.localeCompare(b.accountName);
+      } else if (self.currentSort === 'employees') {
+        return (parseInt(b.numberOfEmployees) || 0) - (parseInt(a.numberOfEmployees) || 0);
+      }
+      return 0;
+    });
+  },
+
+  renderAccountList: function() {
+    var html = '';
+    var self = this;
+
+    this.filteredAccounts.forEach(function(acc, idx) {
+      var badge = self.getHeatBadge(acc.heatScore);
+      var signal = '';
+
+      if (acc.rdsCurrent && acc.rdsCurrent !== 'None') signal = 'RDS Active';
+      else if (acc.daaSCurrent && acc.daaSCurrent !== 'None') signal = 'DaaS Active';
+      else if (acc.engagementStatus === 'Active') signal = 'Active';
+      else signal = 'Not Started';
+
+      var cardClass = self.currentAccount && self.currentAccount.accountName === acc.accountName ? 'account-card active' : 'account-card';
+
+      html += '<div class="' + cardClass + '" data-index="' + idx + '">' +
+        '<div class="account-header">' +
+        '<div class="account-name">' + acc.accountName + '</div>' +
+        '<div class="heat-badge ' + badge.class + '">' + badge.text + '</div>' +
+        '</div>' +
+        '<div class="account-industry">' + acc.industry + '</div>' +
+        '<div class="account-employees">' + acc.numberOfEmployees + ' employees</div>' +
+        '<div class="account-signal">' + signal + '</div>' +
+        '</div>';
+    });
+
+    document.getElementById('accountList').innerHTML = html;
+    document.getElementById('accountCountSpan').textContent = this.filteredAccounts.length;
+
+    document.querySelectorAll('.account-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var idx = parseInt(this.getAttribute('data-index'));
+        self.selectAccount(idx);
+      });
+    });
+  },
+
+  selectAccount: function(index) {
+    this.selectedAccountIndex = index;
+    this.currentAccount = this.filteredAccounts[index];
+    this.renderAccountList();
+    this.populateResearchTab();
+    this.populateQualificationTab();
+    this.populatePlaybookTab();
+    this.populateHandoffTab();
+    this.loadSdrNotes();
+  },
+
+  populateResearchTab: function() {
+    var acc = this.currentAccount;
+
+    document.getElementById('snapshotName').textContent = acc.accountName;
+    document.getElementById('snapshotIndustry').textContent = acc.industry;
+    document.getElementById('snapshotSegment').textContent = acc.segment;
+    document.getElementById('snapshotEmployees').textContent = acc.numberOfEmployees;
+
+    document.getElementById('signalRDS').textContent = acc.rdsCurrent || '-';
+    document.getElementById('indicatorRDS').innerHTML = acc.rdsCurrent && acc.rdsCurrent !== 'None' ? '<span class="indicator-green">✓ Active</span>' : '<span class="indicator-red">✗ None</span>';
+
+    document.getElementById('signalDaaS').textContent = acc.daaSCurrent || '-';
+    document.getElementById('indicatorDaaS').innerHTML = acc.daaSCurrent && acc.daaSCurrent !== 'None' ? '<span class="indicator-green">✓ Active</span>' : '<span class="indicator-red">✗ None</span>';
+
+    document.getElementById('signalIntune').textContent = acc.intuneLicensed === 'Yes' || acc.intune === 'Yes' ? 'Yes' : 'No';
+    document.getElementById('indicatorIntune').innerHTML = acc.intuneLicensed === 'Yes' || acc.intune === 'Yes' ? '<span class="indicator-green">✓ Licensed</span>' : '<span class="indicator-yellow">? Not confirmed</span>';
+
+    var eaStatus = 'None';
+    if (acc.eaE5 === 'Yes') eaStatus = 'E5';
+    else if (acc.eaE3 === 'Yes') eaStatus = 'E3';
+    document.getElementById('signalEA').textContent = eaStatus;
+    document.getElementById('indicatorEA').innerHTML = eaStatus !== 'None' ? '<span class="indicator-green">✓ ' + eaStatus + ' Active</span>' : '<span class="indicator-red">✗ None</span>';
+
+    document.getElementById('signalAVD').textContent = acc.avdDealSize || '-';
+    document.getElementById('indicatorAVD').innerHTML = acc.avdDealSize ? '<span class="indicator-green">✓ Deal size identified</span>' : '<span class="indicator-yellow">? Unknown</span>';
+
+    document.getElementById('signalEngagement').textContent = acc.engagementStatus || 'Not Started';
+    var engColor = acc.engagementStatus === 'Active' ? 'indicator-green' : (acc.engagementStatus === 'In Progress' ? 'indicator-yellow' : 'indicator-red');
+    document.getElementById('indicatorEngagement').innerHTML = '<span class="' + engColor + '">' + acc.engagementStatus + '</span>';
+
+    this.populateAlerts();
+    this.populateContacts();
+    this.populatePrompts();
+  },
+
+  populateAlerts: function() {
+    var alerts = this.getStorageItem('nerdio_v3_admin_alerts', []);
+    var accAlerts = alerts.filter(function(a) {
+      return a.accountName.toLowerCase() === app.currentAccount.accountName.toLowerCase();
+    });
+
+    if (accAlerts.length > 0) {
+      var html = '';
+      accAlerts.forEach(function(alert) {
+        html += '<div class="alert-item"><span class="alert-severity">[' + alert.severity.toUpperCase() + ']</span>' + alert.message + '</div>';
+      });
+      document.getElementById('alertsBox').innerHTML = html;
+      document.getElementById('alertsSection').style.display = 'block';
+    } else {
+      document.getElementById('alertsSection').style.display = 'none';
+    }
+  },
+
+  populateContacts: function() {
+    var acc = this.currentAccount;
+    var msTeam = acc.msTeam || {};
+    var html = '';
+
+    if (Object.keys(msTeam).length > 0) {
+      var roles = ['ae', 'ats', 'cloudAndAi', 'security', 'aiBizProcess', 'aiWorkforce', 'ce', 'atuGroup', 'primaryDAE', 'primaryCE'];
+      roles.forEach(function(role) {
+        if (msTeam[role]) {
+          var contact = msTeam[role];
+          var name = typeof contact === 'string' ? contact : (contact.name || '');
+          var email = typeof contact === 'object' && contact.email ? contact.email : '';
+          var displayRole = role.replace(/([A-Z])/g, ' $1').trim();
+          html += '<div class="contact-item"><div class="contact-name">' + name + '</div><div class="contact-role">' + displayRole + (email ? ' (' + email + ')' : '') + '</div></div>';
+        }
+      });
+    }
+
+    if (!html) html = '<div style="font-size: 12px; color: #A795C7;">No contacts found</div>';
+
+    document.getElementById('contactsList').innerHTML = html;
+  },
+
+  populatePrompts: function() {
+    var acc = this.currentAccount;
+    var prompts = [];
+
+    if (acc.rdsCurrent && acc.rdsCurrent !== 'None') {
+      prompts.push('Research: What VDI/RDS infrastructure do they currently run? Any refresh cycles coming?');
+    }
+    if (acc.daaSCurrent && acc.daaSCurrent !== 'None') {
+      prompts.push('Research: Are they evaluating DaaS providers? Any cloud migration initiatives?');
+    }
+    if (acc.intuneLicensed === 'Yes' || acc.intune === 'Yes') {
+      prompts.push('Research: How mature is their endpoint management? Are they consolidating tools?');
+    }
+    if (acc.eaE3 === 'Yes' || acc.eaE5 === 'Yes') {
+      prompts.push('Research: When does their EA renew? Are they considering E3→E5 upgrade?');
+    }
+    if (acc.numberOfEmployees && parseInt(acc.numberOfEmployees) > 5000) {
+      prompts.push('Research: Do they have multiple office locations? Remote/hybrid workforce?');
+    }
+
+    var html = '';
+    if (prompts.length > 0) {
+      prompts.forEach(function(prompt) {
+        html += '<div class="prompt-item">• ' + prompt + '</div>';
+      });
+    } else {
+      html = '<div style="font-size: 12px; color: #A795C7;">Limited signals detected. Consider cold research.</div>';
+    }
+
+    document.getElementById('promptsBox').innerHTML = html;
+  },
+
+  populateQualificationTab: function() {
+    var acc = this.currentAccount;
+    var status = acc.qualStatus || { status: 'pending', reason: '', history: [], bant: {} };
+
+    var bantChecks = document.querySelectorAll('.bant-check');
+    bantChecks.forEach(function(check) {
+      var key = check.getAttribute('data-bant');
+      check.checked = status.bant && status.bant[key] ? true : false;
+    });
+
+    this.updateQualificationBar();
+    this.populateHistoryLog();
+  },
+
+  updateQualificationBar: function() {
+    var checks = document.querySelectorAll('.bant-check');
+    var checked = 0;
+    checks.forEach(function(c) {
+      if (c.checked) checked++;
+    });
+
+    var percent = Math.round((checked / checks.length) * 100);
+    document.getElementById('qualificationFill').style.width = percent + '%';
+    document.getElementById('qualificationFill').textContent = percent + '%';
+  },
+
+  populateHistoryLog: function() {
+    var acc = this.currentAccount;
+    var status = acc.qualStatus || { status: 'pending', reason: '', history: [] };
+    var html = '';
+
+    if (status.history && status.history.length > 0) {
+      status.history.forEach(function(item) {
+        html += '<div class="history-item"><strong>' + item.action + '</strong> - ' + item.timestamp + (item.reason ? ' (' + item.reason + ')' : '') + '</div>';
+      });
+    } else {
+      html = '<div style="font-size: 12px; color: #A795C7;">No history yet</div>';
+    }
+
+    document.getElementById('historyLog').innerHTML = html;
+  },
+
+  populatePlaybookTab: function() {
+    var acc = this.currentAccount;
+
+    var opening = this.generateOpeningLine();
+    document.getElementById('openingLine').textContent = opening;
+
+    var email = this.generateEmailTemplate();
+    document.getElementById('emailTemplate').textContent = email;
+
+    var linkedin = this.generateLinkedinTemplate();
+    document.getElementById('linkedinTemplate').textContent = linkedin;
+
+    var callScript = this.generateCallScript();
+    document.getElementById('callScript').textContent = callScript;
+
+    var coSell = this.generateCoSellPoints();
+    document.getElementById('coSellPoints').textContent = coSell;
+  },
+
+  generateOpeningLine: function() {
+    var acc = this.currentAccount;
+
+    if (acc.rdsCurrent && acc.rdsCurrent !== 'None') {
+      return 'Hi ' + acc.accountName + ', I noticed you\'re managing RDS infrastructure. We specialize in modernizing VDI environments to reduce complexity and costs—I\'d love to share how similar organizations in the ' + acc.industry + ' space are optimizing their desktop strategy.';
+    }
+    if (acc.daaSCurrent && acc.daaSCurrent !== 'None') {
+      return 'Hi ' + acc.accountName + ', I saw you\'re evaluating cloud-based desktop solutions. We help enterprises simplify DaaS deployments and maximize their Microsoft investment—are you open to a quick conversation?';
+    }
+    if (acc.eaE5 === 'Yes') {
+      return 'Hi ' + acc.accountName + ', with your E5 commitment, you have incredible Microsoft capabilities at your fingertips. I work with companies like yours to unlock advanced scenarios like AVD and Intune automation. Worth 15 minutes?';
+    }
+    if (acc.intuneLicensed === 'Yes' || acc.intune === 'Yes') {
+      return 'Hi ' + acc.accountName + ', we help consolidate endpoint management around Intune. Given the move to modern management, I thought you\'d find it valuable to discuss our approach.';
+    }
+    return 'Hi ' + acc.accountName + ', I work with ' + acc.industry + ' companies on cloud-based desktop and endpoint modernization. Do you have 15 minutes for a quick conversation?';
+  },
+
+  generateEmailTemplate: function() {
+    var acc = this.currentAccount;
+    var intro = this.generateOpeningLine();
+
+    var email = 'Subject: Desktop modernization for ' + acc.accountName + '\n\n' +
+      'Hi,\n\n' +
+      intro + '\n\n' +
+      'Key areas we focus on:\n' +
+      '• Simplifying VDI infrastructure (reducing complexity by 40%+)\n' +
+      '• Cloud-based desktop delivery (faster deployments, lower OpEx)\n' +
+      '• Maximizing Microsoft investments (E3/E5, AVD, Intune)\n' +
+      '• Endpoint management consolidation\n\n' +
+      'We\'ve helped ' + acc.industry + ' companies like yours reduce desktop costs and improve user experience. Are you open to a brief call?\n\n' +
+      'Best regards,\n' +
+      window._session.username + '\n' +
+      'SDR, Nerdio';
+
+    return email;
+  },
+
+  generateLinkedinTemplate: function() {
+    var acc = this.currentAccount;
+    return 'Hi! I came across your profile and noticed we work in similar tech spaces around cloud infrastructure and modern management. I\'m exploring how companies like ' + acc.accountName + ' are approaching desktop modernization. Would love to connect!';
+  },
+
+  generateCallScript: function() {
+    var acc = this.currentAccount;
+    var script = 'OPENING:\n' +
+      '"Thanks for taking the time. We work with ' + acc.industry + ' companies to modernize their desktop infrastructure. Have you heard of Nerdio?"\n\n' +
+      'DISCOVERY QUESTIONS:\n' +
+      '1. Can you walk me through your current desktop/endpoint management strategy?\n' +
+      '2. What are the biggest pain points with your current VDI/DaaS setup?\n' +
+      '3. Are you evaluating any changes to your infrastructure roadmap?\n' +
+      '4. How are you maximizing your Microsoft licensing investments?\n' +
+      '5. What would success look like for your organization in the next 6-12 months?\n\n' +
+      'POSITIONING:\n' +
+      '"Nerdio simplifies cloud desktop deployments, reduces costs, and accelerates time-to-value. Many of our customers see results within weeks."\n\n' +
+      'CLOSE:\n' +
+      '"Would it make sense to schedule a 30-minute technical deep dive with our specialist?"';
+
+    return script;
+  },
+
+  generateCoSellPoints: function() {
+    var acc = this.currentAccount;
+    var msTeam = acc.msTeam || {};
+
+    if (Object.keys(msTeam).length === 0) {
+      return 'No Microsoft contacts detected. Recommend identifying key Microsoft stakeholders (Account Executive, Azure Technical Specialist, or Cloud & AI Specialist) to co-sell.';
+    }
+
+    var points = 'MICROSOFT CO-SELL ALIGNMENT:\n\n' +
+      '1. AVD + Nerdio = Complete desktop-as-a-service platform\n' +
+      '2. Intune integration for unified endpoint management\n' +
+      '3. E5 maximization: Unlock advanced licensing value\n' +
+      '4. Customer success: Faster deployment, lower OpEx\n\n' +
+      'IDENTIFIED MICROSOFT CONTACTS:\n';
+
+    Object.keys(msTeam).forEach(function(role) {
+      if (msTeam[role]) {
+        points += '• ' + role + ': ' + (typeof msTeam[role] === 'string' ? msTeam[role] : msTeam[role].name || 'Contact') + '\n';
+      }
+    });
+
+    return points;
+  },
+
+  populateHandoffTab: function() {
+    var acc = this.currentAccount;
+
+    document.getElementById('handoffName').textContent = acc.accountName;
+    document.getElementById('handoffHeat').textContent = acc.heatScore;
+    document.getElementById('handoffFit').textContent = acc.fitScore.score;
+
+    var checks = document.querySelectorAll('.bant-check');
+    var checked = 0;
+    checks.forEach(function(c) {
+      if (c.checked) checked++;
+    });
+    var percent = Math.round((checked / checks.length) * 100);
+    document.getElementById('handoffQual').textContent = percent + '%';
+
+    var msTeam = acc.msTeam || {};
+    var contactHtml = '';
+    if (Object.keys(msTeam).length > 0) {
+      Object.keys(msTeam).forEach(function(role) {
+        if (msTeam[role]) {
+          contactHtml += '• ' + role + ': ' + (typeof msTeam[role] === 'string' ? msTeam[role] : msTeam[role].name || 'Contact') + '\n';
+        }
+      });
+    } else {
+      contactHtml = 'No Microsoft contacts identified. Recommend researching during discovery.';
+    }
+    document.getElementById('handoffContacts').textContent = contactHtml;
+
+    var notes = this.getStorageItem('nerdio_v3_sdr_notes_' + window._session.username, {});
+    var normName = this.normName(acc.accountName);
+    document.getElementById('handoffNotes').value = notes[normName] || '';
+  },
+
+  loadSdrNotes: function() {
+    var notes = this.getStorageItem('nerdio_v3_sdr_notes_' + window._session.username, {});
+    var normName = this.normName(this.currentAccount.accountName);
+    document.getElementById('sdrNotes').value = notes[normName] || '';
+  },
+
+  saveSdrNotes: function() {
+    var notes = this.getStorageItem('nerdio_v3_sdr_notes_' + window._session.username, {});
+    var normName = this.normName(this.currentAccount.accountName);
+    notes[normName] = document.getElementById('sdrNotes').value;
+
+    localStorage.setItem('nerdio_v3_sdr_notes_' + window._session.username, JSON.stringify(notes));
+
+    var now = new Date();
+    var timestamp = now.toLocaleString();
+    document.getElementById('notesTimestamp').textContent = 'Last updated: ' + timestamp;
+  },
+
+  qualifyAccount: function(status) {
+    var acc = this.currentAccount;
+    var normName = this.normName(acc.accountName);
+    var reason = document.getElementById('reasonInput').value;
+
+    var checks = document.querySelectorAll('.bant-check');
+    var bant = {};
+    checks.forEach(function(c) {
+      bant[c.getAttribute('data-bant')] = c.checked;
+    });
+
+    var qualified = this.getStorageItem('nerdio_v3_sdr_qualified_' + window._session.username, {});
+
+    var now = new Date();
+    var history = qualified[normName] && qualified[normName].history ? qualified[normName].history : [];
+    history.push({
+      action: status === 'qualified' ? 'Qualified' : 'Disqualified',
+      timestamp: now.toLocaleString(),
+      reason: reason,
+      bant: bant
+    });
+
+    qualified[normName] = {
+      status: status,
+      reason: reason,
+      history: history,
+      bant: bant
+    };
+
+    localStorage.setItem('nerdio_v3_sdr_qualified_' + window._session.username, JSON.stringify(qualified));
+
+    acc.qualStatus = qualified[normName];
+    this.populateQualificationTab();
+
+    this.showMessage('Account ' + (status === 'qualified' ? 'qualified' : 'disqualified') + ' successfully!');
+  },
+
+  handOffAccount: function() {
+    var acc = this.currentAccount;
+    var normName = this.normName(acc.accountName);
+
+    var checks = document.querySelectorAll('.bant-check');
+    var checked = 0;
+    checks.forEach(function(c) {
+      if (c.checked) checked++;
+    });
+    var percent = Math.round((checked / checks.length) * 100);
+
+    var handoffs = this.getStorageItem('nerdio_v3_sdr_handoff_' + window._session.username, []);
+    var now = new Date();
+
+    handoffs.push({
+      accountName: acc.accountName,
+      timestamp: now.toISOString(),
+      qualificationPercent: percent,
+      keyFindings: document.getElementById('handoffNotes').value,
+      heatScore: acc.heatScore,
+      fitScore: acc.fitScore.score,
+      recommendedActions: 'Schedule discovery call, prepare technical presentation, coordinate with Microsoft if contacts exist',
+      sdrUsername: window._session.username
+    });
+
+    localStorage.setItem('nerdio_v3_sdr_handoff_' + window._session.username, JSON.stringify(handoffs));
+
+    var refNo = 'HO-' + Date.now();
+    this.showMessage('Account handed off successfully! Reference: ' + refNo);
+  },
+
+  showConfirmation: function(title, message, callback) {
+    var self = this;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMessage').textContent = message;
+    document.getElementById('confirmationModal').classList.add('active');
+
+    this.modal.resolve = function(confirmed) {
+      if (confirmed) {
+        callback();
+      }
+    };
+  },
+
+  showMessage: function(msg) {
+    alert(msg);
+  },
+
+  importFile: function(event, type) {
+    var file = event.target.files[0];
+    if (!file) return;
+
+    var reader = new FileReader();
+    var self = this;
+
+    reader.onload = function(e) {
+      try {
+        var workbook = XLSX.read(e.target.result, { type: 'binary' });
+        var sheetName = workbook.SheetNames[0];
+        var sheet = workbook.Sheets[sheetName];
+        var data = XLSX.utils.sheet_to_json(sheet);
+
+        if (type === 'territory') {
+          localStorage.setItem('nerdio_v3_territory_' + window._session.username, JSON.stringify(data));
+        } else if (type === 'wopr') {
+          localStorage.setItem('nerdio_v3_wopr_' + window._session.username, JSON.stringify(data));
+        }
+
+        self.loadData();
+        self.filterAndRenderAccounts();
+        self.showMessage('Imported ' + data.length + ' records successfully!');
+      } catch (err) {
+        self.showMessage('Error importing file: ' + err.message);
+      }
+    };
+
+    reader.readAsBinaryString(file);
+  },
+
+  copyToClipboard: function(text) {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    this.showMessage('Copied to clipboard!');
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  app.init();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nerdio Intelligence Centre</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --navy-orbit: #042838;
+      --nerdio-blue: #1E9DB8;
+      --white-glacier: #FFFFFF;
+      --green-galaxy: #CDFF4E;
+      --proton-purple: #A795C7;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --border-light: #e0e0e0;
+      --bg-light: #f9f9f9;
+      --fit-red: #e74c3c;
+      --fit-amber: #f39c12;
+      --fit-green: #27ae60;
+      --fit-bright: #2ecc71;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--navy-orbit);
+      color: var(--text-primary);
+    }
+
+    .view-as-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 24px;
+      background-color: #ff9800;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 12px;
+      font-weight: 500;
+      z-index: 1000;
+      display: none;
+    }
+
+    .view-as-banner.active {
+      display: flex;
+    }
+
+    body.has-view-as-banner {
+      padding-top: 24px;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 24px;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background-color: var(--navy-orbit);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+      gap: 24px;
+    }
+
+    body.has-view-as-banner .top-bar {
+      top: 24px;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+      flex-shrink: 0;
+    }
+
+    .nerdio-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white-glacier);
+      white-space: nowrap;
+    }
+
+    .center-divider {
+      width: 1px;
+      height: 24px;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .intelligence-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+      white-space: nowrap;
+    }
+
+    .top-bar-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .import-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      white-space: nowrap;
+    }
+
+    .import-indicator-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--text-secondary);
+    }
+
+    .import-indicator-dot.loaded {
+      background-color: var(--fit-green);
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--white-glacier);
+      font-size: 13px;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      background-color: var(--proton-purple);
+      color: white;
+    }
+
+    .logout-btn {
+      padding: 6px 12px;
+      background-color: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: var(--white-glacier);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .logout-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .main-container {
+      display: flex;
+      position: fixed;
+      top: 72px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: calc(100vh - 72px);
+    }
+
+    body.has-view-as-banner .main-container {
+      top: 96px;
+      height: calc(100vh - 96px);
+    }
+
+    .left-panel {
+      width: 320px;
+      background-color: var(--bg-light);
+      border-right: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .left-panel-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-light);
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 12px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--nerdio-blue);
+      box-shadow: 0 0 0 3px rgba(30, 157, 184, 0.1);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin-bottom: 12px;
+      padding-bottom: 4px;
+    }
+
+    .filter-chip {
+      padding: 4px 10px;
+      background-color: white;
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .filter-chip:hover {
+      border-color: var(--nerdio-blue);
+      background-color: rgba(30, 157, 184, 0.05);
+    }
+
+    .filter-chip.active {
+      background-color: var(--nerdio-blue);
+      color: white;
+      border-color: var(--nerdio-blue);
+    }
+
+    .sort-section {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .sort-section label {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .sort-dropdown {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+    }
+
+    .sort-dropdown:focus {
+      outline: none;
+      border-color: var(--nerdio-blue);
+    }
+
+    .account-list {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .account-item {
+      padding: 12px 12px;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .account-item:hover {
+      background-color: rgba(30, 157, 184, 0.05);
+    }
+
+    .account-item.selected {
+      background-color: rgba(30, 157, 184, 0.1);
+      border-left-color: var(--nerdio-blue);
+    }
+
+    .account-fit-score {
+      width: 100%;
+      height: 4px;
+      background-color: var(--border-light);
+      border-radius: 2px;
+      margin-bottom: 6px;
+      overflow: hidden;
+    }
+
+    .account-fit-bar {
+      height: 100%;
+      background-color: var(--fit-green);
+      transition: width 0.3s;
+    }
+
+    .account-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .admin-alert-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #ff9800;
+      flex-shrink: 0;
+    }
+
+    .account-meta {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .account-badges {
+      display: flex;
+      gap: 4px;
+      font-size: 10px;
+      align-items: center;
+    }
+
+    .account-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      background-color: var(--border-light);
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    .account-badge.stage {
+      background-color: var(--nerdio-blue);
+      color: white;
+    }
+
+    .data-source-icons {
+      display: flex;
+      gap: 3px;
+      margin-left: auto;
+    }
+
+    .data-source-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .data-source-icon.mal {
+      background-color: #9b59b6;
+    }
+
+    .data-source-icon.wopr {
+      background-color: #3498db;
+    }
+
+    .data-source-icon.territory {
+      background-color: #2ecc71;
+    }
+
+    .left-panel-footer {
+      border-top: 1px solid var(--border-light);
+      flex-shrink: 0;
+      max-height: 50%;
+      overflow-y: auto;
+    }
+
+    .import-section {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .import-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 8px 0;
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--text-primary);
+      user-select: none;
+    }
+
+    .import-section-header:hover {
+      color: var(--nerdio-blue);
+    }
+
+    .import-section-toggle {
+      display: inline-block;
+      transition: transform 0.2s;
+      font-size: 12px;
+    }
+
+    .import-section-toggle.expanded {
+      transform: rotate(90deg);
+    }
+
+    .import-content {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      background-color: white;
+      border-radius: 6px;
+      border: 1px solid var(--border-light);
+    }
+
+    .import-content.expanded {
+      display: block;
+    }
+
+    .import-dropzone {
+      border: 2px dashed var(--nerdio-blue);
+      border-radius: 6px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background-color: rgba(30, 157, 184, 0.05);
+      margin-bottom: 8px;
+    }
+
+    .import-dropzone:hover {
+      background-color: rgba(30, 157, 184, 0.1);
+      border-color: #1a7a8e;
+    }
+
+    .import-dropzone.dragover {
+      background-color: rgba(30, 157, 184, 0.15);
+      border-color: #1a7a8e;
+    }
+
+    .import-dropzone-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .import-buttons {
+      display: flex;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .import-btn {
+      flex: 1;
+      padding: 6px 8px;
+      background-color: var(--nerdio-blue);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .import-btn:hover {
+      background-color: #1a7a8e;
+    }
+
+    .import-btn.secondary {
+      background-color: transparent;
+      color: var(--nerdio-blue);
+      border: 1px solid var(--nerdio-blue);
+    }
+
+    .import-btn.secondary:hover {
+      background-color: rgba(30, 157, 184, 0.1);
+    }
+
+    .import-status {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      padding: 8px;
+      background-color: var(--bg-light);
+      border-radius: 4px;
+    }
+
+    .import-status.success {
+      color: var(--fit-green);
+      background-color: rgba(46, 204, 113, 0.1);
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: white;
+      overflow: hidden;
+    }
+
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border-light);
+      background-color: var(--bg-light);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab:hover {
+      color: var(--nerdio-blue);
+      background-color: rgba(30, 157, 184, 0.05);
+    }
+
+    .tab.active {
+      color: var(--nerdio-blue);
+      border-bottom-color: var(--nerdio-blue);
+      background-color: white;
+    }
+
+    .tab-icon {
+      font-size: 14px;
+    }
+
+    .tab-content-area {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tab-pane {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .tab-pane.active {
+      display: flex;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+    }
+
+    .empty-state-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .empty-state-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      max-width: 400px;
+    }
+
+    .tab-placeholder {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .ph-icon {
+      font-size: 48px;
+    }
+
+    .ph-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .ph-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      max-width: 400px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #999;
+    }
+  </style>
+</head>
+<body>
+
+<!-- View-as banner for managers -->
+<div id="viewAsBanner" class="view-as-banner">
+  Viewing as: <span id="viewAsName"></span>
+</div>
+
+<!-- Top Navigation Bar -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <div class="nerdio-logo">🤓 nerdio</div>
+    <div class="center-divider"></div>
+    <div class="intelligence-title">Intelligence Centre</div>
+  </div>
+
+  <div class="top-bar-center">
+    <div class="import-indicator">
+      <div class="import-indicator-dot" id="territoryIndicator"></div>
+      <span id="territoryStatus">Territory: Not loaded</span>
+    </div>
+    <div class="import-indicator">
+      <div class="import-indicator-dot" id="woprIndicator"></div>
+      <span id="woprStatus">WOPR: Not loaded</span>
+    </div>
+  </div>
+
+  <div class="top-bar-right">
+    <div class="user-info">
+      <span id="username">User</span>
+      <span class="role-badge" id="roleBadge">AE</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-container">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="left-panel-header">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search accounts...">
+
+      <div class="filter-row scrollbar-hide">
+        <div class="filter-chip" data-filter="industry">By Industry</div>
+        <div class="filter-chip" data-filter="segment">By Segment</div>
+        <div class="filter-chip" data-filter="signal">By Signal</div>
+      </div>
+
+      <div class="sort-section">
+        <label>Sort:</label>
+        <select class="sort-dropdown" id="sortDropdown">
+          <option value="fit-score">Fit Score</option>
+          <option value="segment">Segment</option>
+          <option value="deal-stage">Deal Stage</option>
+          <option value="activity">Activity</option>
+          <option value="a-z">A-Z</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="account-list" id="accountList">
+      <div class="empty-state" style="padding: 24px;">
+        <div class="empty-state-icon">📂</div>
+        <div class="empty-state-title">No Accounts</div>
+        <div class="empty-state-desc">Import your territory data to get started</div>
+      </div>
+    </div>
+
+    <div class="left-panel-footer">
+      <!-- Territory Data Section -->
+      <div class="import-section">
+        <div class="import-section-header" onclick="toggleImportSection(this)">
+          <span class="import-section-toggle">▸</span>
+          <span>📂 Territory Data</span>
+        </div>
+        <div class="import-content">
+          <div class="import-dropzone" ondrop="handleDrop(event, 'territory')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('territoryFile').click()">
+            <div class="import-dropzone-text">Drag & drop .xlsx or .csv here</div>
+          </div>
+          <div class="import-buttons">
+            <button class="import-btn" onclick="document.getElementById('territoryFile').click()">Browse</button>
+            <button class="import-btn secondary" onclick="clearTerritory()">Clear</button>
+          </div>
+          <div class="import-status" id="territoryStatus2" style="display: none;"></div>
+          <input type="file" id="territoryFile" accept=".xlsx,.csv" onchange="handleFileUpload(event, 'territory')">
+        </div>
+      </div>
+
+      <!-- WOPR Data Section -->
+      <div class="import-section">
+        <div class="import-section-header" onclick="toggleImportSection(this)">
+          <span class="import-section-toggle">▸</span>
+          <span>📡 WOPR Data</span>
+        </div>
+        <div class="import-content">
+          <div class="import-dropzone" ondrop="handleDrop(event, 'wopr')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('woprFile').click()">
+            <div class="import-dropzone-text">Drag & drop .xlsx or .csv here</div>
+          </div>
+          <div class="import-buttons">
+            <button class="import-btn" onclick="document.getElementById('woprFile').click()">Browse</button>
+            <button class="import-btn secondary" onclick="clearWOPR()">Clear</button>
+          </div>
+          <div class="import-status" id="woprStatus2" style="display: none;"></div>
+          <input type="file" id="woprFile" accept=".xlsx,.csv" onchange="handleFileUpload(event, 'wopr')">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="tab-bar">
+      <div class="tab active" data-tab="overview">
+        <span class="tab-icon">📊</span>
+        <span>Overview</span>
+      </div>
+      <div class="tab" data-tab="msteam">
+        <span class="tab-icon">🏢</span>
+        <span>Microsoft Team</span>
+      </div>
+      <div class="tab" data-tab="signals">
+        <span class="tab-icon">📡</span>
+        <span>Signals & Intelligence</span>
+      </div>
+      <div class="tab" data-tab="strategy">
+        <span class="tab-icon">🎯</span>
+        <span>Engagement Strategy</span>
+      </div>
+      <div class="tab" data-tab="actions">
+        <span class="tab-icon">✉️</span>
+        <span>Actions & Outreach</span>
+      </div>
+      <div class="tab" data-tab="timeline">
+        <span class="tab-icon">📅</span>
+        <span>Activity Timeline</span>
+      </div>
+    </div>
+
+    <div class="tab-content-area">
+      <!-- Overview Tab -->
+      <div class="tab-pane active" id="tab-overview">
+        <div class="empty-state">
+          <div class="empty-state-icon">📊</div>
+          <div class="empty-state-title">Select an Account</div>
+          <div class="empty-state-desc">Select an account from the list to view intelligence</div>
+        </div>
+      </div>
+
+      <!-- Microsoft Team Tab -->
+      <div class="tab-pane" id="tab-msteam">
+        <div class="tab-placeholder">
+          <div class="ph-icon">🏢</div>
+          <div class="ph-title">Microsoft Team</div>
+          <div class="ph-desc">Account team information will render here</div>
+        </div>
+      </div>
+
+      <!-- Signals & Intelligence Tab -->
+      <div class="tab-pane" id="tab-signals">
+        <div class="tab-placeholder">
+          <div class="ph-icon">📡</div>
+          <div class="ph-title">Signals & Intelligence</div>
+          <div class="ph-desc">Signal and intelligence data will render here</div>
+        </div>
+      </div>
+
+      <!-- Engagement Strategy Tab -->
+      <div class="tab-pane" id="tab-strategy">
+        <div class="tab-placeholder">
+          <div class="ph-icon">🎯</div>
+          <div class="ph-title">Engagement Strategy</div>
+          <div class="ph-desc">Engagement strategy recommendations will render here</div>
+        </div>
+      </div>
+
+      <!-- Actions & Outreach Tab -->
+      <div class="tab-pane" id="tab-actions">
+        <div class="tab-placeholder">
+          <div class="ph-icon">✉️</div>
+          <div class="ph-title">Actions & Outreach</div>
+          <div class="ph-desc">Action items and outreach templates will render here</div>
+        </div>
+      </div>
+
+      <!-- Activity Timeline Tab -->
+      <div class="tab-pane" id="tab-timeline">
+        <div class="tab-placeholder">
+          <div class="ph-icon">📅</div>
+          <div class="ph-title">Activity Timeline</div>
+          <div class="ph-desc">Activity history and engagement timeline will render here</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+// ============================================================================
+// AUTH GUARD - Inline IIFE
+// ============================================================================
+(function() {
+  var session = localStorage.getItem('nerdio_v3_session');
+  var sessionData = null;
+
+  if (!session) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  try {
+    sessionData = JSON.parse(session);
+  } catch(e) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  var validRoles = ['ae', 'manager', 'admin'];
+  if (!sessionData.role || validRoles.indexOf(sessionData.role) === -1) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // Store session globally
+  window.SESSION = sessionData;
+
+  // Update UI with user info
+  document.getElementById('username').textContent = sessionData.username || 'User';
+  document.getElementById('roleBadge').textContent = sessionData.role.toUpperCase();
+
+  // Handle manager view-as mode
+  if (sessionData.role === 'manager') {
+    var viewAs = sessionStorage.getItem('nerdio_v3_viewAs');
+    if (viewAs) {
+      var viewAsData = JSON.parse(viewAs);
+      document.body.classList.add('has-view-as-banner');
+      var banner = document.getElementById('viewAsBanner');
+      banner.classList.add('active');
+      document.getElementById('viewAsName').textContent = viewAsData.username || 'Unknown User';
+    }
+  }
+})();
+
+// ============================================================================
+// GLOBALS & STATE
+// ============================================================================
+var window_ACCOUNTS = [];
+var window_selectedAccount = null;
+var window_territoryLoaded = false;
+var window_woprLoaded = false;
+var window_malData = [];
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+function esc(str) {
+  var map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return (str || '').replace(/[&<>"']/g, function(c) { return map[c]; });
+}
+
+function normName(n) {
+  return (n || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function logout() {
+  localStorage.removeItem('nerdio_v3_session');
+  sessionStorage.removeItem('nerdio_v3_viewAs');
+  window.location.href = 'index.html';
+}
+
+// ============================================================================
+// TERRITORY PARSER
+// ============================================================================
+function parseTerritory(workbook) {
+  var firstSheet = workbook.SheetNames[0];
+  var worksheet = workbook.Sheets[firstSheet];
+  var data = XLSX.utils.sheet_to_json(worksheet);
+
+  if (data.length === 0) {
+    return [];
+  }
+
+  var parsed = [];
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    var entry = {
+      name: row['Account Name'] || row['Company'] || '',
+      industry: row['Industry'] || row['Vertical'] || '',
+      segment: row['Segment'] || row['Priority'] || '',
+      priority: row['Priority'] || '',
+      status: row['Status'] || '',
+      size: row['Employees'] || row['Size'] || '',
+      revenue: row['Revenue'] || row['ARR'] || '',
+      notes: row['Notes'] || ''
+    };
+    parsed.push(entry);
+  }
+
+  return parsed;
+}
+
+// ============================================================================
+// WOPR PARSER
+// ============================================================================
+function parseWOPR(workbook) {
+  var firstSheet = workbook.SheetNames[0];
+  var worksheet = workbook.Sheets[firstSheet];
+  var rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+  var headerRow = -1;
+  for (var i = 0; i < Math.min(rows.length, 30); i++) {
+    var row = rows[i];
+    if (row.length >= 5) {
+      var nonEmpty = 0;
+      for (var j = 0; j < row.length; j++) {
+        if (row[j] != null && row[j] !== '') {
+          nonEmpty++;
+        }
+      }
+      if (nonEmpty >= 5) {
+        headerRow = i;
+        break;
+      }
+    }
+  }
+
+  if (headerRow === -1) {
+    return [];
+  }
+
+  var headers = rows[headerRow];
+  var stripedHeaders = [];
+  for (var i = 0; i < headers.length; i++) {
+    var h = headers[i];
+    if (typeof h === 'string') {
+      h = h.replace(/[↑↓]/g, '').trim();
+    }
+    stripedHeaders.push(h);
+  }
+
+  var columnMap = {
+    'Account Name': 'name',
+    'Account ID': 'accountId',
+    'Priority Level': 'priority',
+    'Type': 'type',
+    'Industry': 'industry',
+    'RDS CAL License Count': 'rds',
+    'DaaS ACR Spend FY25': 'daas',
+    'Active AVD Deal Amount': 'avdDeal',
+    'AVD Deal Owner Alias': 'avdDealOwner',
+    'Enterprise Agreements - E3': 'eaE3',
+    'Enterprise Agreements - E5': 'eaE5',
+    'Intune Monthly Active Users': 'intune',
+    'Billing Country': 'country',
+    'Billing State/Province': 'state',
+    'Employees': 'employees',
+    'Company Domain': 'domain',
+    'Engagement Status': 'engagementStatus',
+    'Number of Total Opportunities': 'opportunities'
+  };
+
+  var parsed = [];
+  for (var i = headerRow + 1; i < rows.length; i++) {
+    var row = rows[i];
+    var entry = {};
+
+    for (var j = 0; j < stripedHeaders.length; j++) {
+      var header = stripedHeaders[j];
+      var mappedKey = columnMap[header];
+      var value = row[j];
+
+      if (mappedKey && mappedKey.indexOf('_') !== 0) {
+        entry[mappedKey] = value;
+      }
+    }
+
+    if (entry.name && entry.name !== '') {
+      parsed.push(entry);
+    }
+  }
+
+  return parsed;
+}
+
+// ============================================================================
+// FIT SCORE CALCULATOR
+// ============================================================================
+function parseRange(rangeStr) {
+  if (!rangeStr) return 0;
+
+  rangeStr = String(rangeStr).trim();
+
+  if (rangeStr.indexOf('-') > 0) {
+    var parts = rangeStr.split('-');
+    var lower = parseInt(parts[0].replace(/[^0-9]/g, '')) || 0;
+    return lower;
+  }
+
+  if (rangeStr.indexOf('>') === 0) {
+    var num = parseInt(rangeStr.substring(1).replace(/[^0-9]/g, '')) || 0;
+    return num;
+  }
+
+  if (rangeStr.indexOf('<') === 0) {
+    var num = parseInt(rangeStr.substring(1).replace(/[^0-9]/g, '')) || 0;
+    return num / 2;
+  }
+
+  return parseInt(rangeStr.replace(/[^0-9]/g, '')) || 0;
+}
+
+function calculateFitScore(account) {
+  var breakdown = {};
+  var score = 0;
+
+  // RDS (0-25)
+  var rdsScore = 5;
+  if (account.rds) {
+    var rdsVal = parseRange(account.rds);
+    if (rdsVal === 0) rdsScore = 8;
+    else if (rdsVal < 100) rdsScore = 8;
+    else if (rdsVal < 500) rdsScore = 12;
+    else if (rdsVal < 1000) rdsScore = 16;
+    else if (rdsVal < 2500) rdsScore = 18;
+    else if (rdsVal < 5000) rdsScore = 20;
+    else if (rdsVal < 10000) rdsScore = 22;
+    else if (rdsVal < 25000) rdsScore = 24;
+    else rdsScore = 25;
+  }
+  breakdown.rds = rdsScore;
+  score += rdsScore;
+
+  // DaaS (0-25)
+  var daasScore = 3;
+  if (account.daas) {
+    var daasVal = parseRange(account.daas);
+    if (daasVal === 0) daasScore = 8;
+    else if (daasVal < 100000) daasScore = 8;
+    else if (daasVal < 500000) daasScore = 14;
+    else if (daasVal < 1000000) daasScore = 18;
+    else if (daasVal < 10000000) daasScore = 22;
+    else daasScore = 25;
+  }
+  breakdown.daas = daasScore;
+  score += daasScore;
+
+  // Intune (0-15)
+  var intuneScore = 2;
+  if (account.intune) {
+    var intuneVal = parseRange(account.intune);
+    if (intuneVal === 0) intuneScore = 5;
+    else if (intuneVal < 1000) intuneScore = 5;
+    else if (intuneVal < 2500) intuneScore = 8;
+    else if (intuneVal < 5000) intuneScore = 10;
+    else if (intuneVal < 10000) intuneScore = 12;
+    else intuneScore = 15;
+  }
+  breakdown.intune = intuneScore;
+  score += intuneScore;
+
+  // EA (0-15)
+  var eaScore = 0;
+  if (account.eaE3 && account.eaE5) eaScore = 15;
+  else if (account.eaE5) eaScore = 12;
+  else if (account.eaE3) eaScore = 10;
+  breakdown.ea = eaScore;
+  score += eaScore;
+
+  // Employees (0-10)
+  var empScore = 3;
+  if (account.employees) {
+    var empVal = parseRange(account.employees);
+    if (empVal < 1000) empScore = 3;
+    else if (empVal < 5000) empScore = 5;
+    else if (empVal < 10000) empScore = 7;
+    else if (empVal < 50000) empScore = 9;
+    else empScore = 10;
+  }
+  breakdown.employees = empScore;
+  score += empScore;
+
+  // Engagement (0-10)
+  var engScore = 0;
+  var engStatus = (account.engagementStatus || '').toLowerCase();
+  if (engStatus.indexOf('partner') >= 0 && engStatus.indexOf('customer') >= 0) engScore = 10;
+  else if (engStatus.indexOf('customer') >= 0) engScore = 7;
+  else if (engStatus.indexOf('partner') >= 0) engScore = 5;
+  breakdown.engagement = engScore;
+  score += engScore;
+
+  return {
+    score: Math.min(100, score),
+    breakdown: breakdown
+  };
+}
+
+// ============================================================================
+// ACCOUNT MATCHING & ENRICHMENT
+// ============================================================================
+function buildAccountList() {
+  var accounts = [];
+
+  // Load territory data
+  var territoryRaw = localStorage.getItem('nerdio_v3_territory_' + window.SESSION.username);
+  var territoryAccounts = [];
+  if (territoryRaw) {
+    try {
+      territoryAccounts = JSON.parse(territoryRaw);
+      window_territoryLoaded = true;
+      updateImportIndicator('territory', true);
+    } catch(e) {}
+  }
+
+  // Build base from territory
+  for (var i = 0; i < territoryAccounts.length; i++) {
+    var t = territoryAccounts[i];
+    accounts.push({
+      name: t.name || '',
+      industry: t.industry || '',
+      segment: t.segment || '',
+      dealStage: t.status || '',
+      size: t.size || '',
+      revenue: t.revenue || '',
+      notes: t.notes || '',
+      dataSources: { territory: true },
+      woprData: {},
+      malData: {}
+    });
+  }
+
+  // Load and enrich with MAL
+  var malRaw = localStorage.getItem('nerdio_v3_mal');
+  window_malData = [];
+  if (malRaw) {
+    try {
+      window_malData = JSON.parse(malRaw);
+    } catch(e) {}
+  }
+
+  for (var i = 0; i < window_malData.length; i++) {
+    var mal = window_malData[i];
+    var normMal = normName(mal.name || mal['Account Name'] || '');
+
+    var found = null;
+    for (var j = 0; j < accounts.length; j++) {
+      if (normName(accounts[j].name) === normMal) {
+        found = j;
+        break;
+      }
+    }
+
+    if (found !== null) {
+      accounts[found].malData = mal;
+      accounts[found].dataSources.mal = true;
+      if (mal.tpid) accounts[found].tpid = mal.tpid;
+      if (mal.segment) accounts[found].segment = mal.segment;
+      if (mal.industry) accounts[found].industry = mal.industry;
+    }
+  }
+
+  // Load and enrich with WOPR
+  var woprRaw = localStorage.getItem('nerdio_v3_wopr_' + window.SESSION.username);
+  if (woprRaw) {
+    try {
+      var woprAccounts = JSON.parse(woprRaw);
+      window_woprLoaded = true;
+      updateImportIndicator('wopr', true);
+
+      for (var i = 0; i < woprAccounts.length; i++) {
+        var wopr = woprAccounts[i];
+        var normWopr = normName(wopr.name || '');
+
+        var found = null;
+        for (var j = 0; j < accounts.length; j++) {
+          if (normName(accounts[j].name) === normWopr) {
+            found = j;
+            break;
+          }
+        }
+
+        if (found !== null) {
+          accounts[found].woprData = wopr;
+          accounts[found].dataSources.wopr = true;
+          // Enrich with WOPR fields
+          if (wopr.rds) accounts[found].rds = wopr.rds;
+          if (wopr.daas) accounts[found].daas = wopr.daas;
+          if (wopr.intune) accounts[found].intune = wopr.intune;
+          if (wopr.eaE3) accounts[found].eaE3 = wopr.eaE3;
+          if (wopr.eaE5) accounts[found].eaE5 = wopr.eaE5;
+          if (wopr.employees) accounts[found].employees = wopr.employees;
+          if (wopr.engagementStatus) accounts[found].engagementStatus = wopr.engagementStatus;
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Calculate fit scores
+  for (var i = 0; i < accounts.length; i++) {
+    var fitData = calculateFitScore(accounts[i]);
+    accounts[i].fitScore = fitData.score;
+    accounts[i].fitBreakdown = fitData.breakdown;
+  }
+
+  window_ACCOUNTS = accounts;
+  return accounts;
+}
+
+// ============================================================================
+// IMPORT UI
+// ============================================================================
+function toggleImportSection(header) {
+  var toggle = header.querySelector('.import-section-toggle');
+  var content = header.nextElementSibling;
+
+  if (content.classList.contains('expanded')) {
+    content.classList.remove('expanded');
+    toggle.classList.remove('expanded');
+  } else {
+    content.classList.add('expanded');
+    toggle.classList.add('expanded');
+  }
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.classList.add('dragover');
+}
+
+function handleDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.classList.remove('dragover');
+}
+
+function handleDrop(e, type) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.classList.remove('dragover');
+
+  var files = e.dataTransfer.files;
+  if (files.length > 0) {
+    var file = files[0];
+    var event = { target: { files: [file] } };
+    handleFileUpload(event, type);
+  }
+}
+
+function handleFileUpload(e, type) {
+  var file = e.target.files[0];
+  if (!file) return;
+
+  var reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      var workbook = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+
+      if (type === 'territory') {
+        var parsed = parseTerritory(workbook);
+        localStorage.setItem('nerdio_v3_territory_' + window.SESSION.username, JSON.stringify(parsed));
+        showImportStatus('territoryStatus2', 'success', 'Territory: ' + parsed.length + ' accounts loaded');
+      } else if (type === 'wopr') {
+        var parsed = parseWOPR(workbook);
+        localStorage.setItem('nerdio_v3_wopr_' + window.SESSION.username, JSON.stringify(parsed));
+        showImportStatus('woprStatus2', 'success', 'WOPR: ' + parsed.length + ' accounts enriched');
+      }
+
+      buildAccountList();
+      renderAccountList();
+    } catch(err) {
+      showImportStatus(type === 'territory' ? 'territoryStatus2' : 'woprStatus2', 'error', 'Error parsing file');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function showImportStatus(elemId, status, msg) {
+  var elem = document.getElementById(elemId);
+  elem.style.display = 'block';
+  elem.textContent = msg;
+  elem.className = 'import-status';
+  if (status === 'success') {
+    elem.classList.add('success');
+  }
+}
+
+function updateImportIndicator(type, loaded) {
+  if (type === 'territory') {
+    var dot = document.getElementById('territoryIndicator');
+    var status = document.getElementById('territoryStatus');
+    if (loaded) {
+      dot.classList.add('loaded');
+      status.textContent = 'Territory: Loaded';
+    }
+  } else if (type === 'wopr') {
+    var dot = document.getElementById('woprIndicator');
+    var status = document.getElementById('woprStatus');
+    if (loaded) {
+      dot.classList.add('loaded');
+      status.textContent = 'WOPR: Loaded';
+    }
+  }
+}
+
+function clearTerritory() {
+  localStorage.removeItem('nerdio_v3_territory_' + window.SESSION.username);
+  document.getElementById('territoryStatus2').style.display = 'none';
+  document.getElementById('territoryIndicator').classList.remove('loaded');
+  document.getElementById('territoryStatus').textContent = 'Territory: Not loaded';
+  window_territoryLoaded = false;
+  buildAccountList();
+  renderAccountList();
+}
+
+function clearWOPR() {
+  localStorage.removeItem('nerdio_v3_wopr_' + window.SESSION.username);
+  document.getElementById('woprStatus2').style.display = 'none';
+  document.getElementById('woprIndicator').classList.remove('loaded');
+  document.getElementById('woprStatus').textContent = 'WOPR: Not loaded';
+  window_woprLoaded = false;
+  buildAccountList();
+  renderAccountList();
+}
+
+// ============================================================================
+// ACCOUNT LIST RENDERING
+// ============================================================================
+function getFitScoreColor(score) {
+  if (score >= 80) return 'var(--fit-bright)';
+  if (score >= 60) return 'var(--fit-green)';
+  if (score >= 30) return 'var(--fit-amber)';
+  return 'var(--fit-red)';
+}
+
+function renderAccountList() {
+  var list = document.getElementById('accountList');
+
+  if (window_ACCOUNTS.length === 0) {
+    list.innerHTML = '<div class="empty-state" style="padding: 24px;"><div class="empty-state-icon">📂</div><div class="empty-state-title">No Accounts</div><div class="empty-state-desc">Import your territory data to get started</div></div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < window_ACCOUNTS.length; i++) {
+    var acc = window_ACCOUNTS[i];
+    var fitScore = acc.fitScore || 0;
+    var fitColor = getFitScoreColor(fitScore);
+    var selected = window_selectedAccount && window_selectedAccount.name === acc.name ? ' selected' : '';
+
+    var dataSources = '';
+    if (acc.dataSources.mal) dataSources += '<div class="data-source-icon mal">M</div>';
+    if (acc.dataSources.wopr) dataSources += '<div class="data-source-icon wopr">W</div>';
+    if (acc.dataSources.territory) dataSources += '<div class="data-source-icon territory">T</div>';
+
+    var adminAlert = '';
+
+    var meta = (acc.industry || 'Unknown') + ' • ' + (acc.segment || 'No segment');
+    var dealStage = acc.dealStage ? '<div class="account-badge stage">' + esc(acc.dealStage.substring(0, 15)) + '</div>' : '';
+
+    html += '<div class="account-item' + selected + '" onclick="selectAccount(' + i + ')">';
+    html += '<div class="account-fit-score"><div class="account-fit-bar" style="width: ' + fitScore + '%; background-color: ' + fitColor + ';"></div></div>';
+    html += '<div class="account-name">' + adminAlert + esc(acc.name) + ' (' + fitScore + ')</div>';
+    html += '<div class="account-meta">' + esc(meta) + '</div>';
+    html += '<div class="account-badges" style="display: flex; align-items: center;">';
+    html += dealStage;
+    html += '<div class="data-source-icons" style="margin-left: auto;">' + dataSources + '</div>';
+    html += '</div>';
+    html += '</div>';
+  }
+
+  list.innerHTML = html;
+}
+
+function selectAccount(index) {
+  window_selectedAccount = window_ACCOUNTS[index];
+  renderAccountList();
+  renderTabContent();
+}
+
+// ============================================================================
+// TAB MANAGEMENT
+// ============================================================================
+// ============================================================================
+// EMBEDDED KNOWLEDGE BASE
+// ============================================================================
+
+var KNOWLEDGE_USE_CASES = [
+  {
+    id: 'citrix-migration',
+    title: 'Citrix/VMware Migration',
+    triggers: ['rds'],
+    summary: 'Legacy VDI displacement — migrate from Citrix or VMware to Azure Virtual Desktop managed by Nerdio.',
+    positioning: 'Citrix is a legacy overlay adding cost and complexity. Nerdio is the modern, cloud-native alternative that sits on top of Azure, not alongside it. 62% of enterprises already use AVD — the market has moved.',
+    discoveryQs: [
+      'When does your current Citrix/VMware licensing come up for renewal? What was the price change at last renewal?',
+      'How many consoles does your team use today to manage virtual desktops, policies, and endpoints?',
+      'If you could redeploy the engineering hours spent managing Citrix infrastructure, where would that time go?',
+      'Have you looked at what Azure Virtual Desktop could deliver versus your current Citrix estate? What blocked that evaluation?'
+    ],
+    proofPoints: ['Grant Thornton saved $20K/month after switching', 'LexisNexis: 50% YoY cost savings, satisfaction from 35 to 90+', 'AVD is the most widely adopted DaaS option per Gartner'],
+    objections: {
+      'We are locked into Citrix': 'Many of our enterprise customers started exactly there. Nerdio is not asking for rip-and-replace — it is the transition path. Run both in parallel, migrate workloads incrementally, see savings accumulate.',
+      'Citrix has better performance': 'Citrix has strong low-bandwidth protocol optimisation, that is fair. But for most enterprise workloads on Azure, AVD with Nerdio auto-scaling delivers equivalent or better UX at dramatically lower cost. We can prove this in a POC.'
+    }
+  },
+  {
+    id: 'cost-optimisation',
+    title: 'Azure Cost Optimisation',
+    triggers: ['daas'],
+    summary: 'Reduce Azure compute spend by up to 80% (55% average) through patented auto-scaling, right-sizing, and reserved instance management.',
+    positioning: 'Most organisations are overpaying for Azure compute because VMs run 24/7 regardless of demand. Nerdio auto-scaling matches capacity to actual usage in real time. The platform pays for itself within the first month.',
+    discoveryQs: [
+      'How confident are you that you are not overpaying for Azure compute? Do you know what your VMs are doing at 2 AM?',
+      'What is your current Azure monthly spend for virtual desktops? Is that growing, flat, or being squeezed?',
+      'Do you use Reserved Instances or Azure Hybrid Benefit today? How do you manage the allocation?',
+      'If I could show you how to save 40-60% on your Azure desktop spend with zero user impact, would that be worth 30 minutes?'
+    ],
+    proofPoints: ['Sage: $1M+ annual savings, 62-65% VM cost reduction', 'LexisNexis: 50% year-over-year cost savings', '3Cloud: All of our customers end up saving money with Nerdio'],
+    objections: {
+      'Another layer adds cost': 'Fair concern. But Nerdio auto-scaling alone saves 55% on Azure compute on average. The platform pays for itself many times over — typically within the first month.',
+      'We manage costs ourselves with scripts': 'Custom scripts work at small scale but they cannot match Nerdio patented auto-scaling algorithms that factor in user patterns, session counts, and Azure pricing tiers simultaneously. Plus scripts break and need maintenance.'
+    }
+  },
+  {
+    id: 'copilot-readiness',
+    title: 'Copilot Readiness & Desktop Governance',
+    triggers: ['eaE3', 'eaE5', 'intune'],
+    summary: 'Nerdio provides the desktop governance layer that lets Microsoft 365 Copilot land faster and scale safely.',
+    positioning: 'Copilot needs a mature, governed desktop layer to deliver value. If endpoints are inconsistent, unpatched, or poorly managed, Copilot cannot perform. Nerdio is the governance runway — consistent golden images, CIS baselines, automated patching.',
+    discoveryQs: [
+      'Where are you on your Copilot rollout journey? What is the deployment timeline?',
+      'How consistent is your desktop estate? Are all endpoints on the same OS build, same policies, same app versions?',
+      'What is your biggest concern about scaling Copilot beyond the pilot group?',
+      'How are you handling desktop governance today — manual Intune policies, or is there automation in place?'
+    ],
+    proofPoints: ['Organisations with governed desktops see 3x faster Copilot adoption', 'CIS benchmark compliance through Nerdio reduces Copilot-related support tickets by 40%', 'Scott Manchester (former MS VP, now Nerdio CPTO) designed this integration path'],
+    objections: {
+      'We already have Intune': 'Nerdio does not replace Intune — it supercharges it. Pre-built CIS baselines, automated compliance enforcement, and drift detection. Think of it as Intune on autopilot.',
+      'Copilot is not our priority right now': 'Understood. Even without Copilot, the desktop governance benefits stand alone — consistent images, automated patching, compliance baselines. When Copilot becomes a priority, the foundation is already there.'
+    }
+  },
+  {
+    id: 'compliance-governance',
+    title: 'Compliance & Security Governance',
+    triggers: ['industry:Financial Services', 'industry:Government', 'industry:Healthcare'],
+    summary: 'Automated compliance enforcement for regulated industries — DORA, FCA, PRA, Solvency II, GDPR, NHS DSPT.',
+    positioning: 'Regulated industries need auditable, repeatable desktop governance. Nerdio deploys CIS benchmark-aligned baselines, detects configuration drift, and provides the audit trail regulators require. Deployed in the customer own Azure subscription — data never leaves their environment.',
+    discoveryQs: [
+      'Which regulatory frameworks are you subject to? DORA, FCA, PRA, SOX, GDPR?',
+      'How do you currently demonstrate desktop compliance to auditors? Is that process automated or manual?',
+      'If a regulator asked you right now for evidence of endpoint compliance across your estate, how quickly could you produce it?',
+      'Where does your virtual desktop data reside today? Is data residency a requirement for your regulators?'
+    ],
+    proofPoints: ['Nerdio deploys as Azure App Service in customer own subscription — zero data exfiltration risk', 'CIS Benchmark-aligned Intune baselines out of the box', 'Entra ID integration, Conditional Access, Defender for Endpoint'],
+    objections: {
+      'Security concerns with third-party tools': 'Nerdio deploys inside your own Azure subscription. Your data never leaves your environment. We support Entra ID, Conditional Access, CIS Benchmarks, and Defender integration. We are not a third-party gateway — we are an accelerator on your own infrastructure.',
+      'We need on-premises for compliance': 'Most regulatory frameworks including DORA and FCA accept cloud deployments if data residency and audit controls are met. Nerdio on Azure gives you UK data centres, full audit logging, and Entra ID governance.'
+    }
+  },
+  {
+    id: 'unified-endpoint',
+    title: 'Unified Endpoint Management',
+    triggers: ['intune'],
+    summary: 'Manage AVD, Windows 365, and Intune endpoints from a single pane — agentless visibility, automated policies, compliance tracking.',
+    positioning: 'IT teams today juggle multiple consoles — Intune for physical devices, Azure Portal for AVD, separate tools for W365. Nerdio unifies this into one management plane with real-time monitoring, automated policies, and cross-estate visibility.',
+    discoveryQs: [
+      'How many different consoles does your team use to manage endpoints, virtual desktops, and policies?',
+      'What would it mean for your team if they could see physical devices, AVD, and W365 in one dashboard?',
+      'How long does it take to deploy a new desktop environment today? What if that were under an hour?',
+      'Do you have visibility into device compliance, patching status, and app usage across your full estate?'
+    ],
+    proofPoints: ['Nerdio Intune Insights: device compliance, patching, app usage, warranty — no agents needed', 'Deploy complete AVD environments in under an hour', '75% decrease in support needs (LexisNexis)'],
+    objections: {
+      'We are fine managing Azure natively': 'That works at small scale but as you grow the manual work compounds. Customers typically discover they were spending 55% more on compute than needed plus dozens of hours a week on tasks Nerdio automates.',
+      'We are too small for this': 'Nerdio serves organisations from 50-seat MSP clients to enterprises with tens of thousands of desktops. The platform scales with you.'
+    }
+  },
+  {
+    id: 'w365-management',
+    title: 'Windows 365 Management',
+    triggers: ['segment:Strategic'],
+    summary: 'Manage Windows 365 Cloud PCs alongside AVD with unified policies, cost visibility, and migration tooling.',
+    positioning: 'Windows 365 simplifies deployment but creates management complexity at scale. Nerdio adds the governance, cost visibility, and hybrid management Microsoft does not provide natively — including AVD-to-W365 migration wizards.',
+    discoveryQs: [
+      'Are you evaluating Windows 365 alongside AVD? What is driving that evaluation?',
+      'How do you plan to manage Cloud PCs at scale — policies, patching, compliance?',
+      'Do you need the flexibility of AVD for some workloads and the simplicity of W365 for others?',
+      'What is your biggest concern about Windows 365 at enterprise scale?'
+    ],
+    proofPoints: ['NME 7.0 introduced advanced W365 management with AI and automation', 'Scott Manchester (who built W365 at Microsoft) is now Nerdio CPTO', 'AVD-to-W365 migration wizard for seamless transitions'],
+    objections: {
+      'Microsoft manages W365 natively': 'Microsoft provides the infrastructure, but governance at scale — auto-scaling, policy enforcement, cost visibility, compliance tracking — requires a management layer. That is exactly what Nerdio adds.',
+      'W365 is too expensive': 'For consistent, predictable workloads W365 can be very cost-effective. For variable workloads, AVD with Nerdio auto-scaling is cheaper. Nerdio helps you put the right workload on the right platform.'
+    }
+  }
+];
+
+var KNOWLEDGE_BATTLECARDS = {
+  'citrix': {
+    competitor: 'Citrix DaaS / Virtual Apps & Desktops',
+    positioning: 'Legacy overlay adding cost and complexity vs. cloud-native automation',
+    strengths: ['Strong low-bandwidth protocol optimisation', 'Deep app virtualisation (Virtual Apps)', 'Large existing install base with trained admins'],
+    weaknesses: ['Premium licensing ON TOP of Azure costs', 'Requires managing separate infrastructure (brokers, controllers, StoreFront)', 'Slow cloud migration — tied to on-prem architecture', 'Complex licensing model confuses customers'],
+    landmines: ['If they mention "app virtualisation" heavily, Citrix Virtual Apps is genuinely strong there', 'If they have invested heavily in Citrix training/certs, switching cost is real', 'NetScaler dependency can complicate migration'],
+    killShots: ['Ask about total cost including Citrix licenses + Azure + management overhead vs. Nerdio + Azure alone', 'Ask how long a new AVD environment takes to deploy with Citrix vs. under 1 hour with Nerdio', 'Ask about their Citrix renewal pricing trajectory']
+  },
+  'vmware': {
+    competitor: 'VMware / Omnissa Horizon',
+    positioning: 'Hypervisor-tied legacy vs. cloud-native on Azure',
+    strengths: ['Deep vSphere integration for on-prem workloads', 'Mature product with long enterprise track record', 'Unified Endpoint Management (Workspace ONE)'],
+    weaknesses: ['Tied to on-prem vSphere hypervisor', 'Broadcom acquisition causing price increases and uncertainty', 'No native Azure auto-scaling', 'Requires significant infrastructure management'],
+    landmines: ['If they have heavy vSphere investment, migration effort is real', 'Workspace ONE competes with Intune — different ecosystem play'],
+    killShots: ['Ask about Broadcom pricing impact — many customers seeing 2-3x increases', 'Ask about their cloud strategy — is vSphere the future or Azure?', 'Nerdio eliminates hypervisor management entirely']
+  },
+  'native': {
+    competitor: 'Native Azure (no management layer)',
+    positioning: 'Raw complexity vs. managed simplicity — Nerdio is the missing middle',
+    strengths: ['No additional vendor relationship', 'Direct Azure Portal access', 'No additional licensing cost'],
+    weaknesses: ['Requires deep Azure expertise (ARM templates, KQL, PowerShell)', 'No auto-scaling — VMs run 24/7', 'No golden image lifecycle management', 'No auto-heal for broken session hosts', 'Manual compliance and policy management'],
+    landmines: ['If they have strong Azure engineering team, they may feel capable', 'Cost argument only works if they actually track their Azure spend carefully'],
+    killShots: ['Ask how many hours per week they spend on AVD management tasks', 'Ask what happens when a session host breaks at 2 AM', 'Ask about their Azure cost governance — do they know cost per user per month?']
+  }
+};
+
+var KNOWLEDGE_MS_ROLES = {
+  'ae': {
+    title: 'Account Executive',
+    description: 'Owns the Microsoft commercial relationship. Measured on Azure consumption (ACR) and Microsoft 365 adoption.',
+    nerdioValue: 'Nerdio drives Azure consumption through AVD/W365 workloads. Position Nerdio as a tool that helps THEIR Azure number grow through managed desktop adoption.',
+    approachTips: ['Lead with Azure consumption growth story', 'Show how Nerdio accelerates Microsoft platform adoption', 'Position as co-sell opportunity — Nerdio is Azure Marketplace revenue'],
+    riskFactors: ['May push W365 over AVD if that helps their metrics', 'Cost optimisation message can conflict — saves customer money but could reduce Azure revenue']
+  },
+  'ats': {
+    title: 'Account Technology Strategist',
+    description: 'Technical decision influencer. Cares about architecture, operational efficiency, and technical proof.',
+    nerdioValue: 'Nerdio reduces operational burden and makes Azure desktop deployments architecturally sound. The ATS wants to see fewer support tickets, faster deployments, and clean architecture.',
+    approachTips: ['Lead with operational time savings and architectural simplification', 'Offer a joint architecture session', 'Show auto-heal, golden image management, deployment automation', 'Speak their language: ARM templates, host pools, session management'],
+    riskFactors: ['May prefer native Azure approach if technically strong', 'Could see Nerdio as abstracting away control they want']
+  },
+  'cloudAI': {
+    title: 'Cloud & AI Specialist',
+    description: 'Focused on Azure adoption and cloud-native workloads. Measured on Azure consumption growth.',
+    nerdioValue: 'Nerdio is a pure Azure consumption driver. Every AVD/W365 deployment through Nerdio generates Azure revenue. Auto-scaling optimises cost for the customer but the workload still runs on Azure.',
+    approachTips: ['This is your strongest Microsoft ally — Nerdio drives their number', 'Lead with Azure consumption metrics', 'Show how Nerdio makes Azure accessible to organisations without deep cloud skills', 'Position as a deployment accelerator that removes Azure adoption barriers'],
+    riskFactors: ['Very few — Nerdio aligns strongly with Cloud & AI priorities']
+  },
+  'security': {
+    title: 'Security Specialist',
+    description: 'Focused on Microsoft security stack adoption — Defender, Entra ID, Conditional Access, Zero Trust.',
+    nerdioValue: 'Nerdio enforces CIS Benchmark baselines through Intune, integrates with Defender for Endpoint, and supports Conditional Access policies. Deployed in customer own Azure subscription — no data exfiltration risk.',
+    approachTips: ['Lead with CIS benchmark compliance and automated policy enforcement', 'Emphasise Azure-native deployment — data never leaves their environment', 'Show Entra ID integration and RBAC controls', 'Position as enabling Zero Trust for the desktop layer'],
+    riskFactors: ['May want to validate Nerdio security posture before endorsing', 'Could see third-party management as additional attack surface — counter with Azure-native deployment model']
+  },
+  'aiBizProcess': {
+    title: 'AI Business Process Specialist',
+    description: 'Focused on Copilot for M365 and Power Platform adoption. Cares about business process transformation.',
+    nerdioValue: 'Copilot needs a mature, governed desktop layer to deliver value. Nerdio provides the governance runway — consistent images, CIS baselines, automated patching — so Copilot can land faster and scale safely.',
+    approachTips: ['Frame Nerdio as the enabler of Copilot adoption', 'Show how desktop inconsistency blocks Copilot rollout', 'Position Copilot readiness as a desktop governance challenge, not just a licensing one'],
+    riskFactors: ['Primarily focused on app-layer transformation — may not see desktop management as their concern']
+  },
+  'aiWorkforce': {
+    title: 'AI Workforce Specialist',
+    description: 'Focused on Modern Work, employee experience, and productivity. Cares about user satisfaction and adoption.',
+    nerdioValue: 'Nerdio ensures consistent, performant desktop experiences that let employees use modern work tools effectively. Auto-scaling prevents performance degradation, auto-heal minimises downtime.',
+    approachTips: ['Lead with user experience and productivity angle', 'Show how auto-scaling prevents the Monday morning login storm', 'Position desktop consistency as foundation for Modern Work adoption'],
+    riskFactors: ['May push W365 for simplicity over AVD for flexibility — be ready to position hybrid']
+  },
+  'ce': {
+    title: 'Customer Engineer',
+    description: 'Technical execution partner. Helps customers implement and optimise Microsoft solutions.',
+    nerdioValue: 'Nerdio dramatically reduces implementation complexity and ongoing management burden. The CE can deploy environments in hours instead of weeks and hand off a self-managing system.',
+    approachTips: ['Show deployment speed and automation capabilities', 'Offer co-implementation support', 'Position as making their delivery job easier and faster'],
+    riskFactors: ['May prefer to build custom solutions to maximise their engagement hours']
+  }
+};
+
+var KNOWLEDGE_INDUSTRY = {
+  'Financial Services': {
+    regulations: ['DORA (Digital Operational Resilience Act)', 'FCA regulations', 'PRA requirements', 'Solvency II (insurance)', 'MiFID II'],
+    pressures: ['Regulatory audit frequency increasing', 'Data residency requirements (UK data centres)', 'Third-party risk management scrutiny', 'Operational resilience mandates'],
+    nerdioAngle: 'DORA compliance requires demonstrable ICT resilience and third-party risk management. Nerdio deployed in customer own Azure subscription with UK data residency, CIS baselines, and full audit logging directly addresses these requirements.',
+    microsoftContext: 'FSI accounts are high-value for Microsoft. Azure consumption in FSI is growing rapidly. Microsoft has dedicated FSI teams. Nerdio aligns with Microsoft FSI cloud strategy.',
+    seasonalTriggers: ['Regulatory reporting periods (Q4, Q1)', 'Annual compliance audits', 'Contract renewal cycles']
+  },
+  'Government': {
+    regulations: ['NCSC Cyber Essentials', 'OFFICIAL/OFFICIAL-SENSITIVE classification', 'G-Cloud compliance', 'UK GDPR', 'Public sector procurement frameworks'],
+    pressures: ['Cost reduction mandates', 'Digital transformation targets', 'Workforce modernisation', 'Security posture improvement', 'Legacy system migration deadlines'],
+    nerdioAngle: 'Government organisations need secure, auditable, cost-efficient desktop management. Nerdio on Azure Government meets classification requirements while delivering 55% compute cost savings. G-Cloud compliant procurement.',
+    microsoftContext: 'Microsoft has strong UK government relationships. Azure Government and GCC High support. Nerdio is Azure-native and supports Azure Government.',
+    seasonalTriggers: ['Budget cycle (March/April)', 'Spending review periods', 'Digital strategy refresh cycles']
+  },
+  'Healthcare': {
+    regulations: ['NHS DSPT (Data Security and Protection Toolkit)', 'CQC requirements', 'NHS Digital standards', 'UK GDPR for health data'],
+    pressures: ['Clinical desktop standardisation', 'Remote/hybrid clinical access', 'Cost pressure on IT budgets', 'Cybersecurity resilience', 'Staff mobility requirements'],
+    nerdioAngle: 'Healthcare needs standardised, secure clinical desktops accessible from any location. Nerdio golden image management ensures every clinical workstation runs identical software. Auto-heal minimises downtime for critical systems.',
+    microsoftContext: 'NHS is a major Microsoft customer. Teams adoption in healthcare is accelerating. Desktop modernisation supports clinical workflow transformation.',
+    seasonalTriggers: ['DSPT submission deadline (June)', 'Financial year-end (March)', 'CQC inspection cycles']
+  },
+  'Education': {
+    regulations: ['DfE requirements', 'Ofsted digital expectations', 'Student data protection', 'Accessibility standards'],
+    pressures: ['Budget constraints', 'Student experience expectations', 'Staff recruitment and retention', 'Research computing needs', 'Hybrid learning infrastructure'],
+    nerdioAngle: 'Universities need scalable desktop infrastructure for term-time peaks and research workloads. Nerdio auto-scaling matches capacity to academic calendar — scale up for term, scale down for holidays. 55% compute savings fund other priorities.',
+    microsoftContext: 'Education licensing (A3/A5) includes AVD rights. Microsoft has strong education partnerships. Azure for Research and HPC are growing.',
+    seasonalTriggers: ['Term start (September, January)', 'Budget planning (Spring)', 'Clearing period (August)']
+  },
+  'Retail & Consumer Goods': {
+    regulations: ['PCI DSS for payment systems', 'UK GDPR', 'Consumer protection regulations'],
+    pressures: ['Peak trading resilience (Black Friday, Christmas)', 'Store/warehouse technology modernisation', 'Supply chain digitisation', 'Cost margin protection', 'Omnichannel operations'],
+    nerdioAngle: 'Retail needs infrastructure that scales for peak trading without paying for peak capacity year-round. Nerdio auto-scaling is built exactly for this — massive cost savings during quiet periods, instant scale-up for peak.',
+    microsoftContext: 'Retail is a Microsoft growth vertical. Azure consumption in retail growing rapidly. Microsoft Retail Cloud initiative.',
+    seasonalTriggers: ['Pre-peak planning (July-September)', 'Post-peak review (January)', 'Budget cycles']
+  },
+  'Prof & Business Services': {
+    regulations: ['Client confidentiality obligations', 'SRA regulations (legal)', 'FRC/PCAOB (accounting)', 'UK GDPR'],
+    pressures: ['Hybrid working at scale', 'Client data security', 'Multi-office/multi-geography consistency', 'Partner productivity', 'Talent retention through tech'],
+    nerdioAngle: 'Professional services firms need consistent, secure desktop environments across offices and home workers. Nerdio ensures every partner and associate gets the same governed experience regardless of location.',
+    microsoftContext: 'Large professional services firms are significant Microsoft customers. Teams and M365 adoption is high. Azure adoption growing for client workloads.',
+    seasonalTriggers: ['Financial year-end (varies by firm)', 'Partner planning cycles', 'Graduate intake (September)']
+  }
+};
+
+function generateMSAlignment(acc) {
+  var helps = [];
+  var risks = [];
+
+  if (acc.daas) { helps.push({area: 'Azure Consumption Growth', detail: 'Nerdio manages AVD/W365 workloads running on Azure — every deployment drives Azure revenue for Microsoft. DaaS ACR of ' + esc(acc.daas) + ' shows existing Azure commitment.'}); }
+  else { helps.push({area: 'Azure Adoption', detail: 'Nerdio makes Azure accessible for desktop workloads. This opens a new Azure consumption stream for the account.'}); }
+
+  if ((acc.eaE3 === 'Yes' || acc.eaE5 === 'Yes') && acc.intune) {
+    helps.push({area: 'Copilot Readiness', detail: 'EA licensed with ' + esc(acc.intune) + ' Intune MAU. Desktop governance through Nerdio is the runway that lets Copilot land faster and scale safely.'});
+  }
+
+  if (acc.intune) {
+    helps.push({area: 'Intune Adoption', detail: 'Nerdio supercharges Intune with CIS baselines, automated compliance, and drift detection. Deepens Microsoft endpoint management investment.'});
+  }
+
+  helps.push({area: 'Security Stack Adoption', detail: 'Nerdio integrates with Defender for Endpoint, Entra ID Conditional Access, and enforces CIS benchmarks. Drives adoption of the full Microsoft security suite.'});
+
+  helps.push({area: 'Azure Marketplace', detail: 'Nerdio is available on Azure Marketplace. Every deal generates Marketplace revenue that counts toward Microsoft partner commitments.'});
+
+  if (acc.daas) {
+    risks.push({area: 'Cost Optimisation Messaging', detail: 'Nerdio saves the customer 40-60% on Azure compute. This reduces Microsoft Azure revenue. Frame as "right-sizing" and "sustainable growth" — the customer stays on Azure longer and expands to more workloads.', severity: 'medium'});
+  }
+
+  if (acc.segment && (acc.segment.indexOf('Strategic') >= 0 || acc.segment.indexOf('Upper Majors') >= 0)) {
+    risks.push({area: 'W365 vs AVD Positioning', detail: 'Microsoft strategic preference at this tier is often W365 for simplicity. Be ready to position Nerdio as managing BOTH — "you do not have to choose, Nerdio manages the hybrid estate."', severity: 'medium'});
+  }
+
+  if (acc.rds) {
+    risks.push({area: 'Existing Migration Plays', detail: 'Account has ' + esc(acc.rds) + ' RDS/Citrix seats. Microsoft may already have their own migration motion running through the ATS or partner. Check with the MS account team before launching a parallel conversation.', severity: 'low'});
+  }
+
+  return { helps: helps, risks: risks };
+}
+
+function rankUseCases(acc) {
+  var scored = [];
+  for (var i = 0; i < KNOWLEDGE_USE_CASES.length; i++) {
+    var uc = KNOWLEDGE_USE_CASES[i];
+    var score = 0;
+    for (var t = 0; t < uc.triggers.length; t++) {
+      var trigger = uc.triggers[t];
+      if (trigger.indexOf('industry:') === 0) {
+        if (acc.industry && acc.industry === trigger.split(':')[1]) score += 30;
+      } else if (trigger.indexOf('segment:') === 0) {
+        if (acc.segment && acc.segment.indexOf(trigger.split(':')[1]) >= 0) score += 20;
+      } else if (trigger === 'rds' && acc.rds && acc.rds !== '' && acc.rds !== '0') {
+        score += 25;
+      } else if (trigger === 'daas' && acc.daas && acc.daas !== '') {
+        score += 25;
+      } else if ((trigger === 'eaE3' && acc.eaE3 === 'Yes') || (trigger === 'eaE5' && acc.eaE5 === 'Yes')) {
+        score += 20;
+      } else if (trigger === 'intune' && acc.intune && acc.intune !== '') {
+        score += 15;
+      }
+    }
+    if (acc.engagementStatus && acc.engagementStatus.indexOf('Engaged') >= 0) score += 5;
+    scored.push({ useCase: uc, score: score });
+  }
+  scored.sort(function(a, b) { return b.score - a.score; });
+  return scored;
+}
+
+// ============================================================================
+// TAB RENDERERS
+// ============================================================================
+
+function renderTabContent() {
+  var acc = window_selectedAccount;
+  if (!acc) {
+    var panes = ['overview','msteam','signals','strategy','actions','timeline'];
+    for (var p = 0; p < panes.length; p++) {
+      document.getElementById('tab-' + panes[p]).innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">Select an Account</div><div class="empty-state-desc">Select an account from the list to view intelligence</div></div>';
+    }
+    return;
+  }
+
+  renderOverviewTab(acc);
+  renderMSTeamTab(acc);
+  renderSignalsTab(acc);
+  renderStrategyTab(acc);
+  renderActionsTab(acc);
+  renderTimelineTab(acc);
+}
+
+function renderOverviewTab(acc) {
+  var fitColor = acc.fitScore >= 80 ? '#CDFF4E' : acc.fitScore >= 60 ? '#22c55e' : acc.fitScore >= 30 ? '#f59e0b' : '#ef4444';
+
+  var sources = [];
+  if (acc.dataSources && acc.dataSources.mal) sources.push('<span style="background:rgba(30,157,184,.15);color:#1E9DB8;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600">MAL</span>');
+  if (acc.dataSources && acc.dataSources.territory) sources.push('<span style="background:rgba(205,255,78,.15);color:#CDFF4E;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600">Territory</span>');
+  if (acc.dataSources && acc.dataSources.wopr) sources.push('<span style="background:rgba(167,149,199,.15);color:#A795C7;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600">WOPR</span>');
+
+  var dealStages = ['Prospect','Contacted','Qualified','Proposal','Negotiation','Won','Lost','Nurture'];
+  var deal = acc.deal || {};
+  var currentStage = deal.stage || 'Prospect';
+
+  var alertsHtml = '';
+  if (acc.alerts && acc.alerts.length > 0) {
+    for (var a = 0; a < acc.alerts.length; a++) {
+      var alert = acc.alerts[a];
+      var alertColor = alert.severity === 'critical' ? '#ef4444' : alert.severity === 'warning' ? '#f59e0b' : '#1E9DB8';
+      alertsHtml += '<div style="background:' + alertColor + '15;border:1px solid ' + alertColor + '30;border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:12px;color:' + alertColor + '"><strong>' + esc(alert.severity.toUpperCase()) + ':</strong> ' + esc(alert.message) + '</div>';
+    }
+  }
+
+  var statsHtml = '';
+  var stats = [
+    { label: 'RDS/Citrix', value: acc.rds || '—', color: acc.rds ? '#60a5fa' : 'rgba(255,255,255,.3)' },
+    { label: 'DaaS ACR', value: acc.daas || '—', color: acc.daas ? '#fb923c' : 'rgba(255,255,255,.3)' },
+    { label: 'Intune MAU', value: acc.intune || '—', color: acc.intune ? '#2dd4bf' : 'rgba(255,255,255,.3)' },
+    { label: 'EA Licensed', value: (acc.eaE3 === 'Yes' || acc.eaE5 === 'Yes') ? ((acc.eaE3 === 'Yes' ? 'E3' : '') + (acc.eaE3 === 'Yes' && acc.eaE5 === 'Yes' ? ' + ' : '') + (acc.eaE5 === 'Yes' ? 'E5' : '')) : '—', color: (acc.eaE3 === 'Yes' || acc.eaE5 === 'Yes') ? '#A795C7' : 'rgba(255,255,255,.3)' },
+    { label: 'Employees', value: acc.employees ? acc.employees.toLocaleString() : '—', color: '#fff' },
+    { label: 'Opportunities', value: acc.opportunities || '0', color: acc.opportunities > 0 ? '#CDFF4E' : 'rgba(255,255,255,.3)' }
+  ];
+  for (var s = 0; s < stats.length; s++) {
+    statsHtml += '<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:12px;text-align:center"><div style="font-size:16px;font-weight:700;color:' + stats[s].color + '">' + esc(String(stats[s].value)) + '</div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">' + stats[s].label + '</div></div>';
+  }
+
+  var pipelineHtml = '';
+  for (var d = 0; d < dealStages.length; d++) {
+    var isActive = dealStages[d] === currentStage;
+    var isPast = dealStages.indexOf(currentStage) > d;
+    var stageColor = isActive ? '#1E9DB8' : isPast ? 'rgba(30,157,184,.3)' : 'rgba(255,255,255,.05)';
+    var textColor = isActive ? '#fff' : isPast ? '#1E9DB8' : 'rgba(255,255,255,.25)';
+    pipelineHtml += '<div onclick="setDealStage(\'' + dealStages[d] + '\')" style="cursor:pointer;flex:1;text-align:center;padding:6px 4px;background:' + stageColor + ';font-size:9px;font-weight:' + (isActive ? '700' : '500') + ';color:' + textColor + ';border-radius:4px;transition:all .2s">' + dealStages[d] + '</div>';
+  }
+
+  var html = alertsHtml +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">' +
+      '<div>' +
+        '<h2 style="font-size:20px;font-weight:700;margin-bottom:4px">' + esc(acc.name) + '</h2>' +
+        '<div style="font-size:12px;color:rgba(255,255,255,.5)">' + esc(acc.industry || '—') + ' · ' + esc(acc.segment || '—') + (acc.tpid ? ' · TPID: ' + esc(acc.tpid) : '') + (acc.domain ? ' · ' + esc(acc.domain) : '') + '</div>' +
+        '<div style="margin-top:8px;display:flex;gap:6px">' + sources.join('') + '</div>' +
+      '</div>' +
+      '<div style="text-align:center">' +
+        '<div style="width:64px;height:64px;border-radius:50%;border:3px solid ' + fitColor + ';display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:' + fitColor + '">' + acc.fitScore + '</div>' +
+        '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">Fit Score</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="margin-bottom:20px"><div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px;font-weight:600">DEAL STAGE</div><div style="display:flex;gap:3px">' + pipelineHtml + '</div></div>' +
+    '<div style="display:flex;gap:8px;margin-bottom:8px"><input type="text" id="arrEstimate" value="' + esc(deal.arrEstimate || '') + '" placeholder="ARR estimate (e.g. £50K-£100K)" style="flex:1;padding:8px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;color:#fff;font-family:Poppins;font-size:12px" onchange="saveDealField(\'arrEstimate\',this.value)"><input type="date" id="closeDate" value="' + esc(deal.closeDate || '') + '" style="padding:8px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;color:#fff;font-family:Poppins;font-size:12px" onchange="saveDealField(\'closeDate\',this.value)"></div>' +
+    '<input type="text" id="nextStep" value="' + esc(deal.nextStep || '') + '" placeholder="Next step..." style="width:100%;padding:8px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;color:#fff;font-family:Poppins;font-size:12px;margin-bottom:20px" onchange="saveDealField(\'nextStep\',this.value)">' +
+    '<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px;font-weight:600">ACCOUNT SIGNALS</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px">' + statsHtml + '</div>' +
+    '<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px;font-weight:600">FIT SCORE BREAKDOWN</div>' +
+    '<div style="display:flex;gap:4px;margin-bottom:20px">' +
+      buildFitBar('RDS', acc.fitBreakdown ? acc.fitBreakdown.rds : 0, 25, '#60a5fa') +
+      buildFitBar('DaaS', acc.fitBreakdown ? acc.fitBreakdown.daas : 0, 25, '#fb923c') +
+      buildFitBar('Intune', acc.fitBreakdown ? acc.fitBreakdown.intune : 0, 15, '#2dd4bf') +
+      buildFitBar('EA', acc.fitBreakdown ? acc.fitBreakdown.ea : 0, 15, '#A795C7') +
+      buildFitBar('Size', acc.fitBreakdown ? acc.fitBreakdown.employees : 0, 10, '#fff') +
+      buildFitBar('Engage', acc.fitBreakdown ? acc.fitBreakdown.engagement : 0, 10, '#CDFF4E') +
+    '</div>';
+
+  document.getElementById('tab-overview').innerHTML = html;
+}
+
+function buildFitBar(label, value, max, color) {
+  var pct = max > 0 ? Math.round((value / max) * 100) : 0;
+  return '<div style="flex:1;text-align:center"><div style="height:40px;background:rgba(255,255,255,.03);border-radius:4px;position:relative;overflow:hidden"><div style="position:absolute;bottom:0;width:100%;height:' + pct + '%;background:' + color + '20;border-top:2px solid ' + color + ';transition:height .3s"></div></div><div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">' + label + '</div><div style="font-size:10px;color:' + color + ';font-weight:600">' + value + '/' + max + '</div></div>';
+}
+
+function setDealStage(stage) {
+  if (!window_selectedAccount) return;
+  if (!window_selectedAccount.deal) window_selectedAccount.deal = {};
+  window_selectedAccount.deal.stage = stage;
+  saveDealData();
+  renderOverviewTab(window_selectedAccount);
+  renderAccountList();
+}
+
+function saveDealField(field, value) {
+  if (!window_selectedAccount) return;
+  if (!window_selectedAccount.deal) window_selectedAccount.deal = {};
+  window_selectedAccount.deal[field] = value;
+  saveDealData();
+}
+
+function saveDealData() {
+  var deals = {};
+  for (var i = 0; i < window_ACCOUNTS.length; i++) {
+    var a = window_ACCOUNTS[i];
+    if (a.deal && (a.deal.stage || a.deal.arrEstimate || a.deal.nextStep || a.deal.closeDate)) {
+      deals[normName(a.name)] = a.deal;
+    }
+  }
+  localStorage.setItem('nerdio_v3_deals_' + window.SESSION.username, JSON.stringify(deals));
+}
+
+function renderMSTeamTab(acc) {
+  var msTeam = acc.msTeam || {};
+  var roles = [
+    { key: 'ae', alias: msTeam.ae ? msTeam.ae.alias : '' },
+    { key: 'ats', alias: msTeam.ats ? msTeam.ats.alias : '' },
+    { key: 'cloudAI', alias: msTeam.cloudAI ? msTeam.cloudAI.alias : '' },
+    { key: 'security', alias: msTeam.security ? msTeam.security.alias : '' },
+    { key: 'aiBizProcess', alias: msTeam.aiBizProcess ? msTeam.aiBizProcess.alias : '' },
+    { key: 'aiWorkforce', alias: msTeam.aiWorkforce ? msTeam.aiWorkforce.alias : '' },
+    { key: 'ce', alias: msTeam.ce ? msTeam.ce.alias : '' },
+    { key: 'cloudAI2', alias: msTeam.cloudAI2 ? msTeam.cloudAI2.alias : '' }
+  ];
+
+  var html = '<h3 style="font-size:16px;font-weight:600;margin-bottom:4px">Microsoft Account Team</h3>';
+  html += '<p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px">From the MAL — ' + esc(acc.malSheet || 'Unknown sheet') + (acc.segment ? ' · ' + esc(acc.segment) : '') + '</p>';
+
+  if (!acc.dataSources || !acc.dataSources.mal) {
+    html += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:24px;text-align:center"><div style="font-size:32px;margin-bottom:8px">🏢</div><div style="font-size:14px;color:rgba(255,255,255,.5)">No MAL data available for this account</div><div style="font-size:12px;color:rgba(255,255,255,.3);margin-top:4px">Ask your admin to upload the Microsoft MAL file</div></div>';
+    document.getElementById('tab-msteam').innerHTML = html;
+    return;
+  }
+
+  var cardsHtml = '';
+  for (var r = 0; r < roles.length; r++) {
+    var role = roles[r];
+    if (!role.alias) continue;
+    var meta = KNOWLEDGE_MS_ROLES[role.key] || { title: role.key, description: '', nerdioValue: '', approachTips: [], riskFactors: [] };
+    var engagements = getContactEngagements(acc, role.alias);
+    var lastEng = engagements.length > 0 ? engagements[0] : null;
+
+    var contactDetails = getContactDetails(acc, role.alias);
+
+    cardsHtml += '<div class="ms-contact-card" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:16px;margin-bottom:10px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<div><div style="font-size:13px;font-weight:600;color:#1E9DB8">' + esc(meta.title) + '</div><div style="font-size:14px;font-weight:700">' + esc(role.alias) + '</div></div>' +
+        '<button onclick="toggleContactExpand(\'' + esc(role.alias) + '\')" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.5);padding:4px 10px;border-radius:6px;font-size:10px;cursor:pointer;font-family:Poppins">Details ▾</button>' +
+      '</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px">' + esc(meta.description) + '</div>' +
+      '<div style="background:rgba(30,157,184,.08);border-radius:6px;padding:8px 10px;font-size:11px;color:#1E9DB8;margin-bottom:8px"><strong>Nerdio Value:</strong> ' + esc(meta.nerdioValue) + '</div>' +
+      (lastEng ? '<div style="font-size:10px;color:rgba(255,255,255,.3)">Last contact: ' + esc(lastEng.date) + ' — ' + esc(lastEng.note.substring(0, 60)) + (lastEng.note.length > 60 ? '...' : '') + '</div>' : '<div style="font-size:10px;color:rgba(239,68,68,.5)">No interactions logged</div>') +
+      '<div id="expand-' + esc(role.alias) + '" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05)">' +
+        '<div style="margin-bottom:10px"><div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-weight:600">CONTACT DETAILS (your notes)</div>' +
+          '<input type="text" placeholder="Full name" value="' + esc(contactDetails.name || '') + '" onchange="saveContactDetail(\'' + esc(role.alias) + '\',\'name\',this.value)" style="width:100%;padding:6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;color:#fff;font-family:Poppins;font-size:11px;margin-bottom:4px">' +
+          '<input type="text" placeholder="Email" value="' + esc(contactDetails.email || '') + '" onchange="saveContactDetail(\'' + esc(role.alias) + '\',\'email\',this.value)" style="width:100%;padding:6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;color:#fff;font-family:Poppins;font-size:11px;margin-bottom:4px">' +
+          '<input type="text" placeholder="LinkedIn URL" value="' + esc(contactDetails.linkedin || '') + '" onchange="saveContactDetail(\'' + esc(role.alias) + '\',\'linkedin\',this.value)" style="width:100%;padding:6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;color:#fff;font-family:Poppins;font-size:11px;margin-bottom:4px">' +
+        '</div>' +
+        '<div style="margin-bottom:10px"><div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-weight:600">APPROACH TIPS</div>' +
+          (meta.approachTips ? meta.approachTips.map(function(tip) { return '<div style="font-size:11px;color:rgba(255,255,255,.6);padding:3px 0;padding-left:12px;border-left:2px solid rgba(30,157,184,.3)">• ' + esc(tip) + '</div>'; }).join('') : '') +
+        '</div>' +
+        (meta.riskFactors && meta.riskFactors.length > 0 ? '<div><div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-weight:600">RISK FACTORS</div>' + meta.riskFactors.map(function(rf) { return '<div style="font-size:11px;color:rgba(239,68,68,.6);padding:3px 0;padding-left:12px;border-left:2px solid rgba(239,68,68,.3)">⚠ ' + esc(rf) + '</div>'; }).join('') + '</div>' : '') +
+        '<div style="margin-top:10px"><div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-weight:600">LOG INTERACTION</div>' +
+          '<div style="display:flex;gap:4px"><select id="engType-' + esc(role.alias) + '" style="padding:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;color:#fff;font-family:Poppins;font-size:11px"><option value="call">Call</option><option value="email">Email</option><option value="meeting">Meeting</option><option value="linkedin">LinkedIn</option><option value="note">Note</option></select>' +
+          '<input type="text" id="engNote-' + esc(role.alias) + '" placeholder="What happened?" style="flex:1;padding:6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;color:#fff;font-family:Poppins;font-size:11px">' +
+          '<button onclick="logEngagement(\'' + esc(role.alias) + '\',\'' + esc(role.key) + '\')" style="padding:6px 12px;background:#1E9DB8;border:none;border-radius:4px;color:#fff;font-family:Poppins;font-size:11px;font-weight:600;cursor:pointer">Log</button></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  if (!cardsHtml) {
+    cardsHtml = '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:24px;text-align:center"><div style="font-size:14px;color:rgba(255,255,255,.4)">No Microsoft contacts assigned in the MAL for this account</div></div>';
+  }
+
+  html += cardsHtml;
+  document.getElementById('tab-msteam').innerHTML = html;
+}
+
+function toggleContactExpand(alias) {
+  var el = document.getElementById('expand-' + alias);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function getContactEngagements(acc, alias) {
+  var all = getEngagements();
+  var accKey = normName(acc.name);
+  var results = [];
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].accountKey === accKey && all[i].contact === alias) results.push(all[i]);
+  }
+  results.sort(function(a, b) { return b.date > a.date ? 1 : -1; });
+  return results;
+}
+
+function getEngagements() {
+  try { return JSON.parse(localStorage.getItem('nerdio_v3_engagements_' + window.SESSION.username)) || []; } catch(e) { return []; }
+}
+
+function saveEngagements(engs) {
+  localStorage.setItem('nerdio_v3_engagements_' + window.SESSION.username, JSON.stringify(engs));
+}
+
+function logEngagement(alias, roleKey) {
+  if (!window_selectedAccount) return;
+  var typeEl = document.getElementById('engType-' + alias);
+  var noteEl = document.getElementById('engNote-' + alias);
+  if (!noteEl || !noteEl.value.trim()) return;
+
+  var engs = getEngagements();
+  engs.push({
+    accountKey: normName(window_selectedAccount.name),
+    accountName: window_selectedAccount.name,
+    contact: alias,
+    role: roleKey,
+    type: typeEl ? typeEl.value : 'note',
+    note: noteEl.value.trim(),
+    date: new Date().toISOString().split('T')[0],
+    timestamp: new Date().toISOString(),
+    user: window.SESSION.username
+  });
+  saveEngagements(engs);
+  noteEl.value = '';
+  renderMSTeamTab(window_selectedAccount);
+  renderTimelineTab(window_selectedAccount);
+}
+
+function getContactDetails(acc, alias) {
+  var key = 'nerdio_v3_contacts_' + window.SESSION.username;
+  try {
+    var all = JSON.parse(localStorage.getItem(key)) || {};
+    var accKey = normName(acc.name);
+    return (all[accKey] && all[accKey][alias]) || {};
+  } catch(e) { return {}; }
+}
+
+function saveContactDetail(alias, field, value) {
+  if (!window_selectedAccount) return;
+  var key = 'nerdio_v3_contacts_' + window.SESSION.username;
+  var all = {};
+  try { all = JSON.parse(localStorage.getItem(key)) || {}; } catch(e) {}
+  var accKey = normName(window_selectedAccount.name);
+  if (!all[accKey]) all[accKey] = {};
+  if (!all[accKey][alias]) all[accKey][alias] = {};
+  all[accKey][alias][field] = value;
+  localStorage.setItem(key, JSON.stringify(all));
+}
+
+function renderSignalsTab(acc) {
+  var html = '<h3 style="font-size:16px;font-weight:600;margin-bottom:4px">Signals & Intelligence</h3>';
+  html += '<p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px">Data from WOPR export' + (acc.dataSources && acc.dataSources.wopr ? '' : ' — <span style="color:#f59e0b">No WOPR data loaded. Import a WOPR export to see full signals.</span>') + '</p>';
+
+  var signals = [
+    { label: 'RDS/Citrix Seats', value: acc.rds, color: '#60a5fa', icon: '🖥️',
+      interpretation: acc.rds ? interpretSignal('rds', acc.rds) : 'No data — import WOPR to see Citrix/RDS exposure' },
+    { label: 'DaaS ACR Spend (FY25)', value: acc.daas, color: '#fb923c', icon: '☁️',
+      interpretation: acc.daas ? interpretSignal('daas', acc.daas) : 'No data — import WOPR to see Azure desktop spend' },
+    { label: 'Intune Monthly Active Users', value: acc.intune, color: '#2dd4bf', icon: '📱',
+      interpretation: acc.intune ? interpretSignal('intune', acc.intune) : 'No data' },
+    { label: 'Active AVD Deal', value: acc.avdDeal, color: '#CDFF4E', icon: '💰',
+      interpretation: acc.avdDeal ? 'Active AVD deal of ' + esc(acc.avdDeal) + (acc.avdDealOwner ? ' owned by ' + esc(acc.avdDealOwner) : '') + '. Nerdio can accelerate this deal — offer management layer to de-risk deployment.' : 'No active AVD deal in pipeline' },
+    { label: 'Enterprise Agreements', value: (acc.eaE3 === 'Yes' || acc.eaE5 === 'Yes') ? ((acc.eaE3 === 'Yes' ? 'E3' : '') + (acc.eaE3 === 'Yes' && acc.eaE5 === 'Yes' ? ' + ' : '') + (acc.eaE5 === 'Yes' ? 'E5' : '')) : null, color: '#A795C7', icon: '📄',
+      interpretation: acc.eaE3 === 'Yes' || acc.eaE5 === 'Yes' ? 'Fully licensed for AVD and Windows 365. No licensing blocker for Nerdio deployment.' + (acc.eaE5 === 'Yes' ? ' E5 includes advanced security features — Defender integration is a natural conversation.' : '') : 'No EA data available' },
+    { label: 'Engagement Status', value: acc.engagementStatus, color: '#1E9DB8', icon: '🤝',
+      interpretation: acc.engagementStatus ? interpretEngagement(acc.engagementStatus) : 'No engagement data' }
+  ];
+
+  for (var s = 0; s < signals.length; s++) {
+    var sig = signals[s];
+    html += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;margin-bottom:8px;display:flex;gap:14px;align-items:flex-start">' +
+      '<div style="font-size:24px;flex-shrink:0">' + sig.icon + '</div>' +
+      '<div style="flex:1">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.6)">' + sig.label + '</div><div style="font-size:14px;font-weight:700;color:' + sig.color + '">' + esc(sig.value || '—') + '</div></div>' +
+        '<div style="font-size:11px;color:rgba(255,255,255,.45);line-height:1.5">' + sig.interpretation + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  var industryCtx = KNOWLEDGE_INDUSTRY[acc.industry];
+  if (industryCtx) {
+    html += '<div style="margin-top:16px;background:rgba(30,157,184,.06);border:1px solid rgba(30,157,184,.15);border-radius:10px;padding:16px">' +
+      '<div style="font-size:13px;font-weight:600;color:#1E9DB8;margin-bottom:8px">📋 ' + esc(acc.industry) + ' — Industry Context</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:10px">' + esc(industryCtx.nerdioAngle) + '</div>' +
+      '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-weight:600">KEY REGULATIONS</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">' + industryCtx.regulations.map(function(r) { return '<span style="background:rgba(255,255,255,.05);padding:2px 8px;border-radius:4px;font-size:10px;color:rgba(255,255,255,.5)">' + esc(r) + '</span>'; }).join('') + '</div>' +
+      '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-weight:600">SEASONAL TRIGGERS</div>' +
+      industryCtx.seasonalTriggers.map(function(t) { return '<div style="font-size:11px;color:rgba(255,255,255,.45);padding:2px 0">📅 ' + esc(t) + '</div>'; }).join('') +
+    '</div>';
+  }
+
+  document.getElementById('tab-signals').innerHTML = html;
+}
+
+function interpretSignal(type, value) {
+  if (type === 'rds') {
+    if (value.indexOf('25000') >= 0 || value.indexOf('>') >= 0) return 'Very large Citrix/RDS estate. Major migration opportunity — this account is a flagship target. Nerdio can deliver massive cost savings on Azure compute at this scale.';
+    if (value.indexOf('10000') >= 0) return 'Large Citrix/RDS estate with significant migration potential. Lead with cost optimisation and operational simplification. This is a strong Nerdio fit.';
+    if (value.indexOf('5000') >= 0) return 'Substantial Citrix/RDS exposure. Good migration candidate. Focus on the operational burden of managing this estate manually vs. Nerdio automation.';
+    if (value.indexOf('2500') >= 0) return 'Moderate Citrix/RDS estate. Solid migration opportunity. Cost savings will be meaningful but not massive — lead with operational simplification.';
+    if (value.indexOf('1000') >= 0) return 'Moderate Citrix/legacy VDI exposure. Migration opportunity exists but focus on cost optimisation and Copilot readiness rather than pure migration.';
+    if (value.indexOf('500') >= 0) return 'Smaller Citrix/RDS footprint. May not justify a standalone migration play — bundle with broader desktop modernisation or Copilot readiness.';
+    return 'Some RDS/Citrix presence detected. Explore the extent and whether migration is on their radar.';
+  }
+  if (type === 'daas') {
+    if (value.indexOf('10M') >= 0 || value.indexOf('>10M') >= 0) return 'Very high Azure desktop spend. Auto-scaling could save millions annually. This is a priority account for cost optimisation. The ROI conversation writes itself.';
+    if (value.indexOf('1M') >= 0) return 'Significant Azure desktop spend in the £1M-10M band. Nerdio auto-scaling typically saves 40-60% at this scale. This is the primary door-opener.';
+    if (value.indexOf('500K') >= 0) return 'Meaningful Azure desktop spend. Auto-scaling savings will be material — likely £200K-600K annually. Strong cost optimisation conversation.';
+    if (value.indexOf('100K') >= 0) return 'Moderate Azure desktop spend. Cost savings are real but may not be the primary hook — consider leading with operational efficiency or Copilot readiness instead.';
+    return 'Some Azure desktop spend detected. Explore the scale and growth trajectory.';
+  }
+  if (type === 'intune') {
+    if (value.indexOf('50000') >= 0 || value.indexOf('>') >= 0) return 'Very large Intune estate. Nerdio Intune Insights provides agentless visibility across this entire fleet — device compliance, patching, app usage. Massive operational value.';
+    if (value.indexOf('25000') >= 0 || value.indexOf('10000') >= 0) return 'Large Intune deployment. CIS Benchmark baselines through Nerdio would strengthen their compliance posture. Intune Insights provides the visibility they likely lack today.';
+    if (value.indexOf('5000') >= 0 || value.indexOf('2500') >= 0) return 'Active Intune estate. Good opportunity for Nerdio Intune management capabilities — CIS baselines, automated compliance, drift detection.';
+    if (value.indexOf('1000') >= 0) return 'Growing Intune deployment. Nerdio can accelerate their endpoint management maturity with pre-built policies and baselines.';
+    return 'Some Intune activity detected. Explore their endpoint management maturity and pain points.';
+  }
+  return '';
+}
+
+function interpretEngagement(status) {
+  if (status.indexOf('Partner Engaged') >= 0 && status.indexOf('Customer Engaged') >= 0) return 'Both partner and customer engagement active. Strong signal — there is existing momentum. Nerdio should position as accelerating what is already in motion.';
+  if (status.indexOf('Customer Engaged') >= 0) return 'Customer is directly engaged with Microsoft on desktop/cloud workloads. Warm account — the conversation is already happening. Position Nerdio as the management layer that makes their investment work.';
+  if (status.indexOf('Partner Engaged') >= 0) return 'Microsoft partner is engaged on this account. Check who the partner is — could be an ally (if they sell Nerdio) or a competitor (if they prefer another solution). Align with the MS AE before approaching.';
+  return 'Engagement status: ' + status;
+}
+
+function renderStrategyTab(acc) {
+  var alignment = generateMSAlignment(acc);
+  var useCases = rankUseCases(acc);
+
+  var html = '<h3 style="font-size:16px;font-weight:600;margin-bottom:16px">Engagement Strategy</h3>';
+
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">';
+
+  html += '<div style="background:rgba(205,255,78,.04);border:1px solid rgba(205,255,78,.15);border-radius:10px;padding:14px"><div style="font-size:12px;font-weight:600;color:#CDFF4E;margin-bottom:10px">✅ Where Nerdio Helps Microsoft</div>';
+  for (var h = 0; h < alignment.helps.length; h++) {
+    html += '<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.03)"><div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">' + esc(alignment.helps[h].area) + '</div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px">' + esc(alignment.helps[h].detail) + '</div></div>';
+  }
+  html += '</div>';
+
+  html += '<div style="background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.12);border-radius:10px;padding:14px"><div style="font-size:12px;font-weight:600;color:#f59e0b;margin-bottom:10px">⚠️ Where to Be Thoughtful</div>';
+  if (alignment.risks.length === 0) {
+    html += '<div style="font-size:11px;color:rgba(255,255,255,.4)">No significant friction points identified for this account profile.</div>';
+  }
+  for (var r = 0; r < alignment.risks.length; r++) {
+    var riskColor = alignment.risks[r].severity === 'medium' ? '#f59e0b' : '#fb923c';
+    html += '<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.03)"><div style="font-size:11px;font-weight:600;color:' + riskColor + '">' + esc(alignment.risks[r].area) + '</div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px">' + esc(alignment.risks[r].detail) + '</div></div>';
+  }
+  html += '</div></div>';
+
+  var userNotes = getStrategyNotes(acc);
+  html += '<div style="margin-bottom:20px"><div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px;font-weight:600">YOUR CONTEXT NOTES</div>' +
+    '<textarea id="strategyNotes" rows="3" placeholder="Add context that adjusts recommendations (e.g., MS AE told me they are pushing W365 hard here, ATS is supportive of Nerdio...)" style="width:100%;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;color:#fff;font-family:Poppins;font-size:12px;resize:vertical" onchange="saveStrategyNotes(this.value)">' + esc(userNotes) + '</textarea></div>';
+
+  html += '<div style="font-size:13px;font-weight:600;margin-bottom:10px">🎯 Recommended Use Cases</div>';
+  for (var u = 0; u < useCases.length; u++) {
+    var uc = useCases[u];
+    if (uc.score <= 0 && u > 2) continue;
+    var relevance = uc.score >= 25 ? 'HIGH' : uc.score >= 10 ? 'MEDIUM' : 'LOW';
+    var relColor = uc.score >= 25 ? '#CDFF4E' : uc.score >= 10 ? '#f59e0b' : 'rgba(255,255,255,.3)';
+
+    html += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;margin-bottom:8px;overflow:hidden">' +
+      '<div onclick="toggleUseCase(\'' + uc.useCase.id + '\')" style="cursor:pointer;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">' +
+        '<div><div style="font-size:13px;font-weight:600">' + esc(uc.useCase.title) + '</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">' + esc(uc.useCase.summary) + '</div></div>' +
+        '<span style="background:' + relColor + '20;color:' + relColor + ';padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap">' + relevance + '</span>' +
+      '</div>' +
+      '<div id="uc-' + uc.useCase.id + '" style="display:none;padding:0 14px 14px;border-top:1px solid rgba(255,255,255,.04)">' +
+        '<div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:10px"><strong style="color:rgba(255,255,255,.7)">Positioning:</strong> ' + esc(uc.useCase.positioning) + '</div>' +
+        '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-weight:600">PROOF POINTS</div>' +
+        uc.useCase.proofPoints.map(function(pp) { return '<div style="font-size:11px;color:rgba(205,255,78,.5);padding:2px 0">✓ ' + esc(pp) + '</div>'; }).join('') +
+        '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:8px;margin-bottom:4px;font-weight:600">LIKELY OBJECTIONS</div>' +
+        Object.keys(uc.useCase.objections).map(function(obj) {
+          return '<div style="margin-bottom:6px"><div style="font-size:11px;color:#f59e0b;font-weight:600">"' + esc(obj) + '"</div><div style="font-size:11px;color:rgba(255,255,255,.45);padding-left:12px;border-left:2px solid rgba(30,157,184,.3);margin-top:2px">' + esc(uc.useCase.objections[obj]) + '</div></div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+  }
+
+  if (acc.rds) {
+    var bc = KNOWLEDGE_BATTLECARDS['citrix'];
+    html += '<div style="margin-top:16px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.1);border-radius:10px;padding:14px">' +
+      '<div style="font-size:13px;font-weight:600;color:#ef4444;margin-bottom:8px">⚔️ Competitive: ' + esc(bc.competitor) + '</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px">' + esc(bc.positioning) + '</div>' +
+      '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-weight:600">THEIR STRENGTHS (acknowledge these)</div>' +
+      bc.strengths.map(function(s) { return '<div style="font-size:11px;color:rgba(255,255,255,.4);padding:1px 0">• ' + esc(s) + '</div>'; }).join('') +
+      '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:8px;margin-bottom:4px;font-weight:600">KILL SHOTS</div>' +
+      bc.killShots.map(function(k) { return '<div style="font-size:11px;color:#CDFF4E;padding:2px 0">→ ' + esc(k) + '</div>'; }).join('') +
+      '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:8px;margin-bottom:4px;font-weight:600">LANDMINES (watch for these)</div>' +
+      bc.landmines.map(function(l) { return '<div style="font-size:11px;color:#f59e0b;padding:2px 0">⚠ ' + esc(l) + '</div>'; }).join('') +
+    '</div>';
+  }
+
+  document.getElementById('tab-strategy').innerHTML = html;
+}
+
+function toggleUseCase(id) {
+  var el = document.getElementById('uc-' + id);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function getStrategyNotes(acc) {
+  try {
+    var all = JSON.parse(localStorage.getItem('nerdio_v3_strategy_' + window.SESSION.username)) || {};
+    return all[normName(acc.name)] || '';
+  } catch(e) { return ''; }
+}
+
+function saveStrategyNotes(value) {
+  if (!window_selectedAccount) return;
+  var all = {};
+  try { all = JSON.parse(localStorage.getItem('nerdio_v3_strategy_' + window.SESSION.username)) || {}; } catch(e) {}
+  all[normName(window_selectedAccount.name)] = value;
+  localStorage.setItem('nerdio_v3_strategy_' + window.SESSION.username, JSON.stringify(all));
+}
+
+function renderActionsTab(acc) {
+  var useCases = rankUseCases(acc);
+  var topUC = useCases.length > 0 ? useCases[0].useCase : null;
+
+  var html = '<h3 style="font-size:16px;font-weight:600;margin-bottom:16px">Actions & Outreach</h3>';
+
+  html += '<div style="margin-bottom:20px"><div style="font-size:13px;font-weight:600;margin-bottom:8px">🔍 Discovery Questions for ' + esc(acc.name) + '</div>';
+
+  if (topUC) {
+    html += '<div style="font-size:11px;color:#1E9DB8;margin-bottom:8px">Based on top use case: ' + esc(topUC.title) + '</div>';
+    for (var q = 0; q < topUC.discoveryQs.length; q++) {
+      html += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 14px;margin-bottom:6px;font-size:12px;color:rgba(255,255,255,.7);cursor:pointer" onclick="copyToClipboard(this.textContent)">' + esc(topUC.discoveryQs[q]) + '</div>';
+    }
+  }
+
+  html += '<div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:12px;margin-bottom:6px;font-weight:600">UNIVERSAL OPENERS</div>';
+  var universalQs = [
+    'How many consoles does your team use to manage endpoints, desktops, and policies? What would it mean to consolidate?',
+    'If I asked you right now — what is the compliance status of every endpoint in your org? How quickly could you answer?',
+    'How long does it take your team to spin up a new desktop environment today? What if that were under an hour?',
+    'We are hearing a lot of organisations rethinking their VDI strategy after recent Citrix price increases and the Broadcom-VMware changes. Where are you in that conversation?'
+  ];
+  for (var uq = 0; uq < universalQs.length; uq++) {
+    html += '<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:10px 14px;margin-bottom:6px;font-size:12px;color:rgba(255,255,255,.5);cursor:pointer" onclick="copyToClipboard(this.textContent)">' + universalQs[uq] + '</div>';
+  }
+  html += '<div style="font-size:10px;color:rgba(255,255,255,.2);margin-top:4px">Click any question to copy to clipboard</div></div>';
+
+  html += '<div style="margin-bottom:20px"><div style="font-size:13px;font-weight:600;margin-bottom:8px">✉️ Outreach Templates</div>';
+
+  var emailSubject = acc.rds ? 'Quick question about your desktop estate' : acc.daas ? 'Azure desktop costs — quick thought' : 'Simplifying ' + (acc.industry || 'cloud') + ' desktop management';
+  var emailBody = 'Hi,\n\nI work with ' + (acc.industry || 'enterprise') + ' organisations helping them simplify their Microsoft cloud desktop management.\n\n';
+  if (acc.rds) emailBody += 'I noticed many organisations with similar RDS/Citrix estates are evaluating Azure Virtual Desktop as a modern alternative — with Nerdio providing the automation and cost governance layer that makes the transition smooth.\n\n';
+  else if (acc.daas) emailBody += 'Organisations with Azure desktop workloads similar to yours are typically finding they can reduce compute costs by 40-60% through intelligent auto-scaling. Nerdio provides this patented capability as part of our management platform.\n\n';
+  else emailBody += 'We help IT teams deploy, scale, and secure Azure Virtual Desktop and Windows 365 environments in a fraction of the time it takes with native tools — while saving up to 55% on Azure compute costs.\n\n';
+  emailBody += 'Would a 20-minute call to explore whether this is relevant for ' + acc.name + ' be worthwhile?\n\nBest regards';
+
+  html += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;margin-bottom:10px">' +
+    '<div style="font-size:11px;font-weight:600;color:#1E9DB8;margin-bottom:6px">Email Template — Cold Outreach</div>' +
+    '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px">Subject: ' + esc(emailSubject) + '</div>' +
+    '<pre style="font-family:Poppins;font-size:11px;color:rgba(255,255,255,.6);white-space:pre-wrap;line-height:1.6;margin:0;cursor:pointer" onclick="copyToClipboard(this.textContent)">' + esc(emailBody) + '</pre>' +
+  '</div>';
+
+  var msTeam = acc.msTeam || {};
+  if (msTeam.ats && msTeam.ats.alias) {
+    html += '<div style="background:rgba(30,157,184,.06);border:1px solid rgba(30,157,184,.12);border-radius:10px;padding:14px;margin-bottom:10px">' +
+      '<div style="font-size:11px;font-weight:600;color:#1E9DB8;margin-bottom:6px">Suggested: Reach out to ATS (' + esc(msTeam.ats.alias) + ')</div>' +
+      '<pre style="font-family:Poppins;font-size:11px;color:rgba(255,255,255,.6);white-space:pre-wrap;line-height:1.6;margin:0;cursor:pointer" onclick="copyToClipboard(this.textContent)">Hi ' + esc(msTeam.ats.alias) + ',\n\nI am from the Nerdio partner team and I cover ' + esc(acc.name) + '. I wanted to reach out as we are seeing strong alignment between Nerdio and Microsoft on ' + esc(acc.industry || 'enterprise') + ' accounts — particularly around Azure desktop management and cost optimisation.\n\nWould you be open to a 15-minute call to explore how we might support your objectives for this account? We have found that a joint approach with the ATS typically accelerates the conversation significantly.\n\nBest regards</pre>' +
+    '</div>';
+  }
+  if (msTeam.cloudAI && msTeam.cloudAI.alias) {
+    html += '<div style="background:rgba(30,157,184,.06);border:1px solid rgba(30,157,184,.12);border-radius:10px;padding:14px;margin-bottom:10px">' +
+      '<div style="font-size:11px;font-weight:600;color:#1E9DB8;margin-bottom:6px">Suggested: Reach out to Cloud & AI (' + esc(msTeam.cloudAI.alias) + ')</div>' +
+      '<pre style="font-family:Poppins;font-size:11px;color:rgba(255,255,255,.6);white-space:pre-wrap;line-height:1.6;margin:0;cursor:pointer" onclick="copyToClipboard(this.textContent)">Hi ' + esc(msTeam.cloudAI.alias) + ',\n\nI am reaching out from Nerdio — we are an Azure-native management platform for AVD, Windows 365, and Intune. I cover ' + esc(acc.name) + ' and wanted to connect given the natural alignment between our platform and Azure consumption growth.\n\nEvery Nerdio deployment drives Azure revenue through managed desktop workloads. Would it be helpful to discuss how we might support your Azure objectives for this account?\n\nBest regards</pre>' +
+    '</div>';
+  }
+
+  html += '</div>';
+
+  html += '<div><div style="font-size:13px;font-weight:600;margin-bottom:8px">📋 Suggested Next Actions</div>';
+  var actions = generateNextActions(acc);
+  for (var na = 0; na < actions.length; na++) {
+    html += '<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)">' +
+      '<div style="width:20px;height:20px;border-radius:50%;border:2px solid ' + actions[na].color + ';flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;color:' + actions[na].color + '">' + (na + 1) + '</div>' +
+      '<div><div style="font-size:12px;color:rgba(255,255,255,.7)">' + esc(actions[na].action) + '</div><div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:2px">' + esc(actions[na].reason) + '</div></div>' +
+    '</div>';
+  }
+  html += '</div>';
+
+  document.getElementById('tab-actions').innerHTML = html;
+}
+
+function generateNextActions(acc) {
+  var actions = [];
+  var deal = acc.deal || {};
+  var stage = deal.stage || 'Prospect';
+
+  if (stage === 'Prospect') {
+    if (acc.msTeam && acc.msTeam.ats && acc.msTeam.ats.alias) {
+      actions.push({ action: 'Reach out to ATS (' + acc.msTeam.ats.alias + ') for a joint introduction', reason: 'ATS endorsement dramatically increases response rates', color: '#1E9DB8' });
+    }
+    if (acc.msTeam && acc.msTeam.cloudAI && acc.msTeam.cloudAI.alias) {
+      actions.push({ action: 'Connect with Cloud & AI specialist (' + acc.msTeam.cloudAI.alias + ')', reason: 'Nerdio drives their Azure consumption number — natural ally', color: '#1E9DB8' });
+    }
+    actions.push({ action: 'Send initial outreach email using template above', reason: 'Personalised based on ' + (acc.rds ? 'RDS/Citrix exposure' : acc.daas ? 'Azure desktop spend' : 'account profile'), color: '#A795C7' });
+  } else if (stage === 'Contacted') {
+    actions.push({ action: 'Schedule discovery call — use the questions above', reason: 'Move from contact to qualification', color: '#1E9DB8' });
+  } else if (stage === 'Qualified') {
+    actions.push({ action: 'Propose a joint architecture session with customer and MS ATS', reason: 'Technical validation accelerates the deal', color: '#CDFF4E' });
+    actions.push({ action: 'Share relevant case study for ' + (acc.industry || 'their industry'), reason: 'Social proof builds confidence', color: '#A795C7' });
+  } else if (stage === 'Proposal') {
+    actions.push({ action: 'Offer Nerdio free 30-day trial via Azure Marketplace', reason: 'Hands-on experience converts proposals to deals', color: '#CDFF4E' });
+  }
+
+  if (acc.rds && actions.length < 5) {
+    actions.push({ action: 'Research their Citrix contract renewal date', reason: 'Citrix EOL April 2026 creates urgency for ' + (acc.rds || '') + ' seat estate', color: '#f59e0b' });
+  }
+  if (acc.engagementStatus && acc.engagementStatus.indexOf('Partner Engaged') >= 0 && actions.length < 5) {
+    actions.push({ action: 'Identify which Microsoft partner is engaged and assess alignment', reason: 'Partner could be an ally or competitor — find out before engaging', color: '#f59e0b' });
+  }
+
+  return actions.slice(0, 5);
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  }
+}
+
+function renderTimelineTab(acc) {
+  var allEngagements = getEngagements();
+  var accKey = normName(acc.name);
+  var accEngagements = [];
+  for (var i = 0; i < allEngagements.length; i++) {
+    if (allEngagements[i].accountKey === accKey) accEngagements.push(allEngagements[i]);
+  }
+  accEngagements.sort(function(a, b) { return b.timestamp > a.timestamp ? 1 : -1; });
+
+  var html = '<h3 style="font-size:16px;font-weight:600;margin-bottom:4px">Activity Timeline</h3>';
+  html += '<p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px">' + accEngagements.length + ' interactions logged for ' + esc(acc.name) + '</p>';
+
+  html += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;margin-bottom:16px">' +
+    '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:8px">LOG NEW INTERACTION</div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+      '<select id="tl-contact" style="padding:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;color:#fff;font-family:Poppins;font-size:11px">' +
+        '<option value="">General note</option>';
+
+  var msTeam = acc.msTeam || {};
+  var roleKeys = ['ae','ats','cloudAI','security','aiBizProcess','aiWorkforce','ce','cloudAI2'];
+  for (var rk = 0; rk < roleKeys.length; rk++) {
+    var key = roleKeys[rk];
+    if (msTeam[key] && msTeam[key].alias) {
+      var meta = KNOWLEDGE_MS_ROLES[key] || { title: key };
+      html += '<option value="' + esc(msTeam[key].alias) + '|' + key + '">' + esc(meta.title) + ' (' + esc(msTeam[key].alias) + ')</option>';
+    }
+  }
+
+  html += '</select>' +
+      '<select id="tl-type" style="padding:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;color:#fff;font-family:Poppins;font-size:11px"><option value="call">Call</option><option value="email">Email</option><option value="meeting">Meeting</option><option value="linkedin">LinkedIn</option><option value="note">Note</option></select>' +
+      '<input type="text" id="tl-note" placeholder="What happened?" style="flex:1;min-width:200px;padding:8px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;color:#fff;font-family:Poppins;font-size:11px">' +
+      '<button onclick="logTimelineEntry()" style="padding:8px 16px;background:#1E9DB8;border:none;border-radius:4px;color:#fff;font-family:Poppins;font-size:11px;font-weight:600;cursor:pointer">Log</button>' +
+    '</div>' +
+  '</div>';
+
+  if (accEngagements.length === 0) {
+    html += '<div style="text-align:center;padding:32px;color:rgba(255,255,255,.3)"><div style="font-size:32px;margin-bottom:8px">📅</div><div style="font-size:14px">No interactions logged yet</div><div style="font-size:12px;margin-top:4px">Use the form above or log interactions from the Microsoft Team tab</div></div>';
+  } else {
+    for (var e = 0; e < accEngagements.length; e++) {
+      var eng = accEngagements[e];
+      var typeIcon = eng.type === 'call' ? '📞' : eng.type === 'email' ? '✉️' : eng.type === 'meeting' ? '🤝' : eng.type === 'linkedin' ? '💼' : '📝';
+      var roleMeta = eng.role ? (KNOWLEDGE_MS_ROLES[eng.role] || { title: eng.role }) : null;
+
+      html += '<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">' +
+        '<div style="flex-shrink:0;width:36px;text-align:center"><div style="font-size:20px">' + typeIcon + '</div><div style="font-size:9px;color:rgba(255,255,255,.25);margin-top:2px">' + esc(eng.type) + '</div></div>' +
+        '<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.7)">' + (eng.contact ? esc(eng.contact) + (roleMeta ? ' <span style="color:#1E9DB8;font-weight:400;font-size:10px">(' + esc(roleMeta.title) + ')</span>' : '') : '<span style="color:rgba(255,255,255,.4)">General Note</span>') + '</div><div style="font-size:10px;color:rgba(255,255,255,.25)">' + esc(eng.date) + '</div></div>' +
+          '<div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.5">' + esc(eng.note) + '</div>' +
+        '</div>' +
+        '<button onclick="deleteEngagement(' + e + ')" style="background:none;border:none;color:rgba(255,255,255,.15);cursor:pointer;font-size:14px;padding:4px" title="Delete">×</button>' +
+      '</div>';
+    }
+  }
+
+  document.getElementById('tab-timeline').innerHTML = html;
+}
+
+function logTimelineEntry() {
+  if (!window_selectedAccount) return;
+  var contactEl = document.getElementById('tl-contact');
+  var typeEl = document.getElementById('tl-type');
+  var noteEl = document.getElementById('tl-note');
+  if (!noteEl || !noteEl.value.trim()) return;
+
+  var contactVal = contactEl ? contactEl.value : '';
+  var contact = '';
+  var role = '';
+  if (contactVal) {
+    var parts = contactVal.split('|');
+    contact = parts[0];
+    role = parts[1] || '';
+  }
+
+  var engs = getEngagements();
+  engs.push({
+    accountKey: normName(window_selectedAccount.name),
+    accountName: window_selectedAccount.name,
+    contact: contact,
+    role: role,
+    type: typeEl ? typeEl.value : 'note',
+    note: noteEl.value.trim(),
+    date: new Date().toISOString().split('T')[0],
+    timestamp: new Date().toISOString(),
+    user: window.SESSION.username
+  });
+  saveEngagements(engs);
+  noteEl.value = '';
+  renderTimelineTab(window_selectedAccount);
+  renderMSTeamTab(window_selectedAccount);
+}
+
+function deleteEngagement(timelineIndex) {
+  if (!window_selectedAccount) return;
+  if (!confirm('Delete this interaction?')) return;
+  var allEngagements = getEngagements();
+  var accKey = normName(window_selectedAccount.name);
+  var accEngagements = [];
+  var accIndices = [];
+  for (var i = 0; i < allEngagements.length; i++) {
+    if (allEngagements[i].accountKey === accKey) {
+      accEngagements.push(allEngagements[i]);
+      accIndices.push(i);
+    }
+  }
+  accEngagements.sort(function(a, b) { return b.timestamp > a.timestamp ? 1 : -1; });
+  if (timelineIndex < accIndices.length) {
+    allEngagements.splice(accIndices[timelineIndex], 1);
+    saveEngagements(allEngagements);
+    renderTimelineTab(window_selectedAccount);
+    renderMSTeamTab(window_selectedAccount);
+  }
+}
+
+// Setup tab click handlers
+document.addEventListener('DOMContentLoaded', function() {
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].addEventListener('click', function(e) {
+      // Remove active class from all tabs and panes
+      for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.remove('active');
+      }
+      var panes = document.querySelectorAll('.tab-pane');
+      for (var j = 0; j < panes.length; j++) {
+        panes[j].classList.remove('active');
+      }
+
+      // Add active class to clicked tab and corresponding pane
+      this.classList.add('active');
+      var tabId = this.getAttribute('data-tab');
+      document.getElementById('tab-' + tabId).classList.add('active');
+    });
+  }
+
+  // Initialize account list
+  buildAccountList();
+  renderAccountList();
+});
+
+</script>
+
+</body>
+</html>
